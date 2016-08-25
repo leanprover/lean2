@@ -60,11 +60,18 @@ void name::imp::display_core(std::ostream & out, imp * p, bool escape, char cons
     }
     if (p->m_is_string) {
         size_t sz = strlen(p->m_str);
-        bool must_escape = escape && *p->m_str && !is_id_first(p->m_str, p->m_str + sz);
-        if (escape) {
-            for (char * s = p->m_str; !must_escape && *s; s += get_utf8_size(*s)) {
-                if (!is_id_rest(s, p->m_str + sz))
-                    must_escape = true;
+        bool must_escape = false;
+        if (escape && *p->m_str) {
+            if (!is_id_first(p->m_str, p->m_str + sz))
+                must_escape = true;
+            // don't escape names produced by server::display_decl
+            if (must_escape && p->m_str[0] == '?')
+                must_escape = false;
+            if (escape) {
+                for (char * s = p->m_str + get_utf8_size(p->m_str[0]); !must_escape && *s; s += get_utf8_size(*s)) {
+                    if (!is_id_rest(s, p->m_str + sz))
+                        must_escape = true;
+                }
             }
         }
         if (must_escape)

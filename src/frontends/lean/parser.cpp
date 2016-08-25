@@ -194,7 +194,7 @@ void parser::scan() {
                         ok = false;
                     }
                     if (!ok)
-                        m_ios.get_regular_stream() << "unknown identifier '" << id << "'\n";
+                        m_ios.get_regular_stream() << "unknown identifier '" << id.escape() << "'\n";
                     print_lean_info_footer(m_ios.get_regular_stream());
                     m_info_at = false;
                 }
@@ -1561,7 +1561,7 @@ expr parser::id_to_expr(name const & id, pos_info const & p) {
         }
     }
     if (!r)
-        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+        throw parser_error(sstream() << "unknown identifier '" << id.escape() << "'", p);
     save_type_info(*r);
     if (is_constant(*r)) {
         add_ref_index(const_name(*r), p);
@@ -1620,7 +1620,7 @@ list<name> parser::to_constants(name const & id, char const * msg, pos_info cons
     }
 
     if (rs.empty()) {
-        throw parser_error(sstream() << "unknown identifier '" << id << "'", p);
+        throw parser_error(sstream() << "unknown identifier '" << id.escape() << "'", p);
     }
 
     return to_list(rs);
