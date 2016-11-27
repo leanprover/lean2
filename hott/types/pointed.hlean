@@ -77,6 +77,9 @@ namespace pointed
     { intro x, induction x with X x, reflexivity},
   end
 
+  definition pType.eta_expand [constructor] (A : Type*) : Type* :=
+  pointed.MK A pt
+
   definition add_point [constructor] (A : Type) : Type* :=
   pointed.Mk (none : option A)
   postfix `₊`:(max+1) := add_point
@@ -155,6 +158,9 @@ namespace pointed
     { exact pmap.mk f p },
     all_goals reflexivity
   end
+
+  definition pmap.eta_expand [constructor] {A B : Type*} (f : A →* B) : A →* B :=
+  pmap.mk f (pmap.resp_pt f)
 
   definition pmap_eq (r : Πa, f a = g a) (s : respect_pt f = (r pt) ⬝ respect_pt g) : f = g :=
   begin
@@ -342,6 +348,9 @@ namespace pointed
     { exact phomotopy.mk h p },
     all_goals reflexivity
   end
+
+  definition phomotopy.eta_expand [constructor] {A B : Type*} {f g : A →* B} (p : f ~* g) : f ~* g :=
+  phomotopy.mk p (phomotopy.homotopy_pt p)
 
   definition is_trunc_pmap [instance] (n : ℕ₋₂) (A B : Type*) [is_trunc n B] :
     is_trunc n (A →* B) :=
@@ -637,6 +646,9 @@ namespace pointed
   definition pequiv_of_eq_commute [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
     {a₁ a₂ : A} (p : a₁ = a₂) : pequiv_of_eq (ap C p) ∘* f a₁ ~* f a₂ ∘* pequiv_of_eq (ap B p) :=
   pcast_commute f p
+
+  definition pequiv.eta_expand [constructor] {A B : Type*} (f : A ≃* B) : A ≃* B :=
+  pequiv.mk f _ (pequiv.resp_pt f)
 
   /-
     the theorem pequiv_eq, which gives a condition for two pointed equivalences are equal
@@ -936,7 +948,7 @@ namespace pointed
 
   variable {A}
 
-  theorem loopn_succ_in_con {n : ℕ} (p q : Ω[succ (succ n)] A) :
+  definition loopn_succ_in_con {n : ℕ} (p q : Ω[succ (succ n)] A) :
     loopn_succ_in A (succ n) (p ⬝ q) =
     loopn_succ_in A (succ n) p ⬝ loopn_succ_in A (succ n) q :=
   !loop_pequiv_loop_con
@@ -1006,7 +1018,7 @@ namespace pointed
   phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
 
   definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
-  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻¹
+  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻
 
   definition ppcompose_right [constructor] (f : A →* B) : ppmap B C →* ppmap A C :=
   begin

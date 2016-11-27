@@ -346,11 +346,11 @@ namespace equiv
     : A ≃ B :=
   equiv.mk f (inv_homotopy_closed Heq)
 
-  --rename: eq_equiv_fn_eq_of_is_equiv
+  --rename: eq_equiv_fn_eq_fn_of_is_equiv
   definition eq_equiv_fn_eq [constructor] (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
-  --rename: eq_equiv_fn_eq
+  --rename: eq_equiv_fn_eq_fn
   definition eq_equiv_fn_eq_of_equiv [constructor] (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 

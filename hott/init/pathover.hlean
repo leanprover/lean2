@@ -25,6 +25,9 @@ namespace eq
   definition idpo [reducible] [constructor] : b =[refl a] b :=
   pathover.idpatho b
 
+  definition idpatho [reducible] [constructor] (b : B a) : b =[refl a] b :=
+  pathover.idpatho b
+
   /- equivalences with equality using transport -/
   definition pathover_of_tr_eq [unfold 5 8] (r : p ▸ b = b₂) : b =[p] b₂ :=
   by cases p; cases r; constructor

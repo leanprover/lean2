@@ -470,6 +470,14 @@ namespace eq
     cast (ap P p⁻¹) (cast (ap P p) z) = z :=
   by induction p; reflexivity
 
+  definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
+    f y (p ▸ z) = p ▸ f x z :=
+  by induction p; reflexivity
+
+  definition fn_cast_eq_cast_fn {A : Type} {P Q : A → Type} {x y : A} (p : x = y)
+    (f : Πx, P x → Q x) (z : P x) : f y (cast (ap P p) z) = cast (ap Q p) (f x z) :=
+  by induction p; reflexivity
+
   definition con_con_tr {P : A → Type}
       {x y z w : A} (p : x = y) (q : y = z) (r : z = w) (u : P x) :
     ap (λe, e ▸ u) (con.assoc' p q r) ⬝ (con_tr (p ⬝ q) r u) ⬝
@@ -494,7 +502,6 @@ namespace eq
   definition apdt_inv (f : Πx, P x) {x y : A} (p : x = y)
     : apdt f p⁻¹ = (eq_inv_tr_of_tr_eq (apdt f p))⁻¹ :=
   by cases p; apply idp
-
 
   -- Dependent transport in a doubly dependent type.
   -- This is a special case of transporto in init.pathover
@@ -543,14 +550,6 @@ namespace eq
       (s : z = w) :
     ap (transport P p) s  ⬝  transport2 P r w = transport2 P r z  ⬝  ap (transport P q) s :=
   by induction r; exact !idp_con⁻¹
-
-  definition fn_tr_eq_tr_fn {P Q : A → Type} {x y : A} (p : x = y) (f : Πx, P x → Q x) (z : P x) :
-    f y (p ▸ z) = p ▸ f x z :=
-  by induction p; reflexivity
-
-  definition fn_cast_eq_cast_fn {A : Type} {P Q : A → Type} {x y : A} (p : x = y)
-    (f : Πx, P x → Q x) (z : P x) : f y (cast (ap P p) z) = cast (ap Q p) (f x z) :=
-  by induction p; reflexivity
 
   /- Transporting in particular fibrations -/
 

@@ -58,7 +58,7 @@ section
   definition hopf [unfold 4] : susp A → Type :=
   susp.elim_type A A (λa, equiv.mk (λx, a * x) !is_equiv_mul_left)
 
-  /- Lemma 8.5.7. The total space is A * A -/
+ /- Lemma 8.5.7. The total space is A * A -/
   open prod prod.ops
 
   protected definition total : sigma (hopf A) ≃ join A A :=

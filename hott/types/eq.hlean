@@ -218,7 +218,7 @@ namespace eq
 
   /- [is_equiv_ap] is in init.equiv  -/
 
-  definition equiv_ap (f : A → B) [H : is_equiv f] (a₁ a₂ : A)
+  definition equiv_ap [constructor] (f : A → B) [H : is_equiv f] (a₁ a₂ : A)
     : (a₁ = a₂) ≃ (f a₁ = f a₂) :=
   equiv.mk (ap f) _
 
