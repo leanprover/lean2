@@ -161,13 +161,13 @@ namespace nat
 
   attribute is_succ.mk [instance]
 
-  definition is_succ_add_right [instance] (n m : ℕ) [H : is_succ m] : is_succ (n+m) :=
+  definition is_succ_add_right [instance] [constructor] (n m : ℕ) [H : is_succ m] : is_succ (n+m) :=
   by induction H with m; constructor
 
-  definition is_succ_add_left [instance] (n m : ℕ) [H : is_succ n] : is_succ (n+m) :=
+  definition is_succ_add_left [instance] [constructor] (n m : ℕ) [H : is_succ n] : is_succ (n+m) :=
   by induction H with n; cases m with m: constructor
 
-  definition is_succ_bit0 (n : ℕ) [H : is_succ n] : is_succ (bit0 n) :=
+  definition is_succ_bit0 [constructor] (n : ℕ) [H : is_succ n] : is_succ (bit0 n) :=
   by exact _
 
   -- level 2 is useful for abelian homotopy groups, which only exist at level 2 and higher
@@ -176,22 +176,22 @@ namespace nat
 
   attribute is_at_least_two.mk [instance]
 
-  definition is_at_least_two_add_right [instance] (n m : ℕ) [H : is_at_least_two m] :
+  definition is_at_least_two_add_right [instance] [constructor] (n m : ℕ) [H : is_at_least_two m] :
     is_at_least_two (n+m) :=
   by induction H with m; constructor
 
-  definition is_at_least_two_add_left [instance] (n m : ℕ) [H : is_at_least_two n] :
+  definition is_at_least_two_add_left [instance] [constructor] (n m : ℕ) [H : is_at_least_two n] :
     is_at_least_two (n+m) :=
   by induction H with n; cases m with m: try cases m with m: constructor
 
-  definition is_at_least_two_add_both [instance] [priority 900] (n m : ℕ)
+  definition is_at_least_two_add_both [instance] [priority 900] [constructor] (n m : ℕ)
     [H : is_succ n] [K : is_succ m] : is_at_least_two (n+m) :=
   by induction H with n; induction K with m; cases m with m: constructor
 
-  definition is_at_least_two_bit0 (n : ℕ) [H : is_succ n] : is_at_least_two (bit0 n) :=
+  definition is_at_least_two_bit0 [constructor] (n : ℕ) [H : is_succ n] : is_at_least_two (bit0 n) :=
   by exact _
 
-  definition is_at_least_two_bit1 (n : ℕ) [H : is_succ n] : is_at_least_two (bit1 n) :=
+  definition is_at_least_two_bit1 [constructor] (n : ℕ) [H : is_succ n] : is_at_least_two (bit1 n) :=
   by exact _
 
 
