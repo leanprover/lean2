@@ -1,30 +1,14 @@
-<p align=center><a href="https://leanprover.github.io"><img src="https://leanprover.github.io/images/lean_logo.svg" alt="logo" width="300px"/></a></p>
-<table>
-  <tr>
-    <th>License</th><th>Windows</th><th>Ubuntu</th><th>OS X</th><th>Builds/Tests</th>
-  </tr>
-  <tr>
-    <td><a href="LICENSE"><img src="https://img.shields.io/badge/license-APACHE_2-green.svg?dummy" title="License"/></a></td>
-    <td><a href="https://travis-ci.org/soonhokong/lean-windows"><img src="https://travis-ci.org/soonhokong/lean-windows.png?branch=master" title="Windows, x86_64-w64-mingw32-g++-4.8.2"/></a></td>
-    <td><a href="https://travis-ci.org/leanprover/lean"><img src="https://travis-ci.org/leanprover/lean.png?branch=master" title="Ubuntu 12.04 LTS 64bit, g++-4.8 | clang++-3.3"/></a></td>
-    <td><a href="https://travis-ci.org/soonhokong/lean-osx"><img src="https://travis-ci.org/soonhokong/lean-osx.png?branch=master" title="Mac OS X 10.8.2, g++-4.9"/></a></td>
-    <td><a href="http://build.leanprover.net"><img src="https://leanprover.github.io/images/cdash.svg"/></a></td>
-  </tr>
-</table>
-
-[![Issue Stats](http://issuestats.com/github/leanprover/lean/badge/pr)](http://issuestats.com/github/leanprover/lean)
-[![Issue Stats](http://issuestats.com/github/leanprover/lean/badge/issue)](http://issuestats.com/github/leanprover/lean)
+This is a snapshot of the Lean 0.2 theorem prover.
+We have this separate repository because this version has special support for Homotopy Type Theory.
 
 About
 -----
-
+- [Latest version](https://github.com/leanprover/lean)
 - [Homepage](https://leanprover.github.io)
 - Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
-- [Authors](http://leanprover.github.io/people/)
 - [Standard Library](library/library.md)
 - [HoTT Library](hott/hott.md)
 - [Emacs Mode](src/emacs/README.md)
-- [Short Tutorial](doc/lean/tutorial.org)
 
 Requirements
 ------------
@@ -45,7 +29,6 @@ Installing required packages at
 _Windows_
 
 - [MSys2](doc/make/msys2.md)
-- [Cygwin](doc/make/cygwin.md)
 
 _Linux_
 
@@ -67,7 +50,6 @@ Build Instructions
 Miscellaneous
 -------------
 
-- [Testing and Code Coverage](doc/make/coverage.md)
 - Building Doxygen Documentation: `doxygen src/Doxyfile`
 - [Coding Style](doc/coding_style.md)
 - [Library Style Conventions](doc/lean/library_style.org)
