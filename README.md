@@ -4,8 +4,8 @@ We have this separate repository because this version has special support for Ho
 About
 -----
 - [Latest version](https://github.com/leanprover/lean)
-- [Homepage](https://leanprover.github.io)
-- Theorem Proving in Lean: [HTML](https://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
+- [Homepage](http://leanprover.github.io)
+- Theorem Proving in Lean: [HTML](http://leanprover.github.io/tutorial/index.html), [PDF](http://leanprover.github.io/tutorial/tutorial.pdf)
 - [Standard Library](library/library.md)
 - [HoTT Library](hott/hott.md)
 - [Emacs Mode](src/emacs/README.md)
