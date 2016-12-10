@@ -272,18 +272,17 @@ namespace tuple
 
   variable {n : ℕ}
 
-  definition replicate : A → tuple A n
+  definition replicate (n : ℕ) : A → tuple A n
   | a := tag (list.replicate n a) (length_replicate n a)
 
   definition dropn : Π (i:ℕ), tuple A n → tuple A (n - i)
   | i (tag l p) := tag (list.dropn i l) (p ▸ list.length_dropn i l)
 
-  definition firstn : Π (i:ℕ) {p:i ≤ n}, tuple A n → tuple A i
-  | i isLe (tag l p) :=
+  definition firstn : Π (i:ℕ), tuple A n → tuple A (min i n)
+  | i (tag l p) :=
     let q := calc list.length (list.firstn i l)
                      = min i (list.length l)  : list.length_firstn_eq
-                 ... = min i n : p
-                 ... = i : min_eq_left isLe in
+                 ... = min i n : p in
     tag (list.firstn i l) q
 
   definition map₂ : (A → B → C) → tuple A n → tuple B n → tuple C n

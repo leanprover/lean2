@@ -22,12 +22,12 @@ open tuple
 definition bv [reducible] (n : ℕ) := tuple bool n
 
 -- Create a zero bitvector
-definition bv_zero (n : ℕ) : bv n := replicate ff
+definition bv_zero (n : ℕ) : bv n := replicate n ff
 
 -- Create  a bitvector with the constant one.
 definition bv_one  : Π (n : ℕ), bv n
-  | 0 := replicate ff
-  | (succ n) := (replicate ff : bv n) ++ (tt :: nil)
+  | 0 := nil
+  | (succ n) := (replicate n ff : bv n) ++ (tt :: nil)
 
 definition bv_cong {a b : ℕ} : (a = b) → bv a → bv b
 | c (tag x p) := tag x (c ▸ p)
@@ -38,36 +38,30 @@ section shift
   definition bv_shl {n:ℕ} : bv n → ℕ → bv n
     | x i :=
        if le : i ≤ n then
-         let r := dropn i x ++ replicate ff in
+         let r := dropn i x ++ replicate i ff in
          let eq := calc (n-i) + i = n : nat.sub_add_cancel le in
          bv_cong eq r
        else
          bv_zero n
 
-  -- unsigned shift right
+  definition fill_shr {n:ℕ} (x : bv n) (i : ℕ) (fill : bool) : bv n :=
+  let y := replicate (min n i) fill ++ firstn (n-i) x in
+  have min n i + min (n-i) n = n, from if h : i ≤ n then
+    by rewrite [min_eq_right h, min_eq_left !sub_le, -nat.add_sub_assoc h,
+      nat.add_sub_cancel_left]
+  else
+    have h : i ≥ n, from le_of_not_ge h,
+    by rewrite [min_eq_left h, sub_eq_zero_of_le h, min_eq_left !zero_le],
+  bv_cong this y
+
+ -- unsigned shift right
   definition bv_ushr {n:ℕ} : bv n → ℕ → bv n
     | x i :=
-      if le : i ≤ n then
-        let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
-        let eq := calc (i+(n-i)) = (n - i) + i : add.comm
-                            ...  = n           : nat.sub_add_cancel le in
-        bv_cong eq (replicate ff ++ y)
-      else
-        bv_zero n
+  fill_shr x i ff
 
   -- signed shift right
   definition bv_sshr {m:ℕ} : bv (succ m) → ℕ → bv (succ m)
-    | x i :=
-      let n := succ m in
-      if le : i ≤ n then
-        let z : bv i := replicate (head x) in
-        let y : bv (n-i) := @firstn _ _ (n - i) (sub_le n i) x in
-        let eq := calc (i+(n-i)) = (n-i) + i : add.comm
-                            ...  = n         : nat.sub_add_cancel le in
-        bv_cong eq (z ++ y)
-      else
-        bv_zero n
-
+    | x i := head x :: fill_shr (tail x) i (head x)
 end shift
 
 section bitwise

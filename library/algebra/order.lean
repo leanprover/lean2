@@ -286,7 +286,7 @@ structure decidable_linear_order [class] (A : Type) extends linear_strong_order_
 
 section
   variable [s : decidable_linear_order A]
-  variables {a b c d : A}
+  variables (a b c d : A)
   include s
   open decidable
 
@@ -301,6 +301,8 @@ section
       by_cases
         (assume H2 : b < a, inr (not_le_of_gt H2))
         (assume H2 : ¬ b < a, inl (le_of_not_gt H2)))
+
+  variables {a b c d}
 
   definition has_decidable_eq [instance] : decidable (a = b) :=
   by_cases
