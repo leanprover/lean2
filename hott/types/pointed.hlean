@@ -245,7 +245,7 @@ namespace pointed
   { esimp [loopn], exact ap1 IH}
   end
 
-  prefix `Ω→`:(max+5) := ap1
+  notation `Ω→`:(max+5) := ap1
   notation `Ω→[`:95 n:0 `]`:0 := apn n
 
   definition ptransport [constructor] {A : Type} (B : A → Type*) {a a' : A} (p : a = a')
@@ -1018,7 +1018,7 @@ namespace pointed
   phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
 
   definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
-  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻
+  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻¹
 
   definition ppcompose_right [constructor] (f : A →* B) : ppmap B C →* ppmap A C :=
   begin

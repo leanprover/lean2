@@ -37,7 +37,7 @@ namespace trunc
   local attribute is_trunc_eq [instance]
 
   variables {A n}
-  definition untrunc_of_is_trunc [reducible] [H : is_trunc n A] : trunc n A → A :=
+  definition untrunc_of_is_trunc [reducible] [unfold 4] [H : is_trunc n A] : trunc n A → A :=
   trunc.rec id
 
   variables (A n)

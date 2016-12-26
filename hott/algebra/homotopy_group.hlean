@@ -11,6 +11,8 @@ import .trunc_group types.trunc .group_theory types.nat.hott
 open nat eq pointed trunc is_trunc algebra group function equiv unit is_equiv nat
 
 -- TODO: consistently make n an argument before A
+-- TODO: rename cghomotopy_group to aghomotopy_group
+-- TODO: rename homotopy_group_functor_compose to homotopy_group_functor_pcompose
 namespace eq
 
   definition homotopy_group [reducible] [constructor] (n : ℕ) (A : Type*) : Set* :=
