@@ -320,7 +320,6 @@ namespace susp
   definition loop_psusp_intro [constructor] {X Y : Type*} (f : psusp X →* Y) : X →* Ω Y :=
   ap1 f ∘* loop_psusp_unit X
 
-
   definition psusp_adjoint_loop_right_inv {X Y : Type*} (g : X →* Ω Y) :
     loop_psusp_intro (psusp.elim g) ~* g :=
   begin

@@ -122,6 +122,13 @@ namespace eq
     squareover B (s₁₁ ⬝hp sp) q₁₀ q₁₂ q₀₁ q :=
   by induction sp; induction r; exact t₁₁
 
+  infix ` ⬝ho `:69 := hconcato --type using \tr
+  infix ` ⬝vo `:70 := vconcato --type using \tr
+  infix ` ⬝hop `:72 := hconcato_eq --type using \tr
+  infix ` ⬝vop `:74 := vconcato_eq --type using \tr
+  infix ` ⬝pho `:71 := eq_hconcato --type using \tr
+  infix ` ⬝pvo `:73 := eq_vconcato --type using \tr
+
   -- relating squareovers to squares
   definition square_of_squareover (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) :
     square (!con_tr ⬝ ap (λa, p₂₁ ▸ a) (tr_eq_of_pathover q₁₀))

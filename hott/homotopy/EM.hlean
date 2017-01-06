@@ -401,7 +401,7 @@ namespace EM
   definition homotopy_group_EM (n : ℕ) : π[n] (EM G n) ≃* G :=
   begin
     cases n with n,
-    { rexact ptrunc_pequiv 0 (G) },
+    { rexact ptrunc_pequiv 0 G },
     { exact pequiv_of_isomorphism (ghomotopy_group_EMadd1 G n)}
   end
 

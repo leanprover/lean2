@@ -191,7 +191,7 @@ namespace pushout
   section
   variables {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
-  protected definition transpose [constructor] : pushout f g → pushout g f :=
+  protected definition transpose [unfold 6] : pushout f g → pushout g f :=
   begin
     intro x, induction x, apply inr a, apply inl a, apply !glue⁻¹
   end
@@ -228,8 +228,8 @@ namespace pushout
       by cases p; cases r; cases q; reflexivity
     end lemmas
 
-    variables {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
-              {TL' BL' TR' : Type} (f' : TL' → BL') (g' : TL' → TR')
+    variables {TL BL TR : Type} {f : TL → BL} {g : TL → TR}
+              {TL' BL' TR' : Type} {f' : TL' → BL'} {g' : TL' → TR'}
               (tl : TL → TL') (bl : BL → BL') (tr : TR → TR')
               (fh : bl ∘ f ~ f' ∘ tl) (gh : tr ∘ g ~ g' ∘ tl)
     include fh gh
@@ -242,12 +242,12 @@ namespace pushout
       { exact (ap inl (fh z)) ⬝ glue (tl z) ⬝ (ap inr (gh z)⁻¹) }
     end
 
-    protected definition ap_functor_inl [reducible] {x x' : BL} (p : x = x')
-      : ap (pushout.functor f g f' g' tl bl tr fh gh) (ap inl p) = ap inl (ap bl p) :=
+    protected definition ap_functor_inl [unfold 18] {x x' : BL} (p : x = x')
+      : ap (pushout.functor tl bl tr fh gh) (ap inl p) = ap inl (ap bl p) :=
     by cases p; reflexivity
 
-    protected definition ap_functor_inr [reducible] {x x' : TR} (p : x = x')
-      : ap (pushout.functor f g f' g' tl bl tr fh gh) (ap inr p) = ap inr (ap tr p) :=
+    protected definition ap_functor_inr [unfold 18] {x x' : TR} (p : x = x')
+      : ap (pushout.functor tl bl tr fh gh) (ap inr p) = ap inr (ap tr p) :=
     by cases p; reflexivity
 
     variables [ietl : is_equiv tl] [iebl : is_equiv bl] [ietr : is_equiv tr]
@@ -255,10 +255,10 @@ namespace pushout
 
     open equiv is_equiv arrow
     protected definition is_equiv_functor [instance]
-      : is_equiv (pushout.functor f g f' g' tl bl tr fh gh) :=
+      : is_equiv (pushout.functor tl bl tr fh gh) :=
     adjointify
-      (pushout.functor f g f' g' tl bl tr fh gh)
-      (pushout.functor f' g' f g tl⁻¹ bl⁻¹ tr⁻¹
+      (pushout.functor tl bl tr fh gh)
+      (pushout.functor tl⁻¹ bl⁻¹ tr⁻¹
         (inv_commute_of_commute tl bl f f' fh)
         (inv_commute_of_commute tl tr g g' gh))
     abstract begin
@@ -266,7 +266,7 @@ namespace pushout
       { apply ap inl, apply right_inv },
       { apply ap inr, apply right_inv },
       { apply eq_pathover,
-        rewrite [ap_id,ap_compose' (pushout.functor f g f' g' tl bl tr fh gh)],
+        rewrite [ap_id,ap_compose' (pushout.functor tl bl tr fh gh)],
         krewrite elim_glue,
         rewrite [ap_inv,ap_con,ap_inv],
         krewrite [pushout.ap_functor_inr], rewrite ap_con,
@@ -298,8 +298,8 @@ namespace pushout
       { apply ap inr, apply left_inv },
       { apply eq_pathover,
         rewrite [ap_id,ap_compose'
-          (pushout.functor f' g' f g tl⁻¹ bl⁻¹ tr⁻¹ _ _)
-          (pushout.functor f g f' g' tl bl tr _ _)],
+          (pushout.functor tl⁻¹ bl⁻¹ tr⁻¹ _ _)
+          (pushout.functor tl bl tr _ _)],
         krewrite elim_glue,
         rewrite [ap_inv,ap_con,ap_inv],
         krewrite [pushout.ap_functor_inr], rewrite ap_con,
@@ -337,7 +337,7 @@ namespace pushout
     include fh gh
 
     protected definition equiv : pushout f g ≃ pushout f' g' :=
-    equiv.mk (pushout.functor f g f' g' tl bl tr fh gh) _
+    equiv.mk (pushout.functor tl bl tr fh gh) _
   end
 
   definition pointed_pushout [instance] [constructor] {TL BL TR : Type} [HTL : pointed TL]
@@ -370,8 +370,8 @@ namespace pushout
   protected definition psymm [constructor] : ppushout f g ≃* ppushout g f :=
   begin
     fapply pequiv_of_equiv,
-    { apply pushout.symm},
-    { exact ap inr (respect_pt f)⁻¹ ⬝ !glue⁻¹ ⬝ ap inl (respect_pt g)}
+    { apply pushout.symm },
+    { exact ap inr (respect_pt f)⁻¹ ⬝ !glue⁻¹ ⬝ ap inl (respect_pt g) }
   end
 
   end

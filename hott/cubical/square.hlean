@@ -47,10 +47,10 @@ namespace eq
   by induction r;apply vrefl
 
   definition hdeg_square_idp (p : a = a') : hdeg_square (refl p) = hrfl :=
-  by cases p; reflexivity
+  by reflexivity
 
   definition vdeg_square_idp (p : a = a') : vdeg_square (refl p) = vrfl :=
-  by cases p; reflexivity
+  by reflexivity
 
   definition hconcat [unfold 16] (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁)
     : square (p₁₀ ⬝ p₃₀) (p₁₂ ⬝ p₃₂) p₀₁ p₄₁ :=
@@ -86,12 +86,12 @@ namespace eq
     square p₁₀ p₁₂ p₀₁ p :=
   by induction r; exact s₁₁
 
-  infix ` ⬝h `:75 := hconcat --type using \tr
-  infix ` ⬝v `:75 := vconcat --type using \tr
-  infix ` ⬝hp `:75 := hconcat_eq --type using \tr
-  infix ` ⬝vp `:75 := vconcat_eq --type using \tr
-  infix ` ⬝ph `:75 := eq_hconcat --type using \tr
-  infix ` ⬝pv `:75 := eq_vconcat --type using \tr
+  infix ` ⬝h `:69 := hconcat --type using \tr
+  infix ` ⬝v `:70 := vconcat --type using \tr
+  infix ` ⬝hp `:72 := hconcat_eq --type using \tr
+  infix ` ⬝vp `:74 := vconcat_eq --type using \tr
+  infix ` ⬝ph `:71 := eq_hconcat --type using \tr
+  infix ` ⬝pv `:73 := eq_vconcat --type using \tr
   postfix `⁻¹ʰ`:(max+1) := hinverse --type using \-1h
   postfix `⁻¹ᵛ`:(max+1) := vinverse --type using \-1v
 
@@ -296,7 +296,7 @@ namespace eq
 
   definition eq_pathover [unfold 7] {f g : A → B} {p : a = a'} {q : f a = g a} {r : f a' = g a'}
     (s : square q r (ap f p) (ap g p)) : q =[p] r :=
-  by induction p;apply pathover_idp_of_eq;exact eq_of_vdeg_square s
+  begin induction p, apply pathover_idp_of_eq, exact eq_of_vdeg_square s end
 
   definition eq_pathover_constant_left {g : A → B} {p : a = a'} {b : B} {q : b = g a} {r : b = g a'}
     (s : square q r idp (ap g p)) : q =[p] r :=
@@ -393,6 +393,24 @@ namespace eq
     : eq_of_square (s₁₁ ⬝hp r) = (whisker_left p₁₀ r)⁻¹ ⬝ eq_of_square s₁₁ :=
   by induction s₁₁; induction r;reflexivity
 
+  definition change_path_eq_pathover {A B : Type} {a a' : A} {f g : A → B}
+    {p p' : a = a'} (r : p = p')
+    {q : f a = g a} {q' : f a' = g a'}
+    (s : square q q' (ap f p) (ap g p)) :
+    change_path r (eq_pathover s) = eq_pathover ((ap02 f r)⁻¹ ⬝ph s ⬝hp (ap02 g r)) :=
+  by induction r; reflexivity
+
+  definition eq_hconcat_hdeg_square {A : Type} {a a' : A} {p₁ p₂ p₃ : a = a'} (q₁ : p₁ = p₂)
+    (q₂ : p₂ = p₃) : q₁ ⬝ph hdeg_square q₂ = hdeg_square (q₁ ⬝ q₂) :=
+  by induction q₁; induction q₂; reflexivity
+
+  definition hdeg_square_hconcat_eq {A : Type} {a a' : A} {p₁ p₂ p₃ : a = a'} (q₁ : p₁ = p₂)
+    (q₂ : p₂ = p₃) : hdeg_square q₁ ⬝hp q₂ = hdeg_square (q₁ ⬝ q₂) :=
+  by induction q₁; induction q₂; reflexivity
+
+  definition eq_hconcat_eq_hdeg_square {A : Type} {a a' : A} {p₁ p₂ p₃ p₄ : a = a'} (q₁ : p₁ = p₂)
+    (q₂ : p₂ = p₃) (q₃ : p₃ = p₄) : q₁ ⬝ph hdeg_square q₂ ⬝hp q₃ = hdeg_square (q₁ ⬝ q₂ ⬝ q₃) :=
+  by induction q₃; apply eq_hconcat_hdeg_square
 
   -- definition vconcat_eq [unfold 11] {p : a₀₂ = a₂₂} (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₁₂ = p) :
   --   square p₁₀ p p₀₁ p₂₁ :=

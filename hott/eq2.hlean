@@ -48,6 +48,16 @@ namespace eq
            idp :=
   by cases p;apply vrefl
 
+  definition ap02_compose {A B C : Type} (g : B → C) (f : A → B) {a a' : A}
+    {p₁ p₂ : a = a'} (q : p₁ = p₂) :
+    square (ap_compose g f p₁) (ap_compose g f p₂) (ap02 (g ∘ f) q) (ap02 g (ap02 f q)) :=
+  by induction q; exact vrfl
+
+  definition ap02_id {A : Type} {a a' : A}
+    {p₁ p₂ : a = a'} (q : p₁ = p₂) :
+    square (ap_id p₁) (ap_id p₂) (ap02 id q) q :=
+  by induction q; exact vrfl
+
   theorem ap_ap_is_constant {A B C : Type} (g : B → C) {f : A → B} {b : B}
     (p : Πx, f x = b) {x y : A} (q : x = y) :
     square (ap (ap g) (ap_is_constant p q))

@@ -831,6 +831,7 @@ namespace pointed
 
   /- pointed equivalences between particular pointed types -/
 
+  -- TODO: remove is_equiv_apn, which is proven again here
   definition loopn_pequiv_loopn [constructor] (n : ℕ) (f : A ≃* B) : Ω[n] A ≃* Ω[n] B :=
   pequiv.MK2 (apn n f) (apn n f⁻¹ᵉ*)
   abstract begin
