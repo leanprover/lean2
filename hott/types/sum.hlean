@@ -177,10 +177,10 @@ namespace sum
     { intro z, induction z, reflexivity, contradiction}
   end
 
-  definition empty_sum_equiv (A : Type) : empty + A ≃ A :=
+  definition empty_sum_equiv [constructor] (A : Type) : empty + A ≃ A :=
   !sum_comm_equiv ⬝e !sum_empty_equiv
 
-  definition bool_equiv_unit_sum_unit : bool ≃ unit + unit :=
+  definition bool_equiv_unit_sum_unit [constructor] : bool ≃ unit + unit :=
   begin
     fapply equiv.MK,
     { intro b, cases b, exact inl unit.star, exact inr unit.star },

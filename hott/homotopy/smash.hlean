@@ -159,7 +159,7 @@ namespace smash
     { induction b: reflexivity }
   end
 
-  definition smash_pbool_equiv [constructor] (A : Type*) : smash A pbool ≃* A :=
+  definition smash_pbool_pequiv [constructor] (A : Type*) : smash A pbool ≃* A :=
   begin
     fapply pequiv_of_equiv,
     { fapply equiv.MK,

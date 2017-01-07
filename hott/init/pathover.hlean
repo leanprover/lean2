@@ -84,8 +84,8 @@ namespace eq
 
   -- infix ` ⬝ ` := concato
   infix ` ⬝o `:72 := concato
-  infix ` ⬝op `:74 := concato_eq
-  infix ` ⬝po `:73 := eq_concato
+  infix ` ⬝op `:73 := concato_eq
+  infix ` ⬝po `:74 := eq_concato
   -- postfix `⁻¹` := inverseo
   postfix `⁻¹ᵒ`:(max+10) := inverseo
 

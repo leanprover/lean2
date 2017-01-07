@@ -277,6 +277,14 @@ namespace eq
   definition ap011 [unfold 9] (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   by cases Ha; exact ap (f a) Hb
 
+  definition ap_eq_ap011_left (f : A → B → C) (Ha : a = a') (b : B) :
+    ap (λa, f a b) Ha = ap011 f Ha idp :=
+  by induction Ha; reflexivity
+
+  definition ap_eq_ap011_right (f : A → B → C) (a : A) (Hb : b = b') :
+    ap (f a) Hb = ap011 f idp Hb :=
+  by reflexivity
+
   /- More theorems for moving things around in equations -/
 
   definition tr_eq_of_eq_inv_tr {P : A → Type} {x y : A} {p : x = y} {u : P x} {v : P y} :

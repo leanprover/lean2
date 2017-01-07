@@ -28,7 +28,7 @@ namespace unit
   /- pointed and truncated unit -/
 
   definition punit [constructor] : Set* :=
-  pSet.mk' unit
+  pSet.mk unit _ ⋆
 
   notation `unit*` := punit
 

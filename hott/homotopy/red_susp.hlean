@@ -27,12 +27,15 @@ section
 
   parameter (A)
   definition red_susp' : Type := simple_two_quotient R Q
-  definition base : red_susp' :=
-  incl0 R Q star
-
-  definition red_susp [constructor] : Type* := pointed.MK red_susp' base
-
   parameter {A}
+  definition base' : red_susp' :=
+  incl0 R Q star
+  parameter (A)
+  definition red_susp [constructor] : Type* := pointed.MK red_susp' base'
+  parameter {A}
+
+  definition base : red_susp :=
+  base'
 
   definition equator (a : A) : base = base :=
   incl1 R Q (Rmk a)
@@ -83,7 +86,7 @@ section
 end
 end red_susp
 
-attribute red_susp.base [constructor]
+attribute red_susp.base red_susp.base' [constructor]
 attribute red_susp.rec red_susp.elim [unfold 6] [recursor 6]
 --attribute red_susp.elim_type [unfold 9]
 attribute red_susp.rec_on red_susp.elim_on [unfold 3]

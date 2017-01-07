@@ -17,10 +17,10 @@ namespace prod
   /- Paths in a product space -/
 
   protected definition eta [unfold 3] (u : A × B) : (pr₁ u, pr₂ u) = u :=
-  by cases u; apply idp
+  by cases u; reflexivity
 
   definition pair_eq [unfold 7 8] (pa : a = a') (pb : b = b') : (a, b) = (a', b') :=
-  by cases pa; cases pb; apply idp
+  ap011 prod.mk pa pb
 
   definition prod_eq [unfold 3 4 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
   by cases u; cases v; exact pair_eq H₁ H₂
@@ -80,6 +80,12 @@ namespace prod
   definition prod_eq_equiv [constructor] (u v : A × B) : (u = v) ≃ (u.1 = v.1 × u.2 = v.2) :=
   (equiv.mk prod_eq_unc _)⁻¹ᵉ
 
+  definition ap_prod_mk_left (p : a = a') : ap (λa, prod.mk a b) p = prod_eq p idp :=
+  ap_eq_ap011_left prod.mk p b
+
+  definition ap_prod_mk_right (p : b = b') : ap (λb, prod.mk a b) p = prod_eq idp p :=
+  ap_eq_ap011_right prod.mk a p
+
   /- Groupoid structure -/
   definition prod_eq_inv (p : a = a') (q : b = b') : (prod_eq p q)⁻¹ = prod_eq p⁻¹ q⁻¹ :=
   by cases p; cases q; reflexivity
@@ -87,6 +93,10 @@ namespace prod
   definition prod_eq_concat (p : a = a') (p' : a' = a'') (q : b = b') (q' : b' = b'')
     : prod_eq p q ⬝ prod_eq p' q' = prod_eq (p ⬝ p') (q ⬝ q') :=
   by cases p; cases q; cases p'; cases q'; reflexivity
+
+  definition prod_eq_concat_idp (p : a = a') (q : b = b')
+    : prod_eq p idp ⬝ prod_eq idp q = prod_eq p q :=
+  by cases p; cases q; reflexivity
 
   /- Transport -/
 
@@ -134,8 +144,17 @@ namespace prod
 
   definition ap_binary (m : A → B → C) (p : a = a') (q : b = b')
     : ap (λz : A × B, m z.1 z.2) (prod_eq p q)
-    = (ap (m a) q) ⬝ (ap (λx : A, m x b') p) :=
+    = ap (m a) q ⬝ ap (λx : A, m x b') p :=
   by cases p; cases q; constructor
+
+  definition ap_prod_elim {A B C : Type} {a a' : A} {b b' : B} (m : A → B → C)
+    (p : a = a') (q : b = b') : ap (prod.rec m) (prod_eq p q)
+    = ap (m a) q ⬝ ap (λx : A, m x b') p :=
+  by cases p; cases q; constructor
+
+  definition ap_prod_elim_idp {A B C : Type} {a a' : A} (m : A → B → C)
+    (p : a = a') (b : B) : ap (prod.rec m) (prod_eq p idp) = ap (λx : A, m x b) p :=
+  ap_prod_elim m p idp ⬝ !idp_con
 
   /- Equivalences -/
 
