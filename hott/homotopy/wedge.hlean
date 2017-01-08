@@ -12,6 +12,7 @@ open eq pushout pointed unit trunc_index
 definition wedge (A B : Type*) : Type := ppushout (pconst punit A) (pconst punit B)
 local attribute wedge [reducible]
 definition pwedge (A B : Type*) : Type* := pointed.mk' (wedge A B)
+infixr ` ∨ ` := pwedge
 
 namespace wedge
 

@@ -74,6 +74,8 @@ attribute join.rec [recursor]
 attribute join.elim [recursor 7]
 attribute join.rec join.elim [unfold 7]
 
+notation ` ★ `:40 := pjoin
+
 /- Diamonds in joins -/
 namespace join
   variables {A B : Type}

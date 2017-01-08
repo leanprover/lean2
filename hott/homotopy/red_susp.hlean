@@ -138,4 +138,53 @@ namespace red_susp
         refine transpose !ap_con_right_inv_sq ⬝h _, apply red_susp_helper_lemma } end end }
   end
 
+print change_path_cono
+
+  -- definition north {A : Type*} : red_susp A := base
+  -- definition south {A : Type*} : red_susp A := base
+  -- definition merid {A : Type*} (a : A) : north = south :> red_susp A := equator a
+
+print inverse2
+  -- protected definition susp_rec {A : Type*} {P : red_susp A → Type} (PN : P north) (PS : P south)
+  --   (Pm : Πa, PN =[merid a] PS) (x : red_susp A) : P x :=
+  -- begin
+  --   induction x,
+  --   { exact PN },
+  --   { refine change_path _ (Pm a ⬝o (Pm pt)⁻¹ᵒ), refine whisker_left _ equator_pt⁻² },
+  --   {  }
+  -- end
+
+
+  definition whisker_left_inverse2 {A : Type} {a : A} {p : a = a} (q : p = idp) : whisker_left p q⁻² ⬝ q = con.right_inv p :=
+  by cases q; reflexivity
+
+  protected definition susp_rec {A : Type*} {P : red_susp A → Type} (P0 : P base)
+    (P1 : Πa, P0 =[equator a] P0) (x : red_susp' A) : P x :=
+  begin
+    induction x,
+    { exact P0 },
+    { refine change_path _ (P1 a ⬝o (P1 pt)⁻¹ᵒ), exact whisker_left (equator a) equator_pt⁻² },
+    { refine !change_path_con⁻¹ ⬝ _, refine ap (λx, change_path x _) _ ⬝ cono_invo_eq_idpo idp,
+      exact whisker_left_inverse2 equator_pt }
+  end
+
+  definition red_susp_equiv_susp' [constructor] (A : Type*) : red_susp A ≃ susp A :=
+  begin
+    fapply equiv.MK,
+    { exact susp_of_red_susp },
+    { exact red_susp_of_susp },
+    { exact abstract begin intro x, induction x,
+      { reflexivity },
+      { exact merid pt },
+      { apply eq_pathover_id_right,
+        refine ap_compose susp_of_red_susp _ _ ⬝ ap02 _ !elim_merid ⬝ !elim_equator ⬝ph _,
+        apply whisker_bl, exact hrfl } end end },
+    { intro x, induction x using red_susp.susp_rec,
+      { reflexivity },
+      { apply eq_pathover, apply hdeg_square,
+        refine ap_compose red_susp_of_susp _ _ ⬝ (ap02 _ !elim_equator ⬝ _) ⬝ !ap_id⁻¹,
+        exact !ap_con ⬝ whisker_left _ !ap_inv ⬝ !elim_merid ◾ (!elim_merid ⬝ equator_pt)⁻² }}
+  end
+
+
 end red_susp

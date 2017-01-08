@@ -74,6 +74,8 @@ attribute cofiber.rec_on cofiber.elim_on [unfold 5]
 definition pcofiber [constructor] {A B : Type*} (f : A →* B) : Type* :=
 pointed.MK (cofiber f) !cofiber.base
 
+notation `ℂ` := pcofiber
+
 namespace cofiber
 
   variables (A : Type*)

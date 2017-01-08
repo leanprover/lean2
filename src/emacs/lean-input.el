@@ -289,6 +289,7 @@ order for the change to take effect."
   ("intersection" . ,(lean-input-to-string-list "∩⋂∧⋀⋏⨇⊓⨅⋒∏ ⊼      ⨉"))
   ("union"        . ,(lean-input-to-string-list "∪⋃∨⋁⋎⨈⊔⨆⋓∐⨿⊽⊻⊍⨃⊎⨄⊌∑⅀"))
 
+  ("join". ("★")) ("smash". ("∧")) ("wedge" . ("∨")) ("cofiber" . ("ℂ")) ("susp" . ("⅀"))
   ("and" . ("∧"))  ("or"  . ("∨"))
   ("And" . ("⋀"))  ("Or"  . ("⋁"))
   ("i"   . ("∩"))  ("un"  . ("∪"))  ("u+" . ("⊎"))  ("u." . ("⊍"))

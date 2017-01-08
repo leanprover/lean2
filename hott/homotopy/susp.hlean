@@ -202,6 +202,8 @@ open susp
 definition psusp [constructor] (X : Type) : Type* :=
 pointed.mk' (susp X)
 
+notation `⅀` := psusp
+
 namespace susp
   open pointed is_trunc
   variables {X Y Z : Type*}

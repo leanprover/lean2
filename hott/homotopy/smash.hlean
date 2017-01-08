@@ -28,13 +28,16 @@ namespace smash
   by induction u; exact ff; exact tt
 
   definition smash' (A B : Type*) : Type := pushout (@prod_of_sum A B) (@bool_of_sum A B)
-  protected definition mk (a : A) (b : B) : smash' A B := inl (a, b)
+  protected definition mk' (a : A) (b : B) : smash' A B := inl (a, b)
 
   definition pointed_smash' [instance] [constructor] (A B : Type*) : pointed (smash' A B) :=
-  pointed.mk (smash.mk pt pt)
+  pointed.mk (smash.mk' pt pt)
   definition smash [constructor] (A B : Type*) : Type* :=
   pointed.mk' (smash' A B)
 
+  infixr ` ∧ ` := smash
+
+  protected definition mk (a : A) (b : B) : A ∧ B := inl (a, b)
   definition auxl : smash A B := inr ff
   definition auxr : smash A B := inr tt
   definition gluel (a : A) : smash.mk a pt = auxl :> smash A B := glue (inl a)
@@ -56,10 +59,10 @@ namespace smash
   proof whisker_left _ !con.right_inv qed
 
   definition ap_mk_left {a a' : A} (p : a = a') : ap (λa, smash.mk a (Point B)) p = gluel' a a' :=
-  by induction p; exact !con.right_inv⁻¹
+  !ap_is_constant
 
   definition ap_mk_right {b b' : B} (p : b = b') : ap (smash.mk (Point A)) p = gluer' b b' :=
-  by induction p; exact !con.right_inv⁻¹
+  !ap_is_constant
 
   protected definition rec {P : smash A B → Type} (Pmk : Πa b, P (smash.mk a b))
     (Pl : P auxl) (Pr : P auxr) (Pgl : Πa, Pmk a pt =[gluel a] Pl)
@@ -71,23 +74,6 @@ namespace smash
     { induction u: esimp,
       { apply Pgl },
       { apply Pgr }}
-  end
-
-  -- a rec which is easier to prove, but with worse computational properties
-  protected definition rec' {P : smash A B → Type} (Pmk : Πa b, P (smash.mk a b))
-    (Pg : Πa b, Pmk a pt =[glue a b] Pmk pt b) (x : smash' A B) : P x :=
-  begin
-    induction x using smash.rec,
-    { apply Pmk },
-    { exact gluel pt ▸ Pmk pt pt },
-    { exact gluer pt ▸ Pmk pt pt },
-    { refine change_path _ (Pg a pt ⬝o !pathover_tr),
-      refine whisker_right _ !glue_pt_right ⬝ _, esimp, refine !con.assoc ⬝ _,
-      apply whisker_left, apply con.left_inv },
-    { refine change_path _ ((Pg pt b)⁻¹ᵒ ⬝o !pathover_tr),
-      refine whisker_right _ !glue_pt_left⁻² ⬝ _,
-      refine whisker_right _ !inv_con_inv_right ⬝ _, refine !con.assoc ⬝ _,
-      apply whisker_left, apply con.left_inv }
   end
 
   theorem rec_gluel {P : smash A B → Type} {Pmk : Πa b, P (smash.mk a b)}
@@ -113,10 +99,11 @@ namespace smash
     (Pgl : Πa : A, Pmk a pt = Pl) (Pgr : Πb : B, Pmk pt b = Pr) (x : smash' A B) : P :=
   smash.rec Pmk Pl Pr (λa, pathover_of_eq _ (Pgl a)) (λb, pathover_of_eq _ (Pgr b)) x
 
-  -- an elim which is easier to prove, but with worse computational properties
-  protected definition elim' {P : Type} (Pmk : Πa b, P) (Pg : Πa b, Pmk a pt = Pmk pt b)
-    (x : smash' A B) : P :=
-  smash.rec' Pmk (λa b, pathover_of_eq _ (Pg a b)) x
+  -- an elim where you are forced to make (Pgl pt) and (Pgl pt) to be reflexivity
+  protected definition elim' [reducible] {P : Type} (Pmk : Πa b, P)
+    (Pgl : Πa : A, Pmk a pt = Pmk pt pt) (Pgr : Πb : B, Pmk pt b = Pmk pt pt)
+    (ql : Pgl pt = idp) (qr : Pgr pt = idp) (x : smash' A B) : P :=
+  smash.elim Pmk (Pmk pt pt) (Pmk pt pt) Pgl Pgr x
 
   theorem elim_gluel {P : Type} {Pmk : Πa b, P} {Pl Pr : P}
     (Pgl : Πa : A, Pmk a pt = Pl) (Pgr : Πb : B, Pmk pt b = Pr) (a : A) :
@@ -141,9 +128,8 @@ namespace smash
 
 end smash
 open smash
-attribute smash.mk auxl auxr [constructor]
-attribute smash.rec smash.elim [unfold 9] [recursor 9]
-attribute smash.rec' smash.elim' [unfold 6]
+attribute smash.mk smash.mk' auxl auxr [constructor]
+attribute smash.elim' smash.rec smash.elim [unfold 9] [recursor 9]
 
 namespace smash
 
@@ -166,17 +152,19 @@ namespace smash
       { exact of_smash_pbool },
       { intro a, exact smash.mk a tt },
       { intro a, reflexivity },
-      { exact abstract begin intro x, induction x using smash.rec',
-        { induction b, exact (glue a tt)⁻¹, reflexivity },
-        { apply eq_pathover_id_right, induction b: esimp,
-          { refine ap02 _ !glue_pt_right ⬝ph _,
-            refine ap_compose (λx, smash.mk x _) _ _ ⬝ph _,
-            refine ap02 _ (!ap_con ⬝ (!elim_gluel ◾ (!ap_inv ⬝ !elim_gluel⁻²))) ⬝ph _,
-            apply hinverse, apply square_of_eq,
-            esimp, refine (!glue_pt_right ◾ !glue_pt_left)⁻¹ },
-          { apply square_of_eq, refine !con.left_inv ⬝ _, esimp, symmetry,
-            refine ap_compose (λx, smash.mk x _) _ _ ⬝ _,
-            exact ap02 _ !elim_glue }} end end }},
+      { exact abstract begin intro x, induction x,
+        { induction b, exact gluer' tt pt ⬝ gluel' pt a, reflexivity },
+        { exact gluer' tt ff ⬝ gluel pt, },
+        { exact gluer tt, },
+        { apply eq_pathover_id_right,
+          refine ap_compose (λa, smash.mk a tt) _ _ ⬝ ap02 _ !elim_gluel ⬝ph _,
+          apply square_of_eq_top, refine !con.assoc⁻¹ ⬝ whisker_right _ !idp_con⁻¹ },
+        { apply eq_pathover_id_right,
+          refine ap_compose (λa, smash.mk a tt) _ _ ⬝ ap02 _ !elim_gluer ⬝ph _,
+          induction b: esimp,
+          { apply square_of_eq_top,
+            refine whisker_left _ !con.right_inv ⬝ !con_idp ⬝ whisker_right _ !idp_con⁻¹ },
+          { apply square_of_eq idp }} end end }},
     { reflexivity }
   end
 
