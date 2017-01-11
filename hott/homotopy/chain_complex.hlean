@@ -498,10 +498,10 @@ namespace chain_complex
 
   definition is_embedding_of_trivial (X : chain_complex N) {n : N}
     (H : is_exact_at X n) [HX : is_contr (X (S (S n)))]
-    [pgroup (X n)] [pgroup (X (S n))] [is_homomorphism (cc_to_fn X n)]
+    [pgroup (X n)] [pgroup (X (S n))] [is_mul_hom (cc_to_fn X n)]
       : is_embedding (cc_to_fn X n) :=
   begin
-    apply is_embedding_homomorphism,
+    apply is_embedding_of_is_mul_hom,
     intro g p,
     induction H g p with x q,
     have r : pt = x, from !is_prop.elim,
@@ -521,7 +521,7 @@ namespace chain_complex
   definition is_equiv_of_trivial (X : chain_complex N) {n : N}
     (H1 : is_exact_at X n) (H2 : is_exact_at X (S n))
     [HX1 : is_contr (X n)] [HX2 : is_contr (X (S (S (S n))))]
-    [pgroup (X (S n))] [pgroup (X (S (S n)))] [is_homomorphism (cc_to_fn X (S n))]
+    [pgroup (X (S n))] [pgroup (X (S (S n)))] [is_mul_hom (cc_to_fn X (S n))]
     : is_equiv (cc_to_fn X (S n)) :=
   begin
     apply is_equiv_of_is_surjective_of_is_embedding,

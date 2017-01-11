@@ -249,8 +249,8 @@ namespace eq
   --             loopn_succ_eq_in_concat, - + tr_compose],
   -- end
 
-  definition is_homomorphism_inverse (A : Type*) (n : ℕ)
-    : is_homomorphism (λp, p⁻¹ : (πag[n+2] A) → (πag[n+2] A)) :=
+  definition is_mul_hom_inverse (A : Type*) (n : ℕ)
+    : is_mul_hom (λp, p⁻¹ : (πag[n+2] A) → (πag[n+2] A)) :=
   begin
     intro g h, exact ap inv (mul.comm g h) ⬝ mul_inv h g,
   end

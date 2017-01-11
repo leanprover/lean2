@@ -4,12 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
 
 Basic group theory
-
-This file will be rewritten in the future, when we develop are more systematic notation for
-describing homomorphisms
 -/
 
-import algebra.category.category algebra.bundled
+import algebra.category.category algebra.bundled .homomorphism
 
 open eq algebra pointed function is_trunc pi equiv is_equiv
 set_option class.force_new true
@@ -33,7 +30,7 @@ namespace group
   Group.struct G
 
   /- group homomorphisms -/
-
+/-
   definition is_homomorphism [class] [reducible]
     {G₁ G₂ : Type} [has_mul G₁] [has_mul G₂] (φ : G₁ → G₂) : Type :=
   Π(g h : G₁), φ (g * h) = φ g * φ h
@@ -99,24 +96,24 @@ namespace group
   eq_neg_of_add_eq_zero (!respect_add⁻¹ ⬝ ap φ !add.left_inv ⬝ !respect_zero)
 
   end additive
-
+-/
   structure homomorphism (G₁ G₂ : Group) : Type :=
     (φ : G₁ → G₂)
-    (p : is_homomorphism φ)
+    (p : is_mul_hom φ)
 
   infix ` →g `:55 := homomorphism
 
   definition group_fun [unfold 3] [coercion] := @homomorphism.φ
   definition homomorphism.struct [unfold 3] [instance] [priority 900] {G₁ G₂ : Group}
-    (φ : G₁ →g G₂) : is_homomorphism φ :=
+    (φ : G₁ →g G₂) : is_mul_hom φ :=
   homomorphism.p φ
 
   definition homomorphism.mulstruct [instance] [priority 2000] {G₁ G₂ : Group} (φ : G₁ →g G₂)
-    : is_homomorphism φ :=
+    : is_mul_hom φ :=
   homomorphism.p φ
 
   definition homomorphism.addstruct [instance] [priority 2000] {G₁ G₂ : AddGroup} (φ : G₁ →g G₂)
-    : is_add_homomorphism φ :=
+    : is_add_hom φ :=
   homomorphism.p φ
 
   variables {G G₁ G₂ G₃ : Group} {g h : G₁} {ψ : G₂ →g G₃} {φ₁ φ₂ : G₁ →g G₂} (φ : G₁ →g G₂)
@@ -131,7 +128,7 @@ namespace group
   respect_inv φ g
 
   definition to_is_embedding_homomorphism /- φ -/ (H : Π{g}, φ g = 1 → g = 1) : is_embedding φ :=
-  is_embedding_homomorphism φ @H
+  is_embedding_of_is_mul_hom φ @H
 
   variables (G₁ G₂)
   definition is_set_homomorphism [instance] : is_set (G₁ →g G₂) :=
@@ -139,8 +136,8 @@ namespace group
     have H : G₁ →g G₂ ≃ Σ(f : G₁ → G₂), Π(g₁ g₂ : G₁), f (g₁ * g₂) = f g₁ * f g₂,
     begin
       fapply equiv.MK,
-      { intro φ, induction φ, constructor, assumption},
-      { intro v, induction v, constructor, assumption},
+      { intro φ, induction φ, constructor, exact (respect_mul φ)},
+      { intro v, induction v with f H, constructor, exact H},
       { intro v, induction v, reflexivity},
       { intro φ, induction φ, reflexivity}
     end,
@@ -153,7 +150,8 @@ namespace group
 
   definition homomorphism_change_fun [constructor] {G₁ G₂ : Group}
     (φ : G₁ →g G₂) (f : G₁ → G₂) (p : φ ~ f) : G₁ →g G₂ :=
-  homomorphism.mk f (λg h, (p (g * h))⁻¹ ⬝ to_respect_mul φ g h ⬝ ap011 mul (p g) (p h))
+  homomorphism.mk f
+    (λg h, (p (g * h))⁻¹ ⬝ to_respect_mul φ g h ⬝ ap011 mul (p g) (p h))
 
   definition homomorphism_eq (p : group_fun φ₁ ~ group_fun φ₂) : φ₁ = φ₂ :=
   begin
@@ -203,11 +201,11 @@ namespace group
   /- categorical structure of groups + homomorphisms -/
 
   definition homomorphism_compose [constructor] [trans] (ψ : G₂ →g G₃) (φ : G₁ →g G₂) : G₁ →g G₃ :=
-  homomorphism.mk (ψ ∘ φ) (is_homomorphism_compose _ _)
+  homomorphism.mk (ψ ∘ φ) (is_mul_hom_compose _ _)
 
   variable (G)
   definition homomorphism_id [constructor] [refl] : G →g G :=
-  homomorphism.mk (@id G) (is_homomorphism_id G)
+  homomorphism.mk (@id G) (is_mul_hom_id G)
   variable {G}
 
   abbreviation gid [constructor] := @homomorphism_id
