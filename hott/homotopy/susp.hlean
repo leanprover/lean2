@@ -281,7 +281,7 @@ namespace susp
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fconstructor,
     { intro x', induction x' with p,
-      { reflexivity },
+       { reflexivity },
       { reflexivity },
       { esimp, apply eq_pathover, apply hdeg_square,
         xrewrite [ap_compose' f, ap_compose' (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*],
@@ -344,7 +344,6 @@ namespace susp
     apply pcompose_pid
   end
 
-  -- TODO: rename to psusp_adjoint_loop (also in above lemmas)
   definition psusp_adjoint_loop_unpointed [constructor] (X Y : Type*) : psusp X →* Y ≃ X →* Ω Y :=
   begin
     fapply equiv.MK,

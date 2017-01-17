@@ -54,11 +54,11 @@ namespace eq
   by induction p; reflexivity
 
   -- Concatenation is associative.
-  definition con.assoc' (p : x = y) (q : y = z) (r : z = t) :
+  definition con.assoc' [unfold 8] (p : x = y) (q : y = z) (r : z = t) :
     p ⬝ (q ⬝ r) = (p ⬝ q) ⬝ r :=
   by induction r; reflexivity
 
-  definition con.assoc (p : x = y) (q : y = z) (r : z = t) :
+  definition con.assoc [unfold 8] (p : x = y) (q : y = z) (r : z = t) :
     (p ⬝ q) ⬝ r = p ⬝ (q ⬝ r) :=
   by induction r; reflexivity
 
@@ -638,7 +638,7 @@ namespace eq
   definition whisker_left [unfold 8] (p : x = y) {q r : y = z} (h : q = r) : p ⬝ q = p ⬝ r :=
   idp ◾ h
 
-  definition whisker_right [unfold 7] {p q : x = y} (r : y = z) (h : p = q) : p ⬝ r = q ⬝ r :=
+  definition whisker_right [unfold 8] {p q : x = y} (r : y = z) (h : p = q) : p ⬝ r = q ⬝ r :=
   h ◾ idp
 
   -- Unwhiskering, a.k.a. cancelling

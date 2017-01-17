@@ -277,7 +277,7 @@ namespace sphere
   begin
     induction n with n s,
     { exact south },
-    { exact (loopn_succ_in (S* (succ n)) n)⁻¹ᵉ* (apn n (equator n) s), }
+    { exact (loopn_succ_in (S* (succ n)) n)⁻¹ᵉ* (apn n (equator n) s) }
   end
 
   definition bool_of_sphere [unfold 1] : S 0 → bool :=

@@ -224,11 +224,12 @@ namespace eq
 
   /- Path operations are equivalences -/
 
-  definition is_equiv_eq_inverse (a₁ a₂ : A) : is_equiv (inverse : a₁ = a₂ → a₂ = a₁) :=
+  definition is_equiv_eq_inverse [constructor] (a₁ a₂ : A)
+    : is_equiv (inverse : a₁ = a₂ → a₂ = a₁) :=
   is_equiv.mk inverse inverse inv_inv inv_inv (λp, eq.rec_on p idp)
   local attribute is_equiv_eq_inverse [instance]
 
-  definition eq_equiv_eq_symm (a₁ a₂ : A) : (a₁ = a₂) ≃ (a₂ = a₁) :=
+  definition eq_equiv_eq_symm [constructor] (a₁ a₂ : A) : (a₁ = a₂) ≃ (a₂ = a₁) :=
   equiv.mk inverse _
 
   definition is_equiv_concat_left [constructor] [instance] (p : a₁ = a₂) (a₃ : A)

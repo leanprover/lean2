@@ -137,4 +137,8 @@ namespace eq
     : whisker_left p (idp_con q)⁻¹ = con.assoc p idp q :=
   by induction q; reflexivity
 
+  definition whisker_left_inverse2 {A : Type} {a : A} {p : a = a} (q : p = idp)
+    : whisker_left p q⁻² ⬝ q = con.right_inv p :=
+  by cases q; reflexivity
+
 end eq
