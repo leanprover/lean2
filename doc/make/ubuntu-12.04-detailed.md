@@ -17,8 +17,6 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install g++-4.8 -y
     sudo apt-get upgrade -y && sudo apt-get dist-upgrade -y
 
-    sudo ln -s /usr/bin/g++-4.8 /usr/bin/g++
-
 ### Optional packages
 
     sudo apt-get install gitg
@@ -42,15 +40,15 @@ Preparing working environment on Ubuntu 12.04
 
     git clone https://github.com/[your-user-name]/lean.git
 
-### Build Lean in debug mode
+### Build Lean in release mode
 
     cd lean
     mkdir -p build/debug
     cd build/debug
-    cmake -D CMAKE_BUILD_TYPE=Debug ../../src
+    cmake -D CMAKE_BUILD_TYPE=Release ../../src
     make
 
-### Build Lean using Boost
+### Alternatively, build Lean using Boost
 
     cd lean
     mkdir -p build/release
@@ -89,3 +87,5 @@ Preparing working environment on Ubuntu 12.04
        '(("\\<\\(thread_local\\)\\>" . font-lock-warning-face)
         ("\\<\\(constexpr\\)\\>" . font-lock-keyword-face)
         ))
+
+You need to also set up the [Emacs Mode](../../src/emacs/README.md).
