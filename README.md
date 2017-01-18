@@ -32,8 +32,8 @@ _Windows_
 
 _Linux_
 
-- [Ubuntu 12.04](doc/make/ubuntu-12.04.md)
-- [Ubuntu 12.04 (detailed)](doc/make/ubuntu-12.04-detailed.md)
+- [Ubuntu 12.04 or newer](doc/make/ubuntu-12.04.md)
+- [Ubuntu 12.04 or newer (detailed)](doc/make/ubuntu-12.04-detailed.md)
 - [Fedora 19](doc/make/fedora-19.md)
 
 _OS X_
@@ -54,5 +54,4 @@ Miscellaneous
 - [Coding Style](doc/coding_style.md)
 - [Library Style Conventions](doc/lean/library_style.org)
 - [Git Commit Conventions](doc/commit_convention.md)
-- [Automatic Builds](doc/make/travis.md)
 - [Syntax Highlight Lean Code in LaTeX](extras/latex/lstlean.md)

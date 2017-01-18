@@ -11,9 +11,9 @@ It is easy to install all dependencies, it produces native
 
 ## Installing dependencies
 
-Lean requires Python2 or Python3. If you do not have a Python installation on your machine, 
+Lean requires Python2 or Python3. If you do not have a Python installation on your machine,
 please download and install one from [Python.org](https://www.python.org/downloads/windows).
-Also please make sure that your `PATH` environment variable includes the installed 
+Also please make sure that your `PATH` environment variable includes the installed
 Python directory (i.e. `C:\Python27`).
 
 [The official webpage of msys2][msys2] provides one-click installers.
@@ -50,11 +50,11 @@ In the [msys2] shell, execute the following commands.
 
 ```bash
 cd /c/
-git clone https://github.com/leanprover/lean
+git clone https://github.com/leanprover/lean2
 git clone http://github.com/leanprover/emacs-dependencies
 mkdir -p lean/src/emacs/dependencies
 cp -R emacs-dependencies/* lean/src/emacs/dependencies
-cd lean
+cd lean2
 mkdir build && cd build
 cmake -D CMAKE_CXX_COMPILER=g++.exe -G Ninja ../src
 ninja
@@ -72,7 +72,7 @@ In the [msys2] shell, execute the following commands.
 
 ```bash
 cd /c/
-git clone https://github.com/leanprover/lean
+git clone https://github.com/leanprover/lean2
 cd lean
 mkdir build && cd build
 cmake -D CMAKE_CXX_COMPILER=g++.exe -D BOOST=ON -G Ninja ../src

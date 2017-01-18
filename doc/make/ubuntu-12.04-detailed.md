@@ -28,7 +28,7 @@ Preparing working environment on Ubuntu 12.04
     sudo apt-get install libboost1.54-dev
     sudo apt-get install libboost-thread1.54-dev
 
-### Fork Lean on github : https://github.com/leanprover/lean
+### Fork Lean on github : https://github.com/leanprover/lean2
 
 ### Create a projects directory
 
@@ -38,22 +38,22 @@ Preparing working environment on Ubuntu 12.04
 
 ### Clone your fork
 
-    git clone https://github.com/[your-user-name]/lean.git
+    git clone https://github.com/[your-user-name]/lean2.git
 
 ### Build Lean in release mode
 
-    cd lean
-    mkdir -p build/debug
-    cd build/debug
-    cmake -D CMAKE_BUILD_TYPE=Release ../../src
+    cd lean2
+    mkdir -p build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=Release ../src
     make
 
 ### Alternatively, build Lean using Boost
 
-    cd lean
-    mkdir -p build/release
-    cd build/release
-    cmake -D CMAKE_BUILD_TYPE=Release -D BOOST=ON ../../src
+    cd lean2
+    mkdir -p build
+    cd build
+    cmake -D CMAKE_BUILD_TYPE=Release -D BOOST=ON ../src
     make
 
 ### If you are using Emacs, here are some basic configurations
