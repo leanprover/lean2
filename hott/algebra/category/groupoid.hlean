@@ -43,8 +43,8 @@ namespace category
   definition hom_group [constructor] {A : Type} [G : groupoid A] (a : A) : group (hom a a) :=
   begin
     fapply group.mk,
-      intro f g, apply (comp f g),
       apply is_set_hom,
+      intro f g, apply (comp f g),
       intros f g h, apply (assoc f g h)⁻¹,
       apply (ID a),
       intro f, apply id_left,

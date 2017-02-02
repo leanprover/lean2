@@ -352,7 +352,7 @@ namespace group
   /- the trivial group -/
   open unit
   definition trivial_group [constructor] : group unit :=
-  group.mk (λx y, star) _ (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
+  group.mk _ (λx y, star) (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
 
   definition Trivial_group [constructor] : Group :=
   Group.mk _ trivial_group
@@ -418,9 +418,8 @@ namespace group
   begin
     have foo : Π(g : A), @inv A G g = (@inv A G g * g) * @inv A H g,
       from λg, !mul_inv_cancel_right⁻¹,
-    cases G with Gm Gs Gh1 G1 Gh2 Gh3 Gi Gh4,
-    cases H with Hm Hs Hh1 H1 Hh2 Hh3 Hi Hh4,
-    rewrite [↑[semigroup.to_has_mul,group.to_has_inv] at (same_mul',foo)],
+    cases G with Gs Gm Gh1 G1 Gh2 Gh3 Gi Gh4,
+    cases H with Hs Hm Hh1 H1 Hh2 Hh3 Hi Hh4,
     have same_mul : Gm = Hm, from eq_of_homotopy2 same_mul',
     cases same_mul,
     have same_one : G1 = H1, from calc
@@ -469,8 +468,8 @@ namespace group
     : G = H :=
   begin
     have g_eq : @ab_group.to_group A G = @ab_group.to_group A H, from group_eq same_mul,
-    cases G with Gm Gs Gh1 G1 Gh2 Gh3 Gi Gh4 Gh5,
-    cases H with Hm Hs Hh1 H1 Hh2 Hh3 Hi Hh4 Hh5,
+    cases G with Gs Gm Gh1 G1 Gh2 Gh3 Gi Gh4 Gh5,
+    cases H with Hs Hm Hh1 H1 Hh2 Hh3 Hi Hh4 Hh5,
     have pm : Gm = Hm, from ap (@mul _ ∘ group.to_has_mul) g_eq,
     have pi : Gi = Hi, from ap (@inv _ ∘ group.to_has_inv) g_eq,
     have p1 : G1 = H1, from ap (@one _ ∘ group.to_has_one) g_eq,
