@@ -87,6 +87,11 @@ attribute algebra._trans_of_Group_of_AbGroup_1
           algebra._trans_of_Group_of_AbGroup_3 [constructor]
 attribute algebra._trans_of_Group_of_AbGroup_2 [unfold 1]
 
+definition ab_group_AbGroup [instance] (G : AbGroup) : ab_group G :=
+AbGroup.struct G
+
+definition add_ab_group_AddAbGroup [instance] (G : AddAbGroup) : add_ab_group G :=
+AbGroup.struct G
 
 -- structure AddSemigroup :=
 -- (carrier : Type) (struct : add_semigroup carrier)
@@ -123,4 +128,66 @@ attribute algebra._trans_of_Group_of_AbGroup_2 [unfold 1]
 
 -- attribute AddAbGroup.carrier [coercion]
 -- attribute AddAbGroup.struct [instance]
+
+
+-- some bundled infinity-structures
+structure InfGroup :=
+(carrier : Type) (struct : inf_group carrier)
+
+attribute InfGroup.carrier [coercion]
+attribute InfGroup.struct [instance]
+
+section
+  local attribute InfGroup.struct [instance]
+  definition pType_of_InfGroup [constructor] [reducible] [coercion] (G : InfGroup) : Type* :=
+  pType.mk G 1
+end
+
+attribute algebra._trans_of_pType_of_InfGroup [unfold 1]
+
+definition AddInfGroup : Type := InfGroup
+
+definition AddInfGroup.mk [constructor] [reducible] (G : Type) (H : add_inf_group G) :
+  AddInfGroup :=
+InfGroup.mk G H
+
+definition AddInfGroup.struct [reducible] (G : AddInfGroup) : add_inf_group G :=
+InfGroup.struct G
+
+attribute AddInfGroup.struct InfGroup.struct [instance] [priority 2000]
+
+structure AbInfGroup :=
+(carrier : Type) (struct : ab_inf_group carrier)
+
+attribute AbInfGroup.carrier [coercion]
+
+definition AddAbInfGroup : Type := AbInfGroup
+
+definition AddAbInfGroup.mk [constructor] [reducible] (G : Type) (H : add_ab_inf_group G) :
+  AddAbInfGroup :=
+AbInfGroup.mk G H
+
+definition AddAbInfGroup.struct [reducible] (G : AddAbInfGroup) : add_ab_inf_group G :=
+AbInfGroup.struct G
+
+attribute AddAbInfGroup.struct AbInfGroup.struct [instance] [priority 2000]
+
+definition InfGroup_of_AbInfGroup [coercion] [constructor] (G : AbInfGroup) : InfGroup :=
+InfGroup.mk G _
+
+attribute algebra._trans_of_InfGroup_of_AbInfGroup_1 [constructor]
+attribute algebra._trans_of_InfGroup_of_AbInfGroup [unfold 1]
+
+definition InfGroup_of_Group [constructor] (G : Group) : InfGroup :=
+InfGroup.mk G _
+
+definition AddInfGroup_of_AddGroup [constructor] (G : AddGroup) : AddInfGroup :=
+AddInfGroup.mk G _
+
+definition AbInfGroup_of_AbGroup [constructor] (G : AbGroup) : AbInfGroup :=
+AbInfGroup.mk G _
+
+definition AddAbInfGroup_of_AddAbGroup [constructor] (G : AddAbGroup) : AddAbInfGroup :=
+AddAbInfGroup.mk G _
+
 end algebra

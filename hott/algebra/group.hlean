@@ -114,6 +114,9 @@ definition comm_monoid.to_add_comm_monoid {A : Type} [s : comm_monoid A] : add_c
 
 structure group [class] (A : Type) extends monoid A, inf_group A
 
+definition group_of_inf_group (A : Type) [s : inf_group A] [is_set A] : group A :=
+⦃group, s, is_set_carrier := _⦄
+
 section group
 
   variable [s : group A]
@@ -131,6 +134,9 @@ end group
 
 structure ab_group [class] (A : Type) extends group A, comm_monoid A, ab_inf_group A
 
+definition ab_group_of_ab_inf_group (A : Type) [s : ab_inf_group A] [is_set A] : ab_group A :=
+⦃ab_group, s, is_set_carrier := _⦄
+
 /- additive group -/
 
 definition add_group [class] : Type → Type := group
@@ -145,6 +151,10 @@ definition add_inf_group_of_add_group [reducible] [trans_instance] (A : Type)
 
 definition add_group.to_group {A : Type} [s : add_group A] : group A := s
 definition group.to_add_group {A : Type} [s : group A] : add_group A := s
+
+definition add_group_of_add_inf_group (A : Type) [s : add_inf_group A] [is_set A] :
+  add_group A :=
+⦃group, s, is_set_carrier := _⦄
 
 section add_group
 
@@ -177,6 +187,10 @@ definition add_ab_inf_group_of_add_ab_group [reducible] [trans_instance] (A : Ty
 
 definition add_ab_group.to_ab_group {A : Type} [s : add_ab_group A] : ab_group A := s
 definition ab_group.to_add_ab_group {A : Type} [s : ab_group A] : add_ab_group A := s
+
+definition add_ab_group_of_add_ab_inf_group (A : Type) [s : add_ab_inf_group A] [is_set A] :
+  add_ab_group A :=
+⦃ab_group, s, is_set_carrier := _⦄
 
 definition group_of_add_group (A : Type) [G : add_group A] : group A :=
 ⦃group,

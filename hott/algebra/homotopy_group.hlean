@@ -15,6 +15,17 @@ open nat eq pointed trunc is_trunc algebra group function equiv unit is_equiv na
 -- TODO: rename homotopy_group_functor_compose to homotopy_group_functor_pcompose
 namespace eq
 
+  definition inf_pgroup_loop [constructor] [instance] (A : Type*) : inf_pgroup (Ω A) :=
+  inf_pgroup.mk concat con.assoc inverse idp_con con_idp con.left_inv
+
+  definition inf_group_loop [constructor] (A : Type*) : inf_group (Ω A) := _
+
+  definition ab_inf_group_loop [constructor] [instance] (A : Type*) : ab_inf_group (Ω (Ω A)) :=
+  ⦃ab_inf_group, inf_group_loop _, mul_comm := eckmann_hilton⦄
+
+  definition gloop [constructor] (A : Type*) : InfGroup :=
+  InfGroup.mk (Ω A) (inf_group_loop A)
+
   definition homotopy_group [reducible] [constructor] (n : ℕ) (A : Type*) : Set* :=
   ptrunc 0 (Ω[n] A)
 
@@ -22,7 +33,7 @@ namespace eq
 
   definition group_homotopy_group [instance] [constructor] [reducible] (n : ℕ) (A : Type*)
     : group (π[succ n] A) :=
-  trunc_group concat inverse idp con.assoc idp_con con_idp con.left_inv
+  trunc_group (Ω[succ n] A)
 
   definition group_homotopy_group2 [instance] (k : ℕ) (A : Type*) :
     group (carrier (ptrunctype.to_pType (π[k + 1] A))) :=
@@ -30,7 +41,7 @@ namespace eq
 
   definition ab_group_homotopy_group [constructor] [reducible] (n : ℕ) (A : Type*)
     : ab_group (π[succ (succ n)] A) :=
-  trunc_ab_group concat inverse idp con.assoc idp_con con_idp con.left_inv eckmann_hilton
+  trunc_ab_group (Ω[succ (succ n)] A)
 
   local attribute ab_group_homotopy_group [instance]
 

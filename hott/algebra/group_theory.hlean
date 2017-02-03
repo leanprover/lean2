@@ -404,6 +404,39 @@ namespace group
     mul_pt := mul_one,
     mul_left_inv_pt := mul.left_inv ⦄
 
+  -- infinity pgroups
+
+  structure inf_pgroup [class] (X : Type*) extends inf_semigroup X, has_inv X :=
+    (pt_mul : Πa, mul pt a = a)
+    (mul_pt : Πa, mul a pt = a)
+    (mul_left_inv_pt : Πa, mul (inv a) a = pt)
+
+  definition inf_group_of_inf_pgroup [reducible] [instance] (X : Type*) [H : inf_pgroup X]
+    : inf_group X :=
+  ⦃inf_group, H,
+          one := pt,
+          one_mul := inf_pgroup.pt_mul ,
+          mul_one := inf_pgroup.mul_pt,
+          mul_left_inv := inf_pgroup.mul_left_inv_pt⦄
+
+  definition inf_pgroup_of_inf_group (X : Type*) [H : inf_group X] (p : one = pt :> X) : inf_pgroup X :=
+  begin
+    cases X with X x, esimp at *, induction p,
+    exact ⦃inf_pgroup, H,
+            pt_mul := one_mul,
+            mul_pt := mul_one,
+            mul_left_inv_pt := mul.left_inv⦄
+  end
+
+  definition inf_Group_of_inf_pgroup (G : Type*) [inf_pgroup G] : InfGroup :=
+  InfGroup.mk G _
+
+  definition inf_pgroup_InfGroup [instance] (G : InfGroup) : inf_pgroup G :=
+  ⦃ inf_pgroup, InfGroup.struct G,
+    pt_mul := one_mul,
+    mul_pt := mul_one,
+    mul_left_inv_pt := mul.left_inv ⦄
+
   /- equality of groups and abelian groups -/
 
   definition group.to_has_mul {A : Type} (H : group A) : has_mul A := _
