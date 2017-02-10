@@ -63,7 +63,7 @@ section
           have t1 : Πx, is_contr (Σ y, f x = y),
             from (λx, !is_contr_sigma_eq),
           have t2 : is_contr (Πx, Σ y, f x = y),
-            from !wf,
+            from sorry,
           have t3 : (λ x, @sigma.mk _ (λ y, f x = y) (f x) idp) = s g h,
             from @eq_of_is_contr (Π x, Σ y, f x = y) t2 _ _,
           have t4 : r (λ x, sigma.mk (f x) idp) = r (s g h),

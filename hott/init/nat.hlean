@@ -26,22 +26,16 @@ namespace nat
 
   protected definition no_confusion_type.{u} [reducible] (P : Type.{u}) (v₁ v₂ : ℕ) : Type.{u} :=
   nat.rec
-    (nat.rec
-       (P → lift P)
-       (λ a₂ ih, lift P)
-       v₂)
-    (λ a₁ ih, nat.rec
-       (lift P)
-       (λ a₂ ih, (a₁ = a₂ → P) → lift P)
-       v₂)
+    (nat.rec (P → P) (λ a₂ ih, P) v₂)
+    (λ a₁ ih, nat.rec P (λ a₂ ih, (a₁ = a₂ → P) → P) v₂)
     v₁
 
   protected definition no_confusion [reducible] [unfold 4]
                        {P : Type} {v₁ v₂ : ℕ} (H : v₁ = v₂) : nat.no_confusion_type P v₁ v₂ :=
-  eq.rec (λ H₁ : v₁ = v₁, nat.rec (λ h, lift.up h) (λ a ih h, lift.up (h (eq.refl a))) v₁) H H
+  eq.rec (λ H₁ : v₁ = v₁, nat.rec (λ h, h) (λa ih h, h rfl) v₁) H H
 
   /- basic definitions on natural numbers -/
-  inductive le (a : ℕ) : ℕ → Type :=
+  inductive le (a : ℕ) : ℕ → Type₀ :=
   | nat_refl : le a a    -- use nat_refl to avoid overloading le.refl
   | step : Π {b}, le a b → le a (succ b)
 
@@ -75,15 +69,15 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y)
-  | has_decidable_eq zero     zero     := inl rfl
-  | has_decidable_eq (succ x) zero     := inr (by contradiction)
-  | has_decidable_eq zero     (succ y) := inr (by contradiction)
-  | has_decidable_eq (succ x) (succ y) :=
-      match has_decidable_eq x y with
-      | inl xeqy := inl (by rewrite xeqy)
-      | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
-      end
+  protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) := sorry
+  -- | has_decidable_eq zero     zero     := inl rfl
+  -- | has_decidable_eq (succ x) zero     := inr (by contradiction)
+  -- | has_decidable_eq zero     (succ y) := inr (by contradiction)
+  -- | has_decidable_eq (succ x) (succ y) :=
+  --     match has_decidable_eq x y with
+  --     | inl xeqy := inl (by rewrite xeqy)
+  --     | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
+  --     end
 
   /- properties of inequality -/
 
@@ -121,7 +115,7 @@ namespace nat
   nat.cases_on n le.step (λa, succ_le_succ)
 
   theorem not_succ_le_zero (n : ℕ) : ¬succ n ≤ 0 :=
-  by intro H; cases H
+  sorry --by intro H; cases H
 
   theorem succ_le_zero_iff_empty (n : ℕ) : succ n ≤ 0 ↔ empty :=
   iff_empty_intro !not_succ_le_zero

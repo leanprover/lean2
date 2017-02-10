@@ -11,6 +11,8 @@ set_option structure.proj_mk_thm true
 
 structure subtype {A : Type} (P : A → Prop) :=
 tag :: (elt_of : A) (has_property : P elt_of)
+print prefix subtype
+set_option pp.universes true
 
 namespace subtype
   notation `{` binder ` | ` r:(scoped:1 P, subtype P) `}` := r

@@ -58,7 +58,7 @@ namespace trunc_index
 
   /- we give a weird name to the reflexivity step to avoid overloading le.refl
      (which can be used if types.trunc is imported) -/
-  inductive le (a : ℕ₋₂) : ℕ₋₂ → Type :=
+  inductive le (a : ℕ₋₂) : ℕ₋₂ → Type₀ :=
   | tr_refl : le a a
   | step : Π {b}, le a b → le a (b.+1)
 
@@ -105,7 +105,7 @@ namespace is_trunc
     use `is_trunc` and `is_contr`
   -/
 
-  structure contr_internal (A : Type) :=
+  structure contr_internal (A : Type) : Type :=
     (center : A)
     (center_eq : Π(a : A), center = a)
 
@@ -354,7 +354,7 @@ namespace is_trunc
 
 end is_trunc
 
-structure trunctype (n : ℕ₋₂) :=
+structure trunctype (n : ℕ₋₂) : Type :=
   (carrier : Type)
   (struct : is_trunc n carrier)
 

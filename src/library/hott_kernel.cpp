@@ -15,7 +15,7 @@ environment mk_hott_environment(unsigned trust_lvl) {
     environment env = environment(trust_lvl,
                                   false /* Type.{0} is not proof irrelevant */,
                                   true  /* Eta */,
-                                  false /* Type.{0} is not impredicative */,
+                                  true /* Type.{0} is impredicative */,
                                   /* builtin support for inductive and hits */
                                   compose(std::unique_ptr<normalizer_extension>(new inductive_normalizer_extension()),
                                           std::unique_ptr<normalizer_extension>(new hits_normalizer_extension())));

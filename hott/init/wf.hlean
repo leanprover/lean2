@@ -163,18 +163,19 @@ namespace nat
 
   -- less-than is well-founded
   definition lt.wf [instance] : well_founded (lt : ℕ → ℕ → Type₀) :=
-  begin
-    constructor, intro n, induction n with n IH,
-    { constructor, intros n H, exfalso, exact !not_lt_zero H},
-    { constructor, intros m H,
-      have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
-        begin
-          intros n₁ hlt, induction hlt,
-          { intro p, injection p with q, exact q ▸ IH},
-          { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}
-        end,
-      apply aux H rfl},
-  end
+  sorry
+  -- begin
+  --   constructor, intro n, induction n with n IH,
+  --   { constructor, intros n H, exfalso, exact !not_lt_zero H},
+  --   { constructor, intros m H,
+  --     have aux : ∀ {n₁} (hlt : m < n₁), succ n = n₁ → acc lt m,
+  --       begin
+  --         intros n₁ hlt, induction hlt,
+  --         { intro p, injection p with q, exact q ▸ IH},
+  --         { intro p, injection p with q, exact (acc.inv (q ▸ IH) a)}
+  --       end,
+  --     apply aux H rfl},
+  -- end
 
   definition measure {A : Type} : (A → ℕ) → A → A → Type₀ :=
   inv_image lt

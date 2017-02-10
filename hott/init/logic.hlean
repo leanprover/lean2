@@ -25,7 +25,7 @@ assume Ha : a, absurd (H₁ Ha) H₂
 definition not_empty : ¬empty :=
 assume H : empty, H
 
-definition non_contradictory (a : Type) : Type := ¬¬a
+definition non_contradictory (a : Type) : Type₀ := ¬¬a
 
 definition non_contradictory_intro {a : Type} (Ha : a) : ¬¬a :=
 assume Hna : ¬a, absurd Ha Hna
@@ -498,13 +498,13 @@ definition decidable_ne [instance] {A : Type} [H : decidable_eq A] (a b : A) : d
 decidable_implies
 
 namespace bool
-  theorem ff_ne_tt : ff = tt → empty
-  | [none]
+  theorem ff_ne_tt : ff = tt → empty :=
+  sorry
 end bool
 
 open bool
-definition is_dec_eq {A : Type} (p : A → A → bool) : Type   := Π ⦃x y : A⦄, p x y = tt → x = y
-definition is_dec_refl {A : Type} (p : A → A → bool) : Type := Πx, p x x = tt
+definition is_dec_eq {A : Type} (p : A → A → bool) : Type    := Π ⦃x y : A⦄, p x y = tt → x = y
+definition is_dec_refl {A : Type} (p : A → A → bool) : Type₀ := Πx, p x x = tt
 
 open decidable
 protected definition bool.has_decidable_eq [instance] : Πa b : bool, decidable (a = b)

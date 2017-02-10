@@ -349,11 +349,12 @@ struct add_inductive_fn {
             if (i != m_num_params)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
             t = tc().ensure_sort(t).first;
-            if (m_env.impredicative()) {
-                // If the environment is impredicative, we track whether the resultant universe
-                // is never zero (under any parameter assignment).
-                // TODO(Leo): when the resultant universe may be 0 and not zero depending on parameter assignment,
-                // we may generate two recursors: one when it is 0, and another one when it is not.
+            if (m_env.impredicative() && m_env.prop_proof_irrel()) {
+                // If the environment is impredicative and proof irrelevant, we track whether the
+                // resultant universe is never zero (under any parameter assignment).  TODO(Leo):
+                // when the resultant universe may be 0 and not zero depending on parameter
+                // assignment, we may generate two recursors: one when it is 0, and another one when
+                // it is not.
                 if (first) {
                     m_is_not_zero = is_not_zero(sort_level(t));
                 } else {
@@ -467,7 +468,7 @@ struct add_inductive_fn {
                 // the sort is ok IF
                 //   1- its level is <= inductive datatype level, OR
                 //   2- m_env is impredicative and inductive datatype is at level 0
-                if (!(is_geq(m_it_levels[d_idx], sort_level(s)) || (is_zero(m_it_levels[d_idx]) && m_env.impredicative())))
+                if (!(is_geq(m_it_levels[d_idx], sort_level(s)) || (is_zero(m_it_levels[d_idx]) && m_env.impredicative() && m_env.prop_proof_irrel())))
                     throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                            << "of '" << n << "' is too big for the corresponding inductive datatype");
                 check_positivity(binding_domain(t), n, i);
@@ -522,9 +523,10 @@ struct add_inductive_fn {
 
     /** \brief Return true if type formers C in the recursors can only map to Type.{0} */
     bool elim_only_at_universe_zero() {
-        if (!m_env.impredicative() || m_is_not_zero) {
-            // If Type.{0} is not impredicative or the resultant inductive datatype is not in Type.{0},
-            // then the recursor may return Type.{l} where l is a universe level parameter.
+        if (!m_env.impredicative() || !m_env.prop_proof_irrel() || m_is_not_zero) {
+            // If Type.{0} is not impredicative or not proof irrelevant or the resultant inductive
+            // datatype is not in Type.{0}, then the recursor may return Type.{l} where l is a
+            // universe level parameter.
             return false;
         }
         if (get_num_its() > 1)
@@ -575,7 +577,8 @@ struct add_inductive_fn {
     /** \brief Initialize m_elim_level. */
     void mk_elim_level() {
         if (elim_only_at_universe_zero()) {
-            // environment is impredicative, datatype maps to Prop, we have more than one introduction rule.
+            // environment is impredicative and proof irrelevant, datatype maps to Prop, we have
+            // more than one introduction rule.
             m_elim_level = mk_level_zero();
         } else {
             name l("l");

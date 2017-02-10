@@ -484,7 +484,7 @@ struct inductive_cmd_fn {
                     throw_error("resultant universe must be provided, when using explicit universe levels");
                 type = update_result_sort(type, m_u);
                 m_infer_result_universe = true;
-            } else if (m_env.impredicative() && !is_zero(l) && !is_not_zero(l)) {
+            } else if (m_env.impredicative() && m_env.prop_proof_irrel() && !is_zero(l) && !is_not_zero(l)) {
                 // If the resultant universe can be Prop for some parameter instantiations, then
                 // the kernel will produce an eliminator that only eliminates to Prop.
                 // There is on exception the singleton case. We perform a concervative check here,
@@ -809,7 +809,7 @@ struct inductive_cmd_fn {
                 env = mk_rec_on(env, n);
                 save_def_info(name(n, "rec_on"), pos);
             }
-            if (gen_rec_on && env.impredicative()) {
+            if (gen_rec_on && env.impredicative() && m_env.prop_proof_irrel()) {
                 env = mk_induction_on(env, n);
                 save_def_info(name(n, "induction_on"), pos);
             }
@@ -818,12 +818,15 @@ struct inductive_cmd_fn {
                     env = mk_cases_on(env, n);
                     save_def_info(name(n, "cases_on"), pos);
                 }
-                if (gen_cases_on && gen_no_confusion && has_eq && ((env.prop_proof_irrel() && has_heq) || (!env.prop_proof_irrel() && has_lift))) {
+                if (gen_cases_on && gen_no_confusion && has_eq && env.prop_proof_irrel() && has_heq) {
+                // if (gen_cases_on && gen_no_confusion && has_eq && ((env.prop_proof_irrel() && has_heq) || (!env.prop_proof_irrel() && has_lift))) {
+                    // TODO: we are skipping no_confusion if impredicative HoTT
                     env = mk_no_confusion(env, n);
                     save_if_defined(name{n, "no_confusion_type"}, pos);
                     save_if_defined(name(n, "no_confusion"), pos);
                 }
-                if (gen_brec_on && has_prod) {
+                if (gen_brec_on && has_prod && env.prop_proof_irrel()) {
+                    // TODO: we are skipping below if impredicative HoTT
                     env = mk_below(env, n);
                     save_if_defined(name{n, "below"}, pos);
                     if (env.impredicative()) {
@@ -836,7 +839,8 @@ struct inductive_cmd_fn {
         for (inductive_decl const & d : decls) {
             name const & n = inductive_decl_name(d);
             pos_info pos   = *m_decl_pos_map.find(n);
-            if (gen_brec_on && has_unit && has_prod) {
+            if (gen_brec_on && has_unit && has_prod && env.prop_proof_irrel()) {
+                // TODO: we are skipping brec_on if impredicative HoTT
                 env = mk_brec_on(env, n);
                 save_if_defined(name{n, "brec_on"}, pos);
                 if (env.impredicative()) {
