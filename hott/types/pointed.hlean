@@ -8,7 +8,7 @@ The basic definitions are in init.pointed
 -/
 
 import .nat.basic ..arity ..prop_trunc
-open is_trunc eq prod sigma nat equiv option is_equiv bool unit algebra sigma.ops sum
+open is_trunc eq prod sigma nat equiv option is_equiv bool unit sigma.ops sum algebra
 
 namespace pointed
   variables {A B : Type}
@@ -187,10 +187,22 @@ namespace pointed
   definition pinverse [constructor] {X : Type*} : Ω X →* Ω X :=
   pmap.mk eq.inverse idp
 
+  /-
+    we generalize the definition of ap1 to arbitrary paths, so that we can prove properties about it
+    using path induction (see for example ap1_gen_con and ap1_gen_con_natural)
+  -/
+  definition ap1_gen [reducible] [unfold 6 9 10] {A B : Type} (f : A → B) {a a' : A} (p : a = a')
+    {b b' : B} (q : f a = b) (q' : f a' = b') : b = b' :=
+  q⁻¹ ⬝ ap f p ⬝ q'
+
+  definition ap1_gen_idp [unfold 6] {A B : Type} (f : A → B) {a a' : A} (p : a = a') :
+    ap1_gen f p idp idp = ap f p :=
+  !con_idp ⬝ idp_con (ap f p)
+
   definition ap1 [constructor] (f : A →* B) : Ω A →* Ω B :=
   begin
     fconstructor,
-    { intro p, exact !respect_pt⁻¹ ⬝ ap f p ⬝ !respect_pt},
+    { intro p, exact (respect_pt f)⁻¹ ⬝ ap f p ⬝ respect_pt f },
     { esimp, apply con.left_inv}
   end
 
@@ -215,35 +227,48 @@ namespace pointed
   definition pbool_pmap [constructor] {A : Type*} (a : A) : pbool →* A :=
   pmap.mk (bool.rec pt a) idp
 
-  -- properties of pointed maps
+  /- properties of pointed maps -/
 
   definition apn_zero [unfold_full] (f : A →* B) : Ω→[0] f = f := idp
   definition apn_succ [unfold_full] (n : ℕ) (f : A →* B) : Ω→[n + 1] f = Ω→ (Ω→[n] f) := idp
 
-  theorem ap1_con (f : A →* B) (p q : Ω A) : ap1 f (p ⬝ q) = ap1 f p ⬝ ap1 f q :=
-  begin
-    rewrite [▸*,ap_con, +con.assoc, con_inv_cancel_left], repeat apply whisker_left
-  end
+  definition ap1_gen_con {A B : Type} (f : A → B) {a₁ a₂ a₃ : A} (p₁ : a₁ = a₂) (p₂ : a₂ = a₃)
+    {b₁ b₂ b₃ : B} (q₁ : f a₁ = b₁) (q₂ : f a₂ = b₂) (q₃ : f a₃ = b₃) :
+    ap1_gen f (p₁ ⬝ p₂) q₁ q₃ = ap1_gen f p₁ q₁ q₂ ⬝ ap1_gen f p₂ q₂ q₃ :=
+  begin induction p₂, induction q₃, induction q₂, reflexivity end
+
+  definition ap1_gen_inv {A B : Type} (f : A → B) {a₁ a₂ : A} (p₁ : a₁ = a₂)
+    {b₁ b₂ : B} (q₁ : f a₁ = b₁) (q₂ : f a₂ = b₂) :
+    ap1_gen f p₁⁻¹ q₂ q₁ = (ap1_gen f p₁ q₁ q₂)⁻¹ :=
+  begin induction p₁, induction q₁, induction q₂, reflexivity end
+
+  definition ap1_con {A B : Type*} (f : A →* B) (p q : Ω A) : ap1 f (p ⬝ q) = ap1 f p ⬝ ap1 f q :=
+  ap1_gen_con f p q (respect_pt f) (respect_pt f) (respect_pt f)
 
   theorem ap1_inv (f : A →* B) (p : Ω A) : ap1 f p⁻¹ = (ap1 f p)⁻¹ :=
-  begin
-    rewrite [▸*,ap_inv, +con_inv, inv_inv, +con.assoc], repeat apply whisker_left
-  end
+  ap1_gen_inv f p (respect_pt f) (respect_pt f)
 
-  definition pinverse_con [constructor] {X : Type*} (p q : Ω X)
-    : pinverse (p ⬝ q) = pinverse q ⬝ pinverse p :=
-  !con_inv
+  -- the following two facts is used for the suspension axiom to define spectrum cohomology
+  definition ap1_gen_con_natural {A B : Type} (f : A → B) {a₁ a₂ a₃ : A} {p₁ p₁' : a₁ = a₂}
+    {p₂ p₂' : a₂ = a₃}
+    {b₁ b₂ b₃ : B} (q₁ : f a₁ = b₁) (q₂ : f a₂ = b₂) (q₃ : f a₃ = b₃)
+    (r₁ : p₁ = p₁') (r₂ : p₂ = p₂') :
+      square (ap1_gen_con f p₁ p₂ q₁ q₂ q₃)
+             (ap1_gen_con f p₁' p₂' q₁ q₂ q₃)
+             (ap (λp, ap1_gen f p q₁ q₃) (r₁ ◾ r₂))
+             (ap (λp, ap1_gen f p q₁ q₂) r₁ ◾ ap (λp, ap1_gen f p q₂ q₃) r₂) :=
+  begin induction r₁, induction r₂, exact vrfl end
 
-  definition pinverse_inv [constructor] {X : Type*} (p : Ω X)
-    : pinverse p⁻¹ = (pinverse p)⁻¹ :=
-  idp
+  definition ap1_gen_con_idp {A B : Type} (f : A → B) {a : A} {b : B} (q : f a = b) :
+    ap1_gen_con f idp idp q q q ⬝ con.left_inv q ◾ con.left_inv q = con.left_inv q :=
+  by induction q; reflexivity
 
-  theorem apn_con (n : ℕ) (f : A →* B) (p q : Ω[n+1] A)
+  definition apn_con (n : ℕ) (f : A →* B) (p q : Ω[n+1] A)
     : apn (n+1) f (p ⬝ q) = apn (n+1) f p ⬝ apn (n+1) f q :=
-  by rewrite [+apn_succ, ap1_con]
+  ap1_con (apn n f) p q
 
-  theorem apn_inv (n : ℕ)  (f : A →* B) (p : Ω[n+1] A) : apn (n+1) f p⁻¹ = (apn (n+1) f p)⁻¹ :=
-  by rewrite [+apn_succ, ap1_inv]
+  definition apn_inv (n : ℕ)  (f : A →* B) (p : Ω[n+1] A) : apn (n+1) f p⁻¹ = (apn (n+1) f p)⁻¹ :=
+  ap1_inv (apn n f) p
 
   definition is_equiv_ap1 (f : A →* B) [is_equiv f] : is_equiv (ap1 f) :=
   begin
@@ -259,6 +284,14 @@ namespace pointed
     { exact H},
     { exact is_equiv_ap1 (apn n f)}
   end
+
+  definition pinverse_con [constructor] {X : Type*} (p q : Ω X)
+    : pinverse (p ⬝ q) = pinverse q ⬝ pinverse p :=
+  !con_inv
+
+  definition pinverse_inv [constructor] {X : Type*} (p : Ω X)
+    : pinverse p⁻¹ = (pinverse p)⁻¹ :=
+  idp
 
   definition is_equiv_pcast [instance] {A B : Type*} (p : A = B) : is_equiv (pcast p) :=
   !is_equiv_cast
@@ -410,7 +443,7 @@ namespace pointed
     induction p with p q, induction f with f pf, induction g with g pg, induction B with B b,
     esimp at *, induction q, induction pg,
     fapply phomotopy.mk,
-    { intro l, esimp, refine _ ⬝ !idp_con⁻¹, refine !con.assoc ⬝ _, apply inv_con_eq_of_eq_con,
+    { intro l, esimp, refine _ ⬝ !idp_con⁻¹ᵖ, refine !con.assoc ⬝ _, apply inv_con_eq_of_eq_con,
       apply ap_con_eq_con_ap},
     { induction A with A a, unfold [ap_con_eq_con_ap], generalize p a, generalize g a, intro b q,
       induction q, reflexivity}
@@ -435,7 +468,7 @@ namespace pointed
   definition ap1_pinverse {A : Type*} : ap1 (@pinverse A) ~* @pinverse (Ω A) :=
   begin
     fapply phomotopy.mk,
-    { intro p, esimp, refine !idp_con ⬝ _, exact !inv_eq_inv2⁻¹ },
+    { intro p, refine !idp_con ⬝ _, exact !inv_eq_inv2⁻¹ },
     { reflexivity}
   end
 
