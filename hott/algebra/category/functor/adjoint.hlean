@@ -43,6 +43,34 @@ namespace category
   abbreviation counit_unit_eq [unfold 4] := @is_left_adjoint.H
   abbreviation unit_counit_eq [unfold 4] := @is_left_adjoint.K
 
+  section
+
+  variables {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C}
+
+  definition is_left_adjoint_of_adjoint [unfold 5] (H : F ⊣ G) : is_left_adjoint F :=
+  begin
+    induction H with η ε H K, exact is_left_adjoint.mk G η ε H K
+  end
+
+  definition adjoint_opposite [constructor] (H : F ⊣ G) : Gᵒᵖᶠ ⊣ Fᵒᵖᶠ :=
+  begin
+    fconstructor,
+    { rexact opposite_nat_trans (to_counit H)},
+    { rexact opposite_nat_trans (to_unit H)},
+    { rexact to_unit_counit_eq H},
+    { rexact to_counit_unit_eq H}
+  end
+
+  definition adjoint_of_opposite [constructor] (H : Fᵒᵖᶠ ⊣ Gᵒᵖᶠ) : G ⊣ F :=
+  begin
+    fconstructor,
+    { rexact opposite_rev_nat_trans (to_counit H)},
+    { rexact opposite_rev_nat_trans (to_unit H)},
+    { rexact to_unit_counit_eq H},
+    { rexact to_counit_unit_eq H}
+  end
+
+
   theorem is_prop_is_left_adjoint [instance] {C : Category} {D : Precategory} (F : C ⇒ D)
     : is_prop (is_left_adjoint F) :=
   begin
@@ -119,8 +147,10 @@ namespace category
      rewrite [assoc,nf_fn_eq_fn_nf_pt ε' ε d,-assoc,▸*,H (G' d),id_right]}
    end
 
+  end
+
   section
-  universe variables u v w
+  universe variables u v w z
   parameters {C : Precategory.{u v}} {D : Precategory.{w v}} {F : C ⇒ D} {G : D ⇒ C}
           (θ : hom_functor D ∘f prod_functor_prod Fᵒᵖᶠ 1 ≅ hom_functor C ∘f prod_functor_prod 1 G)
   include θ
@@ -183,92 +213,42 @@ namespace category
   end
 
   end
-/- TODO (below): generalize above definitions to arbitrary categories
+
+
   section
-  universe variables u₁ u₂ v₁ v₂
-  parameters {C : Precategory.{u₁ v₁}} {D : Precategory.{u₂ v₂}} {F : C ⇒ D} {G : D ⇒ C}
-          (θ : functor_lift.{v₂ v₁} ∘f hom_functor D ∘f prod_functor_prod Fᵒᵖᶠ 1 ≅
-               functor_lift.{v₁ v₂} ∘f hom_functor C ∘f prod_functor_prod 1 G)
-  include θ
-  open lift
-  definition adj_unit [constructor] : 1 ⟹ G ∘f F :=
-  begin
-    fapply nat_trans.mk: esimp,
-    { intro c, exact down (natural_map (to_hom θ) (c, F c) (up id))},
-    { intro c c' f,
-      let H := naturality (to_hom θ) (ID c, F f),
-      let K := ap10 H (up id),
-      rewrite [▸* at K, id_right at K, ▸*, K, respect_id, +id_right],
-      clear H K,
-      let H := naturality (to_hom θ) (f, ID (F c')),
-      let K := ap10 H id,
-      rewrite [▸* at K, respect_id at K,+id_left at K, K]}
-  end
+  universe variables u v
+  parameters {C D : Precategory.{u v}} (F : C ⇒ D) (U : D → C)
+  (ε : Πd, F (U d) ⟶ d) (θ : Π{c : C} {d : D} (g : F c ⟶ d), c ⟶ U d)
+  (θ_coh : Π{c : C} {d : D} (g : F c ⟶ d), ε d ∘ F (θ g) = g)
+  (θ_unique : Π{c : C} {d : D} {g : F c ⟶ d} {f : c ⟶ U d}, ε d ∘ F f = g → θ g = f)
 
-  definition adj_counit [constructor] : F ∘f G ⟹ 1 :=
-  begin
-    fapply nat_trans.mk: esimp,
-    { intro d, exact natural_map (to_inv θ) (G d, d) id, },
-    { intro d d' g,
-      let H := naturality (to_inv θ) (Gᵒᵖᶠ g, ID d'),
-      let K := ap10 H id,
-      rewrite [▸* at K, id_left at K, ▸*, K, respect_id, +id_left],
-      clear H K,
-      let H := naturality (to_inv θ) (ID (G d), g),
-      let K := ap10 H id,
-      rewrite [▸* at K, respect_id at K,+id_right at K, K]}
-  end
-
-  theorem adj_eq_unit (c : C) (d : D) (f : F c ⟶ d)
-    : natural_map (to_hom θ) (c, d) (up f) = G f ∘ adj_unit c :=
-  begin
-    esimp,
-    let H := naturality (to_hom θ) (ID c, f),
-    let K := ap10 H id,
-    rewrite [▸* at K, id_right at K, K, respect_id, +id_right],
-  end
-
-  theorem adj_eq_counit (c : C) (d : D) (g : c ⟶ G d)
-    : natural_map (to_inv θ) (c, d) (up g) = adj_counit d ∘ F g :=
-  begin
-    esimp,
-    let H := naturality (to_inv θ) (g, ID d),
-    let K := ap10 H id,
-    rewrite [▸* at K, id_left at K, K, respect_id, +id_left],
-  end
-
-  definition adjoint.mk' [constructor] : F ⊣ G :=
-  begin
-    fapply adjoint.mk,
-    { exact adj_unit},
-    { exact adj_counit},
-    { intro c, esimp, refine (adj_eq_counit c (F c) (adj_unit c))⁻¹ ⬝ _,
-      apply ap10 (to_left_inverse (componentwise_iso θ (c, F c)))},
-    { intro d, esimp, refine (adj_eq_unit (G d) d (adj_counit d))⁻¹ ⬝ _,
-      apply ap10 (to_right_inverse (componentwise_iso θ (G d, d)))},
-  end
-
-  end
--/
-
-  variables {C D : Precategory} {F : C ⇒ D} {G : D ⇒ C}
-
-  definition adjoint_opposite [constructor] (H : F ⊣ G) : Gᵒᵖᶠ ⊣ Fᵒᵖᶠ :=
+  include θ_coh θ_unique
+  definition right_adjoint_simple [constructor] : D ⇒ C :=
   begin
     fconstructor,
-    { rexact opposite_nat_trans (to_counit H)},
-    { rexact opposite_nat_trans (to_unit H)},
-    { rexact to_unit_counit_eq H},
-    { rexact to_counit_unit_eq H}
+    { exact U },
+    { intro d d' g, exact θ (g ∘ ε d) },
+    { intro d, apply θ_unique, refine idp ∘2 !respect_id ⬝ !id_right ⬝ !id_left⁻¹ },
+    { intro d₁ d₂ d₃ g' g, apply θ_unique, refine idp ∘2 !respect_comp ⬝ !assoc ⬝ _,
+      refine !θ_coh ∘2 idp ⬝ !assoc' ⬝ idp ∘2 !θ_coh ⬝ !assoc, }
   end
 
-  definition adjoint_of_opposite [constructor] (H : Fᵒᵖᶠ ⊣ Gᵒᵖᶠ) : G ⊣ F :=
+  definition bijection_simple : hom_functor D ∘f prod_functor_prod Fᵒᵖᶠ 1 ≅
+    hom_functor C ∘f prod_functor_prod 1 right_adjoint_simple :=
   begin
-    fconstructor,
-    { rexact opposite_rev_nat_trans (to_counit H)},
-    { rexact opposite_rev_nat_trans (to_unit H)},
-    { rexact to_unit_counit_eq H},
-    { rexact to_counit_unit_eq H}
+    fapply natural_iso.MK,
+    { intro x f, exact θ f },
+    { esimp, intro x x' f, apply eq_of_homotopy, intro g, symmetry, apply θ_unique,
+      refine idp ∘2 !respect_comp ⬝ !assoc ⬝ _, refine !θ_coh ∘2 idp ⬝ !assoc' ⬝ idp ∘2 _,
+      refine idp ∘2 !respect_comp ⬝ !assoc ⬝ !θ_coh ∘2 idp },
+    { esimp, intro x f, exact ε _ ∘ F f },
+    { esimp, intro x, apply eq_of_homotopy, intro g, exact θ_coh g },
+    { esimp, intro x, apply eq_of_homotopy, intro g, exact θ_unique idp }
+  end
+
+  definition is_left_adjoint.mk_simple [constructor] : is_left_adjoint F :=
+  is_left_adjoint_of_adjoint (adjoint.mk' bijection_simple)
+
   end
 
 end category

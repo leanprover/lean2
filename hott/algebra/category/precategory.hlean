@@ -65,7 +65,7 @@ namespace category
 
   section basic_lemmas
     variables {ob : Type} [C : precategory ob]
-    variables {a b c d : ob} {h : c ⟶ d} {g : hom b c} {f f' : hom a b} {i : a ⟶ a}
+    variables {a b c d : ob} {h : c ⟶ d} {g g' : hom b c} {f f' : hom a b} {i : a ⟶ a}
     include C
 
     definition id [reducible] [unfold 2] := ID a
@@ -93,6 +93,10 @@ namespace category
     definition homset [reducible] [constructor] (x y : ob) : Set :=
     Set.mk (hom x y) _
 
+    definition comp2 (p : g = g') (q : f = f') : g ∘ f = g' ∘ f' :=
+    ap011 (λg f, comp g f) p q
+
+    infix ` ∘2 `:79 := comp2
   end basic_lemmas
   section squares
     parameters {ob : Type} [C : precategory ob]
@@ -144,6 +148,7 @@ namespace category
       (H : wc ∘ xg = yg ∘ wb) (yh : yc ⟶ yd) (xf : xa ⟶ xb)
         : (yh ∘ wc) ∘ (xg ∘ xf) = (yh ∘ yg) ∘ (wb ∘ xf)  :=
     square_precompose (square_postcompose H yh) xf
+
   end squares
 
   structure Precategory : Type :=
@@ -176,17 +181,17 @@ namespace category
     (q : Πa b c g f, cast p (@comp ob C a b c g f) = @comp ob D a b c (cast p g) (cast p f))
       : C = D :=
   begin
-    induction C with hom1 comp1 ID1 a b il ir, induction D with hom2 comp2 ID2 a' b' il' ir',
+    induction C with hom1 c1 ID1 a b il ir, induction D with hom2 c2 ID2 a' b' il' ir',
     esimp at *,
     revert q, eapply homotopy2.rec_on @p, esimp, clear p, intro p q, induction p,
     esimp at *,
-    have H : comp1 = comp2,
+    have H : c1 = c2,
     begin apply eq_of_homotopy3, intros, apply eq_of_homotopy2, intros, apply q end,
     induction H,
     have K : ID1 = ID2,
     begin apply eq_of_homotopy, intro a, exact !ir'⁻¹ ⬝ !il end,
     induction K,
-    apply ap0111111 (precategory.mk' hom1 comp1 ID1): apply is_prop.elim
+    apply ap0111111 (precategory.mk' hom1 c1 ID1): apply is_prop.elim
   end
 
 
