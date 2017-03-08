@@ -206,7 +206,7 @@ namespace pushout
       krewrite [elim_glue, ap_inv, elim_glue, inv_inv], apply hrfl
   end
 
-  protected definition symm : pushout f g ≃ pushout g f :=
+  protected definition symm [constructor] : pushout f g ≃ pushout g f :=
   begin
     fapply equiv.MK, do 2 exact !pushout.transpose,
     do 2 (intro x; apply pushout.transpose_involutive),
@@ -234,7 +234,7 @@ namespace pushout
               (fh : bl ∘ f ~ f' ∘ tl) (gh : tr ∘ g ~ g' ∘ tl)
     include fh gh
 
-    protected definition functor [reducible] : pushout f g → pushout f' g' :=
+    protected definition functor [reducible] [unfold 16] : pushout f g → pushout f' g' :=
     begin
       intro x, induction x with a b z,
       { exact inl (bl a) },
@@ -254,7 +254,7 @@ namespace pushout
     include ietl iebl ietr
 
     open equiv is_equiv arrow
-    protected definition is_equiv_functor [instance]
+    protected definition is_equiv_functor [instance] [constructor]
       : is_equiv (pushout.functor tl bl tr fh gh) :=
     adjointify
       (pushout.functor tl bl tr fh gh)
@@ -336,7 +336,7 @@ namespace pushout
               (fh : bl ∘ f ~ f' ∘ tl) (gh : tr ∘ g ~ g' ∘ tl)
     include fh gh
 
-    protected definition equiv : pushout f g ≃ pushout f' g' :=
+    protected definition equiv [constructor] : pushout f g ≃ pushout f' g' :=
     equiv.mk (pushout.functor tl bl tr fh gh) _
   end
 

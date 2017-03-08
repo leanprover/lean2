@@ -88,6 +88,7 @@ structure ppi (A : Type*) (P : A → Type*) :=
   (to_fun : Π a : A, P a)
   (resp_pt : to_fun (Point A) = Point (P (Point A)))
 
+-- We could try to define pmap as a special case of ppi
 -- definition pmap (A B : Type*) := @ppi A (λa, B)
 structure pmap (A B : Type*) :=
   (to_fun : A → B)

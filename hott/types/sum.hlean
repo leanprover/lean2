@@ -116,7 +116,7 @@ namespace sum
 
   /- Equivalences -/
 
-  definition is_equiv_sum_functor [constructor] [Hf : is_equiv f] [Hg : is_equiv g]
+  definition is_equiv_sum_functor [constructor] [instance] [Hf : is_equiv f] [Hg : is_equiv g]
     : is_equiv (sum_functor f g) :=
   adjointify (sum_functor f   g)
              (sum_functor f⁻¹ g⁻¹)

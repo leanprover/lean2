@@ -21,73 +21,73 @@ namespace eq
 
   /- some lemmas about whiskering or other higher paths -/
 
-  theorem whisker_left_con_right (p : a₁ = a₂) {q q' q'' : a₂ = a₃} (r : q = q') (s : q' = q'')
+  definition whisker_left_con_right (p : a₁ = a₂) {q q' q'' : a₂ = a₃} (r : q = q') (s : q' = q'')
     : whisker_left p (r ⬝ s) = whisker_left p r ⬝ whisker_left p s :=
   begin
     induction p, induction r, induction s, reflexivity
   end
 
-  theorem whisker_right_con_right (q : a₂ = a₃) (r : p = p') (s : p' = p'')
+  definition whisker_right_con_right (q : a₂ = a₃) (r : p = p') (s : p' = p'')
     : whisker_right q (r ⬝ s) = whisker_right q r ⬝ whisker_right q s :=
   begin
     induction q, induction r, induction s, reflexivity
   end
 
-  theorem whisker_left_con_left (p : a₁ = a₂) (p' : a₂ = a₃) {q q' : a₃ = a₄} (r : q = q')
+  definition whisker_left_con_left (p : a₁ = a₂) (p' : a₂ = a₃) {q q' : a₃ = a₄} (r : q = q')
     : whisker_left (p ⬝ p') r = !con.assoc ⬝ whisker_left p (whisker_left p' r) ⬝ !con.assoc' :=
   begin
     induction p', induction p, induction r, induction q, reflexivity
   end
 
-  theorem whisker_right_con_left {p p' : a₁ = a₂} (q : a₂ = a₃) (q' : a₃ = a₄) (r : p = p')
+  definition whisker_right_con_left {p p' : a₁ = a₂} (q : a₂ = a₃) (q' : a₃ = a₄) (r : p = p')
     : whisker_right (q ⬝ q') r = !con.assoc' ⬝ whisker_right q' (whisker_right q r) ⬝ !con.assoc :=
   begin
     induction q', induction q, induction r, induction p, reflexivity
   end
 
-  theorem whisker_left_inv_left (p : a₂ = a₁) {q q' : a₂ = a₃} (r : q = q')
+  definition whisker_left_inv_left (p : a₂ = a₁) {q q' : a₂ = a₃} (r : q = q')
     : !con_inv_cancel_left⁻¹ ⬝ whisker_left p (whisker_left p⁻¹ r) ⬝ !con_inv_cancel_left = r :=
   begin
     induction p, induction r, induction q, reflexivity
   end
 
-  theorem whisker_left_inv (p : a₁ = a₂) {q q' : a₂ = a₃} (r : q = q')
+  definition whisker_left_inv (p : a₁ = a₂) {q q' : a₂ = a₃} (r : q = q')
     : whisker_left p r⁻¹ = (whisker_left p r)⁻¹ :=
   by induction r; reflexivity
 
-  theorem whisker_right_inv {p p' : a₁ = a₂} (q : a₂ = a₃) (r : p = p')
+  definition whisker_right_inv {p p' : a₁ = a₂} (q : a₂ = a₃) (r : p = p')
     : whisker_right q r⁻¹ = (whisker_right q r)⁻¹ :=
   by induction r; reflexivity
 
-  theorem ap_eq_apd10 {B : A → Type} {f g : Πa, B a} (p : f = g) (a : A) :
+  definition ap_eq_apd10 [unfold 5] {B : A → Type} {f g : Πa, B a} (p : f = g) (a : A) :
     ap (λh, h a) p = apd10 p a :=
   by induction p; reflexivity
 
-  theorem inverse2_right_inv (r : p = p') : r ◾ inverse2 r ⬝ con.right_inv p' = con.right_inv p :=
+  definition inverse2_right_inv (r : p = p') : r ◾ inverse2 r ⬝ con.right_inv p' = con.right_inv p :=
   by induction r;induction p;reflexivity
 
-  theorem inverse2_left_inv (r : p = p') : inverse2 r ◾ r ⬝ con.left_inv p' = con.left_inv p :=
+  definition inverse2_left_inv (r : p = p') : inverse2 r ◾ r ⬝ con.left_inv p' = con.left_inv p :=
   by induction r;induction p;reflexivity
 
-  theorem ap_con_right_inv (f : A → B) (p : a₁ = a₂)
+  definition ap_con_right_inv (f : A → B) (p : a₁ = a₂)
     : ap_con f p p⁻¹ ⬝ whisker_left _ (ap_inv f p) ⬝ con.right_inv (ap f p)
       = ap (ap f) (con.right_inv p) :=
   by induction p;reflexivity
 
-  theorem ap_con_left_inv (f : A → B) (p : a₁ = a₂)
+  definition ap_con_left_inv (f : A → B) (p : a₁ = a₂)
     : ap_con f p⁻¹ p ⬝ whisker_right _ (ap_inv f p) ⬝ con.left_inv (ap f p)
       = ap (ap f) (con.left_inv p) :=
   by induction p;reflexivity
 
-  theorem idp_con_whisker_left {q q' : a₂ = a₃} (r : q = q') :
+  definition idp_con_whisker_left {q q' : a₂ = a₃} (r : q = q') :
   !idp_con⁻¹ ⬝ whisker_left idp r = r ⬝ !idp_con⁻¹ :=
   by induction r;induction q;reflexivity
 
-  theorem whisker_left_idp_con {q q' : a₂ = a₃} (r : q = q') :
+  definition whisker_left_idp_con {q q' : a₂ = a₃} (r : q = q') :
   whisker_left idp r ⬝ !idp_con = !idp_con ⬝ r :=
   by induction r;induction q;reflexivity
 
-  theorem idp_con_idp {p : a = a} (q : p = idp) : idp_con p ⬝ q = ap (λp, idp ⬝ p) q :=
+  definition idp_con_idp {p : a = a} (q : p = idp) : idp_con p ⬝ q = ap (λp, idp ⬝ p) q :=
   by cases q;reflexivity
 
   definition ap_is_constant [unfold 8] {A B : Type} {f : A → B} {b : B} (p : Πx, f x = b)
@@ -105,13 +105,13 @@ namespace eq
     : (r₁ ◾ r₂)⁻¹ = r₁⁻¹ ◾ r₂⁻¹ :=
   by induction r₁;induction r₂;reflexivity
 
-  theorem eq_con_inv_of_con_eq_whisker_left {A : Type} {a a₂ a₃ : A}
+  definition eq_con_inv_of_con_eq_whisker_left {A : Type} {a a₂ a₃ : A}
     {p : a = a₂} {q q' : a₂ = a₃} {r : a = a₃} (s' : q = q') (s : p ⬝ q' = r) :
     eq_con_inv_of_con_eq (whisker_left p s' ⬝ s)
       = eq_con_inv_of_con_eq s ⬝ whisker_left r (inverse2 s')⁻¹ :=
   by induction s';induction q;induction s;reflexivity
 
-  theorem right_inv_eq_idp {A : Type} {a : A} {p : a = a} (r : p = idpath a) :
+  definition right_inv_eq_idp {A : Type} {a : A} {p : a = a} (r : p = idpath a) :
     con.right_inv p = r ◾ inverse2 r :=
   by cases r;reflexivity
 

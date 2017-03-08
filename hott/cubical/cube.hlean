@@ -30,12 +30,12 @@ namespace eq
             {p₁₂₀ : a₀₂₀ = a₂₂₀} {p₂₁₀ : a₂₀₀ = a₂₂₀} {p₂₀₁ : a₂₀₀ = a₂₀₂}
             {p₁₀₂ : a₀₀₂ = a₂₀₂} {p₀₁₂ : a₀₀₂ = a₀₂₂} {p₀₂₁ : a₀₂₀ = a₀₂₂}
             {p₁₂₂ : a₀₂₂ = a₂₂₂} {p₂₁₂ : a₂₀₂ = a₂₂₂} {p₂₂₁ : a₂₂₀ = a₂₂₂}
-            {s₁₁₀ : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
-            {s₁₁₂ : square p₀₁₂ p₂₁₂ p₁₀₂ p₁₂₂}
             {s₀₁₁ : square p₀₁₀ p₀₁₂ p₀₀₁ p₀₂₁}
             {s₂₁₁ : square p₂₁₀ p₂₁₂ p₂₀₁ p₂₂₁}
             {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ p₂₀₁}
             {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ p₂₂₁}
+            {s₁₁₀ : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
+            {s₁₁₂ : square p₀₁₂ p₂₁₂ p₁₀₂ p₁₂₂}
             {b₁ b₂ b₃ b₄ : B}
             (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂)
 
@@ -126,6 +126,7 @@ namespace eq
 
   /- Transporting along a square -/
 
+  -- TODO: remove: they are defined again below
   definition cube_transport110 {s₁₁₀' : square p₀₁₀ p₂₁₀ p₁₀₀ p₁₂₀}
     (p : s₁₁₀ = s₁₁₀') (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
     cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀' s₁₁₂ :=
@@ -339,11 +340,11 @@ namespace eq
   infix ` ⬝1 `:75 := cube_concat1
   infix ` ⬝2 `:75 := cube_concat2
   infix ` ⬝3 `:75 := cube_concat3
-  infix ` ⬝p1 `:75 := eq_concat1
-  infix ` ⬝1p `:75 := concat1_eq
-  infix ` ⬝p2 `:75 := eq_concat3
-  infix ` ⬝2p `:75 := concat2_eq
-  infix ` ⬝p3 `:75 := eq_concat3
-  infix ` ⬝3p `:75 := concat3_eq
+  infixr ` ⬝p1 `:75 := eq_concat1
+  infixl ` ⬝1p `:75 := concat1_eq
+  infixr ` ⬝p2 `:75 := eq_concat2
+  infixl ` ⬝2p `:75 := concat2_eq
+  infixr ` ⬝p3 `:75 := eq_concat3
+  infixl ` ⬝3p `:75 := concat3_eq
 
 end eq

@@ -325,7 +325,7 @@ namespace is_trunc
   open equiv
   /- A contractible type is equivalent to unit. -/
   variable (A)
-  definition equiv_unit_of_is_contr [H : is_contr A] : A ≃ unit :=
+  definition equiv_unit_of_is_contr [constructor] [H : is_contr A] : A ≃ unit :=
   equiv.MK (λ (x : A), ⋆)
            (λ (u : unit), center A)
            (λ (u : unit), unit.rec_on u idp)

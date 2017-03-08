@@ -88,10 +88,10 @@ namespace eq
 
   infix ` ⬝h `:69 := hconcat --type using \tr
   infix ` ⬝v `:70 := vconcat --type using \tr
-  infix ` ⬝hp `:71 := hconcat_eq --type using \tr
-  infix ` ⬝vp `:73 := vconcat_eq --type using \tr
-  infix ` ⬝ph `:72 := eq_hconcat --type using \tr
-  infix ` ⬝pv `:74 := eq_vconcat --type using \tr
+  infixl ` ⬝hp `:71 := hconcat_eq --type using \tr
+  infixl ` ⬝vp `:73 := vconcat_eq --type using \tr
+  infixr ` ⬝ph `:72 := eq_hconcat --type using \tr
+  infixr ` ⬝pv `:74 := eq_vconcat --type using \tr
   postfix `⁻¹ʰ`:(max+1) := hinverse --type using \-1h
   postfix `⁻¹ᵛ`:(max+1) := vinverse --type using \-1v
 

@@ -7,13 +7,13 @@ Authors: Jakob von Raumer
 The Rezk completion
 -/
 
-import algebra.category hit.two_quotient types.trunc types.arrow algebra.category.functor.attributes
+import hit.two_quotient types.trunc types.arrow algebra.category.functor.exponential_laws
 
 open eq category equiv trunc_two_quotient is_trunc iso e_closure function pi trunctype
 
 namespace rezk
   section
-  
+
   universes l k
   parameters {A : Type.{l}} [C : precategory.{l k} A]
   include C
@@ -57,7 +57,7 @@ namespace rezk
     (Pe : Π a, P (elt a)) (Pp : Π ⦃a b⦄ (f : a ≅ b), Pe a =[pth f] Pe b)
     (Pcomp : Π ⦃a b c⦄ (g : b ≅ c) (f : a ≅ b),
       change_path (resp_comp g f) (Pp (f ⬝i g)) = Pp f ⬝o Pp g) : P x :=
-  rec Pe Pp Pcomp x  
+  rec Pe Pp Pcomp x
 
   protected definition set_rec {P : rezk_carrier → Type} [Π x, is_set (P x)]
     (Pe : Π a, P (elt a)) (Pp : Π⦃a b⦄ (f : a ≅ b), Pe a =[pth f] Pe b)
@@ -68,7 +68,7 @@ namespace rezk
     (Pe : Π a, P (elt a)) (x : rezk_carrier) : P x :=
   rec Pe !center !center x
 
-  protected definition elim {P : Type} [is_trunc 1 P] (Pe : A → P) 
+  protected definition elim {P : Type} [is_trunc 1 P] (Pe : A → P)
     (Pp : Π ⦃a b⦄ (f : a ≅ b), Pe a = Pe b)
     (Pcomp : Π ⦃a b c⦄ (g : b ≅ c) (f : a ≅ b), Pp (f ⬝i g) = Pp f ⬝ Pp g)
     (x : rezk_carrier) : P :=
@@ -79,7 +79,7 @@ namespace rezk
     { induction q with a b c g f, exact Pcomp g f }
   end
 
-  protected definition elim_on [reducible] {P : Type} [is_trunc 1 P] (x : rezk_carrier) 
+  protected definition elim_on [reducible] {P : Type} [is_trunc 1 P] (x : rezk_carrier)
     (Pe : A → P) (Pp : Π ⦃a b⦄ (f : a ≅ b), Pe a = Pe b)
     (Pcomp : Π ⦃a b c⦄ (g : b ≅ c) (f : a ≅ b), Pp (f ⬝i g) = Pp f ⬝ Pp g) : P :=
   elim Pe Pp Pcomp x
@@ -157,9 +157,9 @@ namespace rezk
     --induction b using rezk.rec with b' b' b g, --why does this not work if it works below?
     refine @rezk.rec _ _ _ (rezk_hom_left_pth_1_trunc a a' f) _ _ _ b,
     intro b, apply equiv_precompose (to_hom f⁻¹ⁱ), --how do i unfold properly at this point?
-    { intro b b' g, apply equiv_pathover, intro g' g'' H, 
+    { intro b b' g, apply equiv_pathover, intro g' g'' H,
       refine !pathover_rezk_hom_left_pt ⬝op _,
-      refine !assoc ⬝ ap (λ x, x ∘ _) _,  refine eq_of_parallel_po_right _ H, 
+      refine !assoc ⬝ ap (λ x, x ∘ _) _,  refine eq_of_parallel_po_right _ H,
       apply pathover_rezk_hom_left_pt },
     intro b b' b'' g g', apply @is_prop.elim, apply is_trunc_pathover, apply is_trunc_equiv
   end
@@ -211,8 +211,8 @@ namespace rezk
     induction c using rezk.set_rec with c c c' ic,
     exact g ∘ f,
     { apply arrow_pathover_left, intro d,
-      apply concato !pathover_rezk_hom_left_pt, apply pathover_idp_of_eq, 
-      apply concat, apply assoc, apply ap (λ x, x ∘ f), 
+      apply concato !pathover_rezk_hom_left_pt, apply pathover_idp_of_eq,
+      apply concat, apply assoc, apply ap (λ x, x ∘ f),
       apply inverse, apply tr_eq_of_pathover, apply pathover_rezk_hom_left_pt },
   end
 
@@ -223,13 +223,13 @@ namespace rezk
     apply arrow_pathover_left, intro x,
     apply arrow_pathover_left, intro y,
     induction c using rezk.set_rec with c c c' ic,
-    {  apply pathover_of_eq, apply inverse, 
+    {  apply pathover_of_eq, apply inverse,
       apply concat, apply ap (λ x, rezk_comp_pt_pt x _), apply tr_eq_of_pathover,
        apply pathover_rezk_hom_left,
       apply concat, apply ap (rezk_comp_pt_pt _), apply tr_eq_of_pathover,
        apply pathover_rezk_hom_left_pt,
-      refine !assoc ⬝ ap (λ x, x ∘ y) _, 
-      refine !assoc⁻¹ ⬝ _, 
+      refine !assoc ⬝ ap (λ x, x ∘ y) _,
+      refine !assoc⁻¹ ⬝ _,
       refine ap (λ y, x ∘ y) !iso.left_inverse ⬝ _,
       apply id_right },
     apply @is_prop.elimo
@@ -241,8 +241,8 @@ namespace rezk
     induction a using rezk.set_rec with a a a' ia,
     { induction b using rezk.set_rec with b b b' ib,
       apply rezk_comp_pt_pt g f, apply rezk_comp_pt_pth },
-    { induction b using rezk.set_rec with b b b' ib, 
-      apply arrow_pathover_left, intro f, 
+    { induction b using rezk.set_rec with b b b' ib,
+      apply arrow_pathover_left, intro f,
       induction c using rezk.set_rec with c c c' ic,
       { apply concato, apply pathover_rezk_hom_left,
         apply pathover_idp_of_eq, refine !assoc⁻¹ ⬝ ap (λ x, g ∘ x) _⁻¹,
@@ -291,7 +291,7 @@ namespace rezk
     intro C, apply Precategory.mk (@rezk_carrier (Precategory.carrier C) C),
     apply rezk_precategory _ _,
   end
-  
+
   definition rezk_functor [constructor] (C : Precategory) : functor C (to_rezk_Precategory C) :=
   begin
     fapply functor.mk, apply elt,
@@ -337,7 +337,7 @@ namespace rezk
     (p : a = a') : to_hom (transport (λ x, iso x b) p f) = transport (λ x, hom _ _) p (to_hom f) :=
   by cases p; reflexivity
 
-  private definition pathover_iso_pth {a b b' : A} (f : elt a ≅ elt b) 
+  private definition pathover_iso_pth {a b b' : A} (f : elt a ≅ elt b)
     (ib : b ≅ b') : pathover (λ x, iso (elt a) x) f (pth ib) (f ⬝i elt_iso_of_iso ib) :=
   begin
     apply pathover_of_tr_eq, apply iso_eq,
@@ -361,9 +361,9 @@ namespace rezk
     apply pth, apply iso_of_elt_iso f,
     apply arrow_pathover, intro f g p, apply eq_pathover,
     refine !ap_constant ⬝ph _ ⬝hp !ap_id⁻¹, apply square_of_eq,
-    refine !resp_comp⁻¹ ⬝ (ap pth _)⁻¹ ⬝ !idp_con⁻¹, 
-    apply concat, apply inverse, apply ap rezk.iso_of_elt_iso, 
-    apply eq_of_parallel_po_right (pathover_iso_pth _ _) p, 
+    refine !resp_comp⁻¹ ⬝ (ap pth _)⁻¹ ⬝ !idp_con⁻¹,
+    apply concat, apply inverse, apply ap rezk.iso_of_elt_iso,
+    apply eq_of_parallel_po_right (pathover_iso_pth _ _) p,
     apply concat, apply iso_of_elt_iso_distrib,
     apply ap (λ x, _ ⬝i x), apply equiv.to_left_inv !iso_equiv_elt_iso
   end
@@ -377,12 +377,12 @@ namespace rezk
     { induction b using rezk.set_rec with b b b' ib,
       { apply arrow_pathover, intro f g p, apply eq_pathover,
         refine !ap_id ⬝ph _ ⬝hp !ap_constant⁻¹, apply square_of_eq,
-        refine (ap pth _) ⬝ !resp_comp, 
+        refine (ap pth _) ⬝ !resp_comp,
         assert H : g = (elt_iso_of_iso (iso.symm ia) ⬝i f),
         apply eq_of_parallel_po_right p (pathover_iso_pth' _ _),
-        rewrite H, apply inverse, 
+        rewrite H, apply inverse,
         apply concat, apply ap (λ x, ia ⬝i x), apply iso_of_elt_iso_distrib,
-        apply concat, apply ap (λ x, _ ⬝i (x ⬝i _)), apply equiv.to_left_inv !iso_equiv_elt_iso, 
+        apply concat, apply ap (λ x, _ ⬝i (x ⬝i _)), apply equiv.to_left_inv !iso_equiv_elt_iso,
         apply iso_eq, apply inverse_comp_cancel_right },
        apply @is_prop.elimo }
   end
@@ -437,5 +437,5 @@ namespace rezk
   prod.mk (fully_faithful_rezk_functor C) (essentially_surj_rezk_functor C)
 
   end
-  
+
 end rezk

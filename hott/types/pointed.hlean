@@ -305,7 +305,7 @@ namespace pointed
     { apply idp_con}
   end
 
-  protected definition phomotopy.rfl [constructor] {f : A →* B} : f ~* f :=
+  protected definition phomotopy.rfl [constructor] [reducible] {f : A →* B} : f ~* f :=
   phomotopy.refl f
 
   protected definition phomotopy.trans [constructor] [trans] (p : f ~* g) (q : g ~* h)
@@ -782,7 +782,7 @@ namespace pointed
     (p : h ~* f⁻¹ᵉ* ∘* g) : f ∘* h ~* g :=
   (phomotopy_of_pinv_left_phomotopy p⁻¹*)⁻¹*
 
-  definition pcompose2 {A B C : Type*} {g g' : B →* C} {f f' : A →* B} (p : f ~* f') (q : g ~* g') :
+  definition pcompose2 {A B C : Type*} {g g' : B →* C} {f f' : A →* B} (q : g ~* g') (p : f ~* f') :
     g ∘* f ~* g' ∘* f' :=
   pwhisker_right f q ⬝* pwhisker_left g' p
 
