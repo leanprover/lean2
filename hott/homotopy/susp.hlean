@@ -223,7 +223,7 @@ namespace susp
     : is_equiv (psusp_functor f) :=
   susp.is_equiv_functor f
 
-  definition psusp_equiv [constructor] (f : X ≃* Y) : psusp X ≃* psusp Y :=
+  definition psusp_pequiv [constructor] (f : X ≃* Y) : psusp X ≃* psusp Y :=
   pequiv_of_equiv (susp.equiv f) idp
 
   definition psusp_functor_compose (g : Y →* Z) (f : X →* Y)
@@ -430,7 +430,7 @@ namespace susp
   begin
     induction n with n IH,
     { reflexivity},
-    { exact psusp_equiv IH}
+    { exact psusp_pequiv IH}
   end
 
   definition iterate_psusp_adjoint_loopn [constructor] (X Y : Type*) (n : ℕ) :
@@ -441,6 +441,5 @@ namespace susp
     { refine !psusp_adjoint_loop ⬝e* !IH ⬝e* _, apply pequiv_ppcompose_left,
       symmetry, apply loopn_succ_in }
   end
-
 
 end susp

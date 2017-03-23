@@ -387,7 +387,7 @@ namespace pointed
   definition eq_of_phomotopy' (p : f ~* g) : f = g :=
   to_inv (pmap_eq_equiv_internal f g) p
 
-  definition pmap_eq_equiv {A B : Type*} (f g : A →* B) : (f = g) ≃ (f ~* g) :=
+  definition pmap_eq_equiv [constructor] {A B : Type*} (f g : A →* B) : (f = g) ≃ (f ~* g) :=
   begin
     refine equiv_change_fun (pmap_eq_equiv_internal f g) _,
     { apply phomotopy_of_eq },
