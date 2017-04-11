@@ -34,7 +34,7 @@ section
   definition red_susp [constructor] : Type* := pointed.MK red_susp' base'
   parameter {A}
 
-  definition base : red_susp :=
+  definition base [reducible] : red_susp :=
   base'
 
   definition equator (a : A) : base = base :=
@@ -70,7 +70,7 @@ section
       induction q, exact Pe
   end
 
-  protected definition elim_on [reducible] {P : Type} (x : red_susp') (Pb : P)
+ protected definition elim_on [reducible] {P : Type} (x : red_susp') (Pb : P)
     (Pm : Π(a : A), Pb = Pb) (Pe : Pm pt = idp) : P :=
   elim Pb Pm Pe x
 
@@ -93,6 +93,12 @@ attribute red_susp.rec_on red_susp.elim_on [unfold 3]
 --attribute red_susp.elim_type_on [unfold 6]
 
 namespace red_susp
+
+  protected definition pelim' [unfold 4] {A P : Type*} (f : A →* Ω P) : red_susp' A → P :=
+  red_susp.elim pt f (respect_pt f)
+
+  protected definition pelim [constructor] {A P : Type*} (f : A →* Ω P) : red_susp A →* P :=
+  pmap.mk (red_susp.pelim' f) idp
 
   definition susp_of_red_susp [unfold 2] {A : Type*} (x : red_susp A) : susp A :=
   begin
