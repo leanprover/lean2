@@ -7,7 +7,7 @@ Structures with multiplicative and additive components, including semirings, rin
 The development is modeled after Isabelle's library.
 -/
 
-import algebra.binary algebra.group
+import algebra.group
 open eq eq.ops algebra
 set_option class.force_new true
 

@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Homomorphisms between structures.
 -/
-import algebra.ring algebra.category.category
+import algebra.ring function
 open eq function is_trunc
 
 namespace algebra

@@ -6,7 +6,7 @@ Authors: Robert Lewis
 Structures with multiplicative and additive components, including division rings and fields.
 The development is modeled after Isabelle's library.
 -/
-import algebra.binary algebra.group algebra.ring
+import algebra.ring
 open eq eq.ops algebra
 set_option class.force_new true
 

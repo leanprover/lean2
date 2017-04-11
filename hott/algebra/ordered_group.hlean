@@ -6,7 +6,7 @@ Authors: Jeremy Avigad
 Partially ordered additive groups, modeled on Isabelle's library. These classes can be refined
 if necessary.
 -/
-import algebra.binary algebra.group algebra.order
+import algebra.group algebra.order
 open eq eq.ops algebra   -- note: ⁻¹ will be overloaded
 set_option class.force_new true
 

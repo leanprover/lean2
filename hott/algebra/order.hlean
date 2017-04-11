@@ -5,7 +5,7 @@ Author: Jeremy Avigad
 
 Weak orders "≤", strict orders "<", and structures that include both.
 -/
-import algebra.binary algebra.priority
+import algebra.binary
 open eq eq.ops algebra
 -- set_option class.force_new true
 

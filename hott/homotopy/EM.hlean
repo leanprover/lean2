@@ -465,8 +465,6 @@ namespace EM
     { exact EMadd1_functor φ n }
   end
 
-  -- TODO: (K G n →* K H n) ≃ (G →g H)
-
   /- Equivalence of Groups and pointed connected 1-truncated types -/
 
   definition ptruncconntype10_pequiv (X Y : 1-Type*[0]) (e : π₁ X ≃g π₁ Y) : X ≃* Y :=

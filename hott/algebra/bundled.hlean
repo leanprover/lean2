@@ -5,7 +5,7 @@ Authors: Jeremy Avigad
 
 Bundled structures
 -/
-import algebra.group homotopy.interval
+import algebra.group
 open algebra pointed is_trunc
 
 namespace algebra
