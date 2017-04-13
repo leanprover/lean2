@@ -24,4 +24,4 @@ doc/html
 make.deps
 src/emacs/dependencies
 compile_commands.json
-*.hlean#
+*.hlean\#
