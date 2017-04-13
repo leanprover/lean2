@@ -223,7 +223,7 @@ namespace susp
     : is_equiv (psusp_functor f) :=
   susp.is_equiv_functor f
 
-  definition psusp_equiv [constructor] (f : X ≃* Y) : psusp X ≃* psusp Y :=
+  definition psusp_pequiv [constructor] (f : X ≃* Y) : psusp X ≃* psusp Y :=
   pequiv_of_equiv (susp.equiv f) idp
 
   definition psusp_functor_compose (g : Y →* Z) (f : X →* Y)
@@ -249,23 +249,24 @@ namespace susp
   end
 
   definition loop_psusp_unit_natural (f : X →* Y)
-    : loop_psusp_unit Y ∘* f ~* ap1 (psusp_functor f) ∘* loop_psusp_unit X :=
+    : loop_psusp_unit Y ∘* f ~* Ω→ (psusp_functor f) ∘* loop_psusp_unit X :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fconstructor,
-    { intro x', esimp [psusp_functor], symmetry,
+    { intro x', symmetry,
       exact
-        !idp_con ⬝
+        !ap1_gen_idp_left ⬝
         (!ap_con ⬝
         whisker_left _ !ap_inv) ⬝
         (!elim_merid ◾ (inverse2 !elim_merid)) },
-    { rewrite [▸*,idp_con (con.right_inv _)],
+    { rewrite [▸*, idp_con (con.right_inv _)],
       apply inv_con_eq_of_eq_con,
       refine _ ⬝ !con.assoc',
       rewrite inverse2_right_inv,
       refine _ ⬝ !con.assoc',
       rewrite [ap_con_right_inv],
-      xrewrite [idp_con_idp, -ap_compose (concat idp)] },
+      rewrite [ap1_gen_idp_left_con],
+      rewrite [-ap_compose (concat idp)] },
   end
 
   definition loop_psusp_counit [constructor] (X : Type*) : psusp (Ω X) →* X :=
@@ -285,7 +286,7 @@ namespace susp
       { reflexivity },
       { esimp, apply eq_pathover, apply hdeg_square,
         xrewrite [ap_compose' f, ap_compose' (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*],
-        xrewrite [+elim_merid,▸*,idp_con] }},
+        xrewrite [+elim_merid, ap1_gen_idp_left] }},
     { reflexivity }
   end
 
@@ -294,13 +295,14 @@ namespace susp
   begin
     induction X with X x, fconstructor,
     { intro p, esimp,
-      refine !idp_con ⬝
+      refine !ap1_gen_idp_left ⬝
              (!ap_con ⬝
              whisker_left _ !ap_inv) ⬝
              (!elim_merid ◾ inverse2 !elim_merid) },
     { rewrite [▸*,inverse2_right_inv (elim_merid id idp)],
       refine !con.assoc ⬝ _,
-      xrewrite [ap_con_right_inv (susp.elim x x (λa, a)) (merid idp),idp_con_idp,-ap_compose] }
+      xrewrite [ap_con_right_inv (susp.elim x x (λa, a)) (merid idp),ap1_gen_idp_left_con,
+        -ap_compose] }
   end
 
   definition loop_psusp_unit_counit (X : Type*)
@@ -428,7 +430,7 @@ namespace susp
   begin
     induction n with n IH,
     { reflexivity},
-    { exact psusp_equiv IH}
+    { exact psusp_pequiv IH}
   end
 
   definition iterate_psusp_adjoint_loopn [constructor] (X Y : Type*) (n : ℕ) :
@@ -439,6 +441,5 @@ namespace susp
     { refine !psusp_adjoint_loop ⬝e* !IH ⬝e* _, apply pequiv_ppcompose_left,
       symmetry, apply loopn_succ_in }
   end
-
 
 end susp

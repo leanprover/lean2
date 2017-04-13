@@ -300,6 +300,10 @@ namespace function
     ⦃a a' : A⦄ (p : g (f a) = g (f a')) : a = a' :=
   H₂ (H₁ p)
 
+  definition is_embedding_pr1 [instance] [constructor] {A : Type} (B : A → Type) [H : Π a, is_prop (B a)]
+      : is_embedding (@pr1 A B) :=
+  λv v', to_is_equiv (sigma_eq_equiv v v' ⬝e !sigma_equiv_of_is_contr_right)
+
   /-
     The definitions
       is_surjective_of_is_equiv

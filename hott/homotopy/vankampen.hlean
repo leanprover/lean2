@@ -231,7 +231,6 @@ namespace pushout
 --       revert c, apply @set_quotient.rec_prop, { intro z, apply is_trunc_pathover},
 --       intro l,
 --       refine _ ⬝op ap decode_point !quotient.elim_type_eq_of_rel⁻¹,
--- -- REPORT THIS!!! esimp fails here, but works after this change
 --   --esimp,
 --       change pathover (λ (a : pushout f g), trunc 0 (eq (pushout_of_sum x) a))
 --       (decode_point (class_of l))
