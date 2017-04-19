@@ -358,13 +358,22 @@ namespace group
   Group.mk _ trivial_group
 
   abbreviation G0 := Trivial_group
-
+  
   definition trivial_group_of_is_contr [H : is_contr G] : G ≃g G0 :=
   begin
     fapply isomorphism_of_equiv,
     { apply equiv_unit_of_is_contr},
     { intros, reflexivity}
   end
+
+  /- the trivial abelian group -/
+  definition trivial_ab_group [constructor] : ab_group unit :=
+  ab_group.mk _ (λx y, star) (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp) (λ x y, idp)
+
+   definition Trivial_ab_group [constructor] : AbGroup :=
+   AbGroup.mk _ trivial_ab_group
+
+  abbreviation AG0 := Trivial_ab_group
 
   variable {G}
 
