@@ -1,4 +1,12 @@
-import ..group_theory 
+/-
+Copyright (c) 2017 Sayantan Khan
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Sayantan Khan
+
+Structures for chain complexes. Currently only supports abelian groups.
+-/
+
+import algebra.group_theory 
 import types.int
 
 open algebra
@@ -21,6 +29,12 @@ structure ab_chain_complex : Type :=
   (boundary_map : Π (z : ℤ), homomorphism (chain_group(z)) (chain_group(z-1)))
   (boundary_of_boundary : Π (z : ℤ), zero_map (homomorphism_compose (boundary_map(z-1)) (boundary_map(z))))
   
+structure chain_map (C₁ C₂ : ab_chain_complex) : Type :=
+  (group_map : Π (z : ℤ), homomorphism (ab_chain_complex.chain_group(C₁)(z)) (ab_chain_complex.chain_group(C₂)(z)))
+  (commutes : Π (z : ℤ), 
+    (homomorphism_compose (ab_chain_complex.boundary_map (C₂) (z)) (group_map (z))) 
+  = (homomorphism_compose (group_map (z-1)) (ab_chain_complex.boundary_map (C₁) (z))))
+
 structure ab_exact_chain_complex : Type :=
   (chain_group  : ℤ → AbGroup)
   (boundary_map : Π (z : ℤ), homomorphism (chain_group(z)) (chain_group(z-1)))
@@ -28,13 +42,10 @@ structure ab_exact_chain_complex : Type :=
   (exactness : Π (z : ℤ), Π (x : chain_group(z-1)), 
     (group_fun(boundary_map(z-1))(x) = group.one(chain_group(z-1-1))) → (Σ (y : chain_group(z)), group_fun(boundary_map(z))(y) = x))
 
-open ab_exact_chain_complex
-
-check @injective_map.mk
-
--- lemma left_zero_implies_injective : Π (C : ab_exact_chain_complex), Π (z : ℤ),
-  -- zero_map(boundary_map(C)(z)) → injective_map(boundary_map(C)(z-1)) :=
-    -- λ C z pZeroMap, injective_map.mk 
-      -- (λ x pGoesZero)
+structure exact_chain_map (C₁ C₂ : ab_exact_chain_complex) : Type :=
+  (group_map : Π (z : ℤ), homomorphism (ab_exact_chain_complex.chain_group(C₁)(z)) (ab_exact_chain_complex.chain_group(C₂)(z)))
+  (commutes : Π (z : ℤ), 
+    (homomorphism_compose (ab_exact_chain_complex.boundary_map (C₂) (z)) (group_map (z))) 
+  = (homomorphism_compose (group_map (z-1)) (ab_exact_chain_complex.boundary_map (C₁) (z))))
 
 end abelian_chain_complex
