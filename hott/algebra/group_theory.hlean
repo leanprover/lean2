@@ -366,17 +366,6 @@ namespace group
     { intros, reflexivity}
   end
 
-  /- the trivial abelian group -/
-  definition trivial_ab_group [constructor] : ab_group unit :=
-  ab_group.mk _ (λx y, star) (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp) (λ x y, idp)
-
-   definition Trivial_ab_group [constructor] : AbGroup :=
-   AbGroup.mk _ trivial_ab_group
-
-  abbreviation AG0 := Trivial_ab_group
-
-  variable {G}
-
   /-
     A group where the point in the pointed type corresponds with 1 in the group.
     We need this structure when we are given a pointed type, and want to say that there is a group
