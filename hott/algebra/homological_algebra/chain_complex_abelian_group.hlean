@@ -23,6 +23,10 @@ structure surjective_map {G₁ G₂ : AbGroup} (φ : homomorphism (G₁) (G₂))
   
 structure injective_map {G₁ G₂ : AbGroup} (φ : homomorphism (G₁) (G₂)) : Type :=
   (comes_from_zero : Π (x : G₁), (group_fun(φ)(x) = group.one(G₂)) → (x = group.one(G₁)))
+
+structure bijective_map {G₁ G₂ : AbGroup} (φ : homomorphism (G₁) (G₂)) : Type :=
+  (get_preimage : Π (y : G₂), Σ (x : G₁), group_fun(φ)(x) = y)
+  (comes_from_zero : Π (x : G₁), (group_fun(φ)(x) = group.one(G₂)) → (x = group.one(G₁)))
   
 structure ab_chain_complex : Type :=
   (chain_group  : ℤ → AbGroup)
