@@ -104,8 +104,42 @@ lemma lFlLemmaTwo : Π {C₁ C₂ : ab_exact_chain_complex}, Π (M : exact_chain
 
 lemma lFlLemmaThree : Π {C₁ C₂ : ab_exact_chain_complex}, Π (M : exact_chain_map (C₁) (C₂)), Π (z : ℤ),
   surjective_map (group_map(M)(z)) → surjective_map (group_map(M)(z-1-1)) → injective_map (group_map(M)(z-1-1-1)) →
+  Π (b' : chain_group(C₂)(z-1)), Π (c : chain_group(C₁)(z-1-1)),
+  ((group_map(M)(z-1-1)(c)) = (boundary_map(C₂)(z-1)(b'))) → (boundary_map(C₁)(z-1-1)(c) = group.one(chain_group(C₁)(z-1-1-1))) :=
+    λ C₁ C₂ M z proofSurj_m proofSurj_p proofInj_q b' c proofEq,
+    lFlLemmaTwo (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (c)
+    (eq.trans (transport_equality (boundary_map(C₂)(z-1-1)) (proofEq))
+    (boundary_of_boundary(C₂)(z-1)(b')))
 
+lemma lFlLemmaFour : Π {C₁ C₂ : ab_exact_chain_complex}, Π (M : exact_chain_map (C₁) (C₂)), Π (z : ℤ),
+  surjective_map (group_map(M)(z)) → surjective_map (group_map(M)(z-1-1)) → injective_map (group_map(M)(z-1-1-1)) →
+  Π (b' : chain_group(C₂)(z-1)), Σ (b : chain_group(C₁)(z-1)), (group_map(M)(z-1-1)(boundary_map(C₁)(z-1)(b)) = boundary_map(C₂)(z-1)(b')) :=
+    λ C₁ C₂ M z proofSurj_m proofSurj_p proofInj_q b',
+    (
+    (λ c proofEq,
+      sigma.mk
+      (pr₁(exactness(C₁)(z-1)(c) (lFlLemmaThree (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b') (c) (proofEq) )))
+      (
+        eq.trans  
+        (transport_equality (group_map(M)(z-1-1)) (pr₂(exactness(C₁)(z-1)(c) (lFlLemmaThree (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b') (c) (proofEq) ))))
+        (proofEq)
+      )
+    )
+    (pr₁(lFlLemmaOne (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b')))
+    (pr₂(lFlLemmaOne (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b')))
+    )
 
+lemma lFlLemmaFive : Π {C₁ C₂ : ab_exact_chain_complex}, Π (M : exact_chain_map (C₁) (C₂)), Π (z : ℤ),
+  surjective_map (group_map(M)(z)) → surjective_map (group_map(M)(z-1-1)) → injective_map (group_map(M)(z-1-1-1)) →
+  Π (b' : chain_group(C₂)(z-1)), Σ (b : chain_group(C₁)(z-1)), boundary_map(C₂)(z-1)(group_map(M)(z-1)(b)) = boundary_map(C₂)(z-1)(b') :=
+    λ C₁ C₂ M z proofSurj_m proofSurj_p proofInj_q b',
+    (
+      (λ b proofEq,
+        sigma.mk (b) (eq.trans (commutes(M)(z-1)(b)) (proofEq))
+      )
+      (pr₁(lFlLemmaFour (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b')))
+      (pr₂(lFlLemmaFour (M) (z) (proofSurj_m) (proofSurj_p) (proofInj_q) (b')))
+    )
 -- lemma lFlLemmaThree : Π {C₁ C₂ : ab_exact_chain_complex}, Π (M : exact_chain_map (C₁) (C₂)), Π (z : ℤ),
 --   surjective_map (group_map(M)(z)) → surjective_map (group_map(M)(z-1-1)) → injective_map (group_map(M)(z-1-1-1)) →
 --   (Π (b' : chain_group(C₂)(z-1)), (Σ (b : chain_group(C₁)(z-1)), boundary_map(C₂)(z-1)(b') = boundary_map(C₂)(z-1)(group_map(M)(z-1)(b)))) :=
