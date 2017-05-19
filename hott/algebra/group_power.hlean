@@ -107,7 +107,6 @@ open nat
 theorem inv_pow (a : A) : Πn, (a⁻¹)^n = (a^n)⁻¹
 | 0        := by rewrite [*pow_zero, one_inv]
 | (succ n) := by rewrite [pow_succ, pow_succ', inv_pow, mul_inv]
-
 theorem pow_sub (a : A) {m n : ℕ} (H : m ≥ n) : a^(m - n) = a^m * (a^n)⁻¹ :=
 have H1 : m - n + n = m, from nat.sub_add_cancel H,
 have H2 : a^(m - n) * a^n = a^m, by rewrite [-pow_add, H1],
@@ -129,7 +128,11 @@ definition gpow (a : A) : ℤ → A
 
 open nat
 
-private lemma gpow_add_aux (a : A) (m n : nat) :
+lemma gpow_zero (a : A) : gpow a 0 = 1 := rfl
+lemma gpow_one (a : A) : gpow a 1 = a := pow_one a
+lemma gpow_eq_pow (a : A) (n : ℕ) : gpow a n = a^n := by reflexivity
+
+private lemma gpow_add_aux (a : A) (m n : ℕ) :
   gpow a ((of_nat m) + -[1+n]) = gpow a (of_nat m) * gpow a (-[1+n]) :=
 sum.elim (nat.lt_sum_ge m (nat.succ n))
   (assume H : (m < nat.succ n),
@@ -162,7 +165,36 @@ theorem gpow_add (a : A) : Πi j : int, gpow a (i + j) = gpow a i * gpow a j
 
 theorem gpow_comm (a : A) (i j : ℤ) : gpow a i * gpow a j = gpow a j * gpow a i :=
 by rewrite [-*gpow_add, add.comm]
+
+lemma gpow_neg (a : A) : Π(n : ℤ), gpow a (-n) = (gpow a n)⁻¹
+| (of_nat n) := by cases n with n; rewrite [gpow_zero,one_inv]; reflexivity
+| -[1+n]     := by rewrite [↑gpow at {2}, inv_inv]
+
+lemma inv_gpow (a : A) : Π(n : ℤ), gpow a⁻¹ n = (gpow a n)⁻¹
+| (of_nat n) := !inv_pow
+| -[1+n]     := by rewrite [↑gpow, inv_pow]
+
+private lemma gpow_mul_aux (a : A) (m n : ℕ) :
+  gpow a ((of_nat m) * -[1+n]) = gpow (gpow a (of_nat m)) (-[1+n]) :=
+by rewrite [↑gpow at {2,3}, -pow_mul, -gpow_eq_pow, -gpow_neg]
+
+theorem gpow_mul (a : A) : Π n m, gpow a (n * m) = gpow (gpow a n) m
+| (of_nat m) (of_nat n) := !pow_mul
+| (of_nat m) -[1+n]     := by rewrite [↑gpow at {2,3}, -pow_mul, -gpow_eq_pow, -gpow_neg]
+| -[1+m]     (of_nat n) := by rewrite [↑gpow at {2,3}, inv_pow, -pow_mul, -gpow_eq_pow, -gpow_neg]
+| -[1+m]     -[1+n]     := by rewrite [↑gpow at {2,3}, inv_pow, inv_inv, -pow_mul]
+
 end group
+
+section comm_monoid
+open int
+variable [ab_group A]
+
+theorem mul_gpow (a b : A) : Πi, gpow (a * b) i = gpow a i * gpow b i
+| (of_nat n) := !mul_pow
+| -[1+n]     := by rewrite [↑gpow,-mul_inv,mul.comm,mul_pow]
+
+end comm_monoid
 
 section ordered_ring
 open nat
@@ -262,3 +294,19 @@ theorem add_imul (i j : ℤ) (a : A) : imul (i + j) a = imul i a + imul j a :=
 theorem imul_comm (i j : ℤ) (a : A) : imul i a + imul j a = imul j a + imul i a := gpow_comm a i j
 
 end add_group
+
+section add_ab_group
+open int
+variable [add_ab_group A]
+local attribute add_ab_group.to_ab_group [trans_instance]
+
+theorem imul_add (i : ℤ) (a b : A) : imul i (a + b) = imul i a + imul i b :=
+mul_gpow a b i
+
+theorem mul_imul (i j : ℤ) (a : A) : imul (i * j) a = imul i (imul j a) :=
+by rewrite [mul.comm]; apply gpow_mul
+
+lemma one_imul (a : A) : imul 1 a = a :=
+gpow_one a
+
+end add_ab_group
