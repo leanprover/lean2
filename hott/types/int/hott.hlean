@@ -38,7 +38,7 @@ namespace int
   adjointify neg neg (λx, !neg_neg) (λa, !neg_neg)
   definition equiv_neg [constructor] : ℤ ≃ ℤ := equiv.mk neg _
 
-  definition iterate {A : Type} (f : A ≃ A) (a : ℤ) : A ≃ A :=
+  definition iiterate {A : Type} (f : A ≃ A) (a : ℤ) : A ≃ A :=
   rec_nat_on a erfl
                (λb g, f ⬝e g)
                (λb g, g ⬝e f⁻¹ᵉ)

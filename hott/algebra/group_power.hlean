@@ -11,10 +11,11 @@ a^n is used for the first, but users can locally redefine it to gpow when needed
 
 Note: power adopts the convention that 0^0=1.
 -/
-import types.nat.basic types.int.basic
+import types.nat.basic types.int.basic .homomorphism .group_theory
 open algebra
 
-variables {A : Type}
+namespace algebra
+variables {A B : Type}
 
 structure has_pow_nat [class] (A : Type) :=
 (pow_nat : A → nat → A)
@@ -118,6 +119,10 @@ theorem pow_inv_comm (a : A) : Πm n, (a⁻¹)^m * a^n = a^n * (a⁻¹)^m
 | (succ m) (succ n) := by rewrite [pow_succ' at {1}, pow_succ at {1}, pow_succ', pow_succ,
                             *mul.assoc, inv_mul_cancel_left, mul_inv_cancel_left, pow_inv_comm]
 
+lemma respect_pow [group B] (f : A → B) [is_mul_hom f] (a : A) : Πn, f (a ^ n) = (f a) ^ n
+| 0        := respect_one f
+| (succ n) := by rewrite [pow_succ, respect_mul, respect_pow]
+
 end nat
 
 open int
@@ -184,6 +189,10 @@ theorem gpow_mul (a : A) : Π n m, gpow a (n * m) = gpow (gpow a n) m
 | -[1+m]     (of_nat n) := by rewrite [↑gpow at {2,3}, inv_pow, -pow_mul, -gpow_eq_pow, -gpow_neg]
 | -[1+m]     -[1+n]     := by rewrite [↑gpow at {2,3}, inv_pow, inv_inv, -pow_mul]
 
+lemma respect_gpow [group B] (f : A → B) [is_mul_hom f] (a : A) : Πn, f (gpow a n) = gpow (f a) n
+| (of_nat n) := !respect_pow
+| -[1+n]     := by rewrite [↑gpow, respect_inv, respect_pow]
+
 end group
 
 section comm_monoid
@@ -228,6 +237,15 @@ theorem pow_two_add (n : ℕ) : (2:A)^n + 2^n = 2^(succ n) :=
 
 end ordered_ring
 
+section bundled
+open group
+lemma to_respect_pow {A B : Group} (f : A →g B) (a : A) (n : ℕ) : f (a ^ n) = (f a) ^ n :=
+respect_pow f a n
+
+lemma to_respect_gpow {A B : Group} (f : A →g B) (a : A) (n : ℤ) : f (gpow a n) = gpow (f a) n :=
+respect_gpow f a n
+end bundled
+
 /- additive monoid -/
 
 section add_monoid
@@ -238,7 +256,7 @@ open nat
 
 definition nmul : ℕ → A → A := λ n a, a^n
 
-infix [priority algebra.prio] `⬝` := nmul
+local infix [priority algebra.prio] `⬝` := nmul
 
 theorem zero_nmul (a : A) : (0:ℕ) ⬝ a = 0 := pow_zero a
 theorem succ_nmul (n : ℕ) (a : A) : nmul (succ n) a = a + (nmul n a) := pow_succ a n
@@ -251,12 +269,17 @@ theorem one_nmul (a : A) : 1 ⬝ a = a := pow_one a
 
 theorem add_nmul (m n : ℕ) (a : A) : (m + n) ⬝ a = (m ⬝ a) + (n ⬝ a) := pow_add a m n
 
-theorem mul_nmul (m n : ℕ) (a : A) : (m * n) ⬝ a = m ⬝ (n ⬝ a) := eq.subst (mul.comm n m) (pow_mul a n m)
+theorem mul_nmul (m n : ℕ) (a : A) : (m * n) ⬝ a = m ⬝ (n ⬝ a) :=
+eq.subst (mul.comm n m) (pow_mul a n m)
 
 theorem nmul_comm (m n : ℕ) (a : A) : (m ⬝ a) + (n ⬝ a) = (n ⬝ a) + (m ⬝ a) := pow_comm a m n
 
 end add_monoid
 
+namespace ops
+infix [priority algebra.prio] `⬝` := nmul
+end ops
+open algebra.ops
 /- additive commutative monoid -/
 
 section add_comm_monoid
@@ -280,7 +303,12 @@ theorem nmul_neg (n : ℕ) (a : A) : n ⬝ (-a) = -(n ⬝ a) := inv_pow a n
 
 theorem sub_nmul {m n : ℕ} (a : A) (H : m ≥ n) : (m - n) ⬝ a = (m ⬝ a) + -(n ⬝ a) := pow_sub a H
 
-theorem nmul_neg_comm (m n : ℕ) (a : A) : (m ⬝ (-a)) + (n ⬝ a) = (n ⬝ a) + (m ⬝ (-a)) := pow_inv_comm a m n
+theorem nmul_neg_comm (m n : ℕ) (a : A) : (m ⬝ (-a)) + (n ⬝ a) = (n ⬝ a) + (m ⬝ (-a)) :=
+pow_inv_comm a m n
+
+lemma respect_nmul [add_group B] (f : A → B) [H : is_add_hom f] (n : ℕ) (a : A) :
+  f (nmul n a) = nmul n (f a) :=
+to_respect_pow (group.homomorphism.mk f H) a n
 
 end nat
 
@@ -309,4 +337,21 @@ by rewrite [mul.comm]; apply gpow_mul
 lemma one_imul (a : A) : imul 1 a = a :=
 gpow_one a
 
+lemma respect_imul [add_group B] (f : A → B) [H : is_add_hom f] (n : ℤ) (a : A) :
+  f (imul n a) = imul n (f a) :=
+to_respect_gpow (group.homomorphism.mk f H) a n
+
 end add_ab_group
+
+section bundled
+open group
+
+lemma to_respect_nmul {A B : AddGroup} (f : A →g B) (n : ℕ) (a : A) : f (nmul n a) = nmul n (f a) :=
+to_respect_pow f a n
+
+lemma to_respect_imul {A B : AddGroup} (f : A →g B) (n : ℤ) (a : A) : f (imul n a) = imul n (f a) :=
+to_respect_gpow f a n
+
+end bundled
+
+end algebra

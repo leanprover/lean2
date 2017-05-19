@@ -370,6 +370,12 @@ namespace equiv
   definition eq_of_fn_eq_fn_inv [unfold 3] (f : A ≃ B) {x y : B} (q : f⁻¹ x = f⁻¹ y) : x = y :=
   (right_inv f x)⁻¹ ⬝ ap f q ⬝ right_inv f y
 
+  definition ap_eq_of_fn_eq_fn (f : A ≃ B) {x y : A} (q : f x = f y) : ap f (eq_of_fn_eq_fn' f q) = q :=
+  ap_eq_of_fn_eq_fn' f q
+
+  definition eq_of_fn_eq_fn_ap (f : A ≃ B) {x y : A} (q : x = y) : eq_of_fn_eq_fn' f (ap f q) = q :=
+  eq_of_fn_eq_fn'_ap f q
+
   --we need this theorem for the funext_of_ua proof
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=
   eq.rec_on p idp
