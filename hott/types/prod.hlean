@@ -22,7 +22,7 @@ namespace prod
   definition pair_eq [unfold 7 8] (pa : a = a') (pb : b = b') : (a, b) = (a', b') :=
   ap011 prod.mk pa pb
 
-  definition prod_eq [unfold 3 4 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
+  definition prod_eq [unfold 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
   by cases u; cases v; exact pair_eq H₁ H₂
 
   definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
@@ -54,8 +54,8 @@ namespace prod
   by induction p; induction u; reflexivity
 
   -- the uncurried version of prod_eq. We will prove that this is an equivalence
-  definition prod_eq_unc (H : u.1 = v.1 × u.2 = v.2) : u = v :=
-  by cases H with H₁ H₂;exact prod_eq H₁ H₂
+  definition prod_eq_unc [unfold 5] (H : u.1 = v.1 × u.2 = v.2) : u = v :=
+  by cases H with H₁ H₂; exact prod_eq H₁ H₂
 
   definition pair_prod_eq_unc : Π(pq : u.1 = v.1 × u.2 = v.2),
     ((prod_eq_unc pq)..1, (prod_eq_unc pq)..2) = pq
@@ -79,6 +79,10 @@ namespace prod
 
   definition prod_eq_equiv [constructor] (u v : A × B) : (u = v) ≃ (u.1 = v.1 × u.2 = v.2) :=
   (equiv.mk prod_eq_unc _)⁻¹ᵉ
+
+  definition pair_eq_pair_equiv [constructor] (a a' : A) (b b' : B) :
+    ((a, b) = (a', b')) ≃ (a = a' × b = b') :=
+  prod_eq_equiv (a, b) (a', b')
 
   definition ap_prod_mk_left (p : a = a') : ap (λa, prod.mk a b) p = prod_eq p idp :=
   ap_eq_ap011_left prod.mk p b

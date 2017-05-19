@@ -351,9 +351,11 @@ namespace group
 
   /- the trivial group -/
   open unit
+  --rename: group_unit
   definition trivial_group [constructor] : group unit :=
   group.mk _ (λx y, star) (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
 
+  --rename trivial_group
   definition Trivial_group [constructor] : Group :=
   Group.mk _ trivial_group
 

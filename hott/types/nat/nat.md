@@ -6,3 +6,4 @@ The natural numbers. Note: all these files are ported from the standard library.
 * [basic](basic.hlean) : the natural numbers, with succ, pred, addition, and multiplication
 * [order](order.hlean) : less-than, less-then-or-equal, etc.
 * [sub](sub.hlean) : subtraction, and distance
+* [div](div.hlean) : divisibility, the mod operator, division

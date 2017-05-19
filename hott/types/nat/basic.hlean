@@ -314,5 +314,5 @@ definition iterate {A : Type} (op : A → A) : ℕ → A → A
  | 0 := λ a, a
  | (succ k) := λ a, op (iterate k a)
 
-notation f`^[`n`]` := iterate f n
+notation f `^[`:80 n:0 `]`:0 := iterate f n
 end

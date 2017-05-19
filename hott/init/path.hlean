@@ -22,11 +22,11 @@ namespace eq
   definition idpath [reducible] [constructor] (a : A) := refl a
 
   -- unbased path induction
-  definition rec' [reducible] [unfold 6] {P : Π (a b : A), (a = b) → Type}
+  definition rec_unbased [reducible] [unfold 6] {P : Π (a b : A), (a = b) → Type}
     (H : Π (a : A), P a a idp) {a b : A} (p : a = b) : P a b p :=
   eq.rec (H a) p
 
-  definition rec_on' [reducible] [unfold 5] {P : Π (a b : A), (a = b) → Type}
+  definition rec_on_unbased [reducible] [unfold 5] {P : Π (a b : A), (a = b) → Type}
     {a b : A} (p : a = b) (H : Π (a : A), P a a idp) : P a b p :=
   eq.rec (H a) p
 
