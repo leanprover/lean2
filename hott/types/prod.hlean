@@ -22,7 +22,7 @@ namespace prod
   definition pair_eq [unfold 7 8] (pa : a = a') (pb : b = b') : (a, b) = (a', b') :=
   ap011 prod.mk pa pb
 
-  definition prod_eq [unfold 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
+  definition prod_eq [unfold 3 4 5 6] (H₁ : u.1 = v.1) (H₂ : u.2 = v.2) : u = v :=
   by cases u; cases v; exact pair_eq H₁ H₂
 
   definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
