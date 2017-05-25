@@ -19,8 +19,7 @@ packages, which can be installed via <kbd>M-x package-install</kbd>.
 [f]: https://github.com/rejeep/f.el
 [s]: https://github.com/magnars/s.el
 
-The following packages are *optional*, but we recommend installing them
-to use full features of ``lean-mode``.
+The following packages are optional, but strongly recommended.
 
  - [company][company]
  - [flycheck][flycheck]
@@ -46,7 +45,7 @@ found in different places on different systems:
 - With GNU Emacs, it is common to use ``.emacs.d/init.el`` instead.
 - With Aquamacs, it is common to use ``~/Library/Preferences/Aquamacs Emacs/Preferences.el``.
 
-On Windows, there are two additional complications: 
+On Windows, there are two additional complications:
 
 - It may be hard to figure out what Emacs considers to be your "home
   directory".
@@ -57,7 +56,7 @@ One solution is to run Emacs itself and create the file using C-c C-f
 (control-C, control-F) and then entering ``~/.emacs``. (The tilde
 indicates your home directory.) On Windows, you can also name the file
 ``_emacs``.
- 
+
 Put the following code in your Emacs init file:
 
 ```elisp
@@ -81,15 +80,16 @@ Put the following code in your Emacs init file:
       (package-install p))))
 ```
 
-Then choose your installation method from the following scenarios, and
-add the corresponding code to your init file:
+Then choose your installation method from the following scenarios, and add the corresponding code to
+your init file: (note: you need to change the directory in the following code snippets to the
+directory of your clone of the repository).
 
 Case 1: Build Lean from source
 -----------------------------
 
 ```elisp
 ;; Set up lean-root path
-(setq lean-rootdir "~/projects/lean")  ;; <=== YOU NEED TO MODIFY THIS
+(setq lean-rootdir "~/projects/lean2")  ;; <=== YOU NEED TO MODIFY THIS
 (setq-local lean-emacs-path
             (concat (file-name-as-directory lean-rootdir)
                     (file-name-as-directory "src")
@@ -149,7 +149,7 @@ check id
 the word ``check`` will be underlined, and hovering over it will show
 you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
 that there are no errors and one piece of information displayed. Whenever
-you type, an asterisk should briefly appear after ``FlyC``, indicating that 
+you type, an asterisk should briefly appear after ``FlyC``, indicating that
 your file is being checked.
 
 
@@ -177,7 +177,7 @@ Key Bindings and Commands
 The Flycheck annotation `FlyC:n/n` indicates the number of errors / responses from Lean. An asterisk
 `*FlyC:n/n` indicates that checking is in progress. Clicking on `FlyC` opens the Flycheck menu.
 
-To profile Lean performace on the file in the buffer, enter <kbd>M-x lean-execute</kbd> or choose 
+To profile Lean performace on the file in the buffer, enter <kbd>M-x lean-execute</kbd> or choose
 `Lean execute` from the Lean menu, and add the option `--profile`.
 
 

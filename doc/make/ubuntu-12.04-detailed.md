@@ -56,7 +56,7 @@ Preparing working environment on Ubuntu 12.04
     cmake -D CMAKE_BUILD_TYPE=Release -D BOOST=ON ../src
     make
 
-### If you are using Emacs, here are some basic configurations
+### If you are using Emacs, here are some basic configurations (optional)
 
     (custom-set-variables
       '(c-basic-offset 4)
@@ -88,4 +88,4 @@ Preparing working environment on Ubuntu 12.04
         ("\\<\\(constexpr\\)\\>" . font-lock-keyword-face)
         ))
 
-You need to also set up the [Emacs Mode](../../src/emacs/README.md).
+### You need to also set up the [Emacs Mode](../../src/emacs/README.md).
