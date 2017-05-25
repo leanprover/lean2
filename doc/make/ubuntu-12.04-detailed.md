@@ -56,36 +56,4 @@ Preparing working environment on Ubuntu 12.04
     cmake -D CMAKE_BUILD_TYPE=Release -D BOOST=ON ../src
     make
 
-### If you are using Emacs, here are some basic configurations (optional)
-
-    (custom-set-variables
-      '(c-basic-offset 4)
-      '(global-font-lock-mode t nil (font-lock))
-      '(show-paren-mode t nil (paren))
-      '(transient-mark-mode t))
-
-
-    (tool-bar-mode -1)
-    (setq visible-bell t)
-    (setq-default indent-tabs-mode nil)
-    (setq visible-bell t)
-    (column-number-mode 1)
-
-    ;; Coding Style
-    (setq auto-mode-alist (cons '("\\.h$" . c++-mode) auto-mode-alist))
-    (defconst my-cc-style
-      '("cc-mode"
-       (c-offsets-alist . ((innamespace . [0])))))
-    (c-add-style "my-cc-mode" my-cc-style)
-    (add-hook 'c++-mode-hook '(lambda ()
-                                 (c-set-style "my-cc-mode")
-                                 (gtags-mode 1)
-                                ))
-
-    ;; C++ 11 new keywords
-    (font-lock-add-keywords 'c++-mode
-       '(("\\<\\(thread_local\\)\\>" . font-lock-warning-face)
-        ("\\<\\(constexpr\\)\\>" . font-lock-keyword-face)
-        ))
-
 ### You need to also set up the [Emacs Mode](../../src/emacs/README.md).

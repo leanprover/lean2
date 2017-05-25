@@ -152,6 +152,14 @@ that there are no errors and one piece of information displayed. Whenever
 you type, an asterisk should briefly appear after ``FlyC``, indicating that
 your file is being checked.
 
+If you get an error which contains `failed to lock file`, you need to create a `.project` file:
+- open a `.lean` or `.hlean` file
+- go to menu-bar (top of screen) -> Lean -> Create a new project
+- click open
+- it will ask "standard or hott": type which mode you want to use and press enter
+- now it has created a project file (which manages imports and so on for files outside the library), and if you go back to your `.lean` or `.hlean` file these error messages will disappear.
+
+
 
 Key Bindings and Commands
 =========================
@@ -181,6 +189,41 @@ To profile Lean performace on the file in the buffer, enter <kbd>M-x lean-execut
 `Lean execute` from the Lean menu, and add the option `--profile`.
 
 
+Some basic configurations (optional)
+====================================
+
+```lisp
+(custom-set-variables
+  '(c-basic-offset 4)
+  '(global-font-lock-mode t nil (font-lock))
+  '(show-paren-mode t nil (paren))
+  '(transient-mark-mode t))
+
+
+(tool-bar-mode -1)
+(setq visible-bell t)
+(setq-default indent-tabs-mode nil)
+(setq visible-bell t)
+(column-number-mode 1)
+
+;; Coding Style
+(setq auto-mode-alist (cons '("\\.h$" . c++-mode) auto-mode-alist))
+(defconst my-cc-style
+  '("cc-mode"
+   (c-offsets-alist . ((innamespace . [0])))))
+(c-add-style "my-cc-mode" my-cc-style)
+(add-hook 'c++-mode-hook '(lambda ()
+                             (c-set-style "my-cc-mode")
+                             (gtags-mode 1)
+                            ))
+
+;; C++ 11 new keywords
+(font-lock-add-keywords 'c++-mode
+   '(("\\<\\(thread_local\\)\\>" . font-lock-warning-face)
+    ("\\<\\(constexpr\\)\\>" . font-lock-keyword-face)
+    ))
+```
+
 Known Issues and Possible Solutions
 ===================================
 
@@ -207,10 +250,10 @@ You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalk
  - Run `M-x package-refresh-contents`, `M-x package-install`, and type `unicode-fonts`.
  - Add the following lines in your emacs setup:
 
-   ```lisp
+```lisp
 (require 'unicode-fonts)
 (unicode-fonts-setup)
-   ```
+```
 
 Contributions
 =============
