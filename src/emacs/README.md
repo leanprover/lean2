@@ -1,63 +1,17 @@
-Emacs mode for [lean theorem prover][Lean]
+Emacs mode for the [Lean 2 theorem prover][Lean2]. ``lean-mode`` requires [Emacs 24][emacs24]
 
-[lean]: https://github.com/leanprover/lean
-
-
-Requirements
-============
-
-``lean-mode`` requires [Emacs 24][emacs24] and the following
-packages, which can be installed via <kbd>M-x package-install</kbd>.
-
- - [dash][dash]
- - [dash-functional][dash]
- - [f][f]
- - [s][s]
-
-[emacs24]: http://www.gnu.org/software/emacs
-[dash]: https://github.com/magnars/dash.el
-[f]: https://github.com/rejeep/f.el
-[s]: https://github.com/magnars/s.el
-
-The following packages are optional, but strongly recommended.
-
- - [company][company]
- - [flycheck][flycheck]
- - [fill-column-indicator][fci]
-
-Both the optional and required packages will be installed for you
-automatically the first time you use ``lean-mode``, if you follow the
-installation instructions below.
-
-[company]: http://company-mode.github.io/
-[flycheck]: http://www.flycheck.org/manual/latest/index.html
-[fci]: https://github.com/alpaker/Fill-Column-Indicator
-
+[Lean2]: https://github.com/leanprover/lean2
 
 Installation
 ============
 
-When Emacs is started, it loads startup information from a special
-initialization file, often called an "init file." The init file can be
-found in different places on different systems:
+Open your emacs init file. Do this by running Emacs and go to the file using <kbd>C-c C-f</kbd>
+(control-C, control-F) and then entering ``~/.emacs``. Now paste the following code into this file (assuming you built Lean from source).
 
-- Emacs will check for a file named ``.emacs`` in your home directory.
-- With GNU Emacs, it is common to use ``.emacs.d/init.el`` instead.
-- With Aquamacs, it is common to use ``~/Library/Preferences/Aquamacs Emacs/Preferences.el``.
+Note: You paste text in Emacs using <kbd>C-y</kbd> (control-Y). See [this wiki page][emacs-copy-paste]. See [this reference sheet][emacs-ref] for other basic Emacs commands.
 
-On Windows, there are two additional complications:
-
-- It may be hard to figure out what Emacs considers to be your "home
-  directory".
-- The file explorer may not let you create a file named ``.emacs``,
-  since it begins with a period.
-
-One solution is to run Emacs itself and create the file using C-c C-f
-(control-C, control-F) and then entering ``~/.emacs``. (The tilde
-indicates your home directory.) On Windows, you can also name the file
-``_emacs``.
-
-Put the following code in your Emacs init file:
+[emacs-ref]: https://www.emacswiki.org/emacs/EmacsNewbieKeyReference
+[emacs-copy-paste]: https://www.emacswiki.org/emacs/CopyAndPaste
 
 ```elisp
 (require 'package)
@@ -78,16 +32,7 @@ Put the following code in your Emacs init file:
         (package-refresh-contents)
         (setq need-to-refresh nil))
       (package-install p))))
-```
 
-Then choose your installation method from the following scenarios, and add the corresponding code to
-your init file: (note: you need to change the directory in the following code snippets to the
-directory of your clone of the repository).
-
-Case 1: Build Lean from source
------------------------------
-
-```elisp
 ;; Set up lean-root path
 (setq lean-rootdir "~/projects/lean2")  ;; <=== YOU NEED TO MODIFY THIS
 (setq-local lean-emacs-path
@@ -98,9 +43,14 @@ Case 1: Build Lean from source
 (require 'lean-mode)
 ```
 
-Case 2: Install Lean via apt-get on Ubuntu or via dpkg on Debian
-----------------------------------------------------------------
+Then modify the directory in `(setq lean-rootdir "~/projects/lean2")` to your Lean folder. Now close Emacs <kbd>C-x C-c</kbd> and open Emacs again.
+Emacs will install all required packages now for you.
 
+If you didn't build Lean 2 from source, but installed it, replace `;; Set up lean-root path` and everything below with the following snippets, depending on how you got Lean 2.
+
+
+Installed Lean 2 via apt-get on Ubuntu or via dpkg on Debian
+----------------------------------------------------------------
 ```elisp
 ;; Set up lean-root path
 (setq lean-rootdir "/usr")
@@ -110,7 +60,7 @@ Case 2: Install Lean via apt-get on Ubuntu or via dpkg on Debian
 ```
 
 
-Case 3: Install Lean via homebrew on OS X
+Installed Lean 2 via homebrew on OS X
 -----------------------------------------
 
 ```elisp
@@ -126,7 +76,7 @@ location, please run `brew info lean`, and it will tell you where the
 lean-mode files are located. With that information, update the
 `lean-emacs-path` variable accordingly.
 
-Case 4: Install Lean in Windows
+Installed Lean 2 in Windows
 -------------------------------
 ```elisp
 ;; Set up lean-root path
@@ -136,30 +86,31 @@ Case 4: Install Lean in Windows
 (require 'lean-mode)
 ```
 
-
 Trying It Out
 =============
 
 If things are working correctly, you should see the word ``Lean`` in the
-Emacs mode line when you open a file with extension `.lean` (for the
-standard Lean mode) or `.hlean` (for hott mode). If you type
-```lean
-check id
-```
-the word ``check`` will be underlined, and hovering over it will show
-you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
-that there are no errors and one piece of information displayed. Whenever
-you type, an asterisk should briefly appear after ``FlyC``, indicating that
-your file is being checked.
+Emacs mode line (at the bottom of the window) when you open a file with extension `.lean` (for the
+standard Lean mode) or `.hlean` (for hott mode).
 
-If you get an error which contains `failed to lock file`, you need to create a `.project` file:
+If you create a new Lean file, you have to create a `.project` file in that folder:
 - open a `.lean` or `.hlean` file
 - go to menu-bar (top of screen) -> Lean -> Create a new project
 - click open
 - it will ask "standard or hott": type which mode you want to use and press enter
-- now it has created a project file (which manages imports and so on for files outside the library), and if you go back to your `.lean` or `.hlean` file these error messages will disappear.
+- Go back to your `.lean` or `.hlean` file (you can close the `.project` file using <kbd>C-x k RET</kbd> (RET is enter)). You might need to close and reopen Emacs for the error messages to disappear.
 
+You can check a file using the shortcut <kbd>C-c C-x</kbd>. There is also on-the-fly checking, if you type in a new file
+```lean
+print id
+```
+the word ``print`` will be underlined, and hovering over it will show
+you the type of ``id``. The mode line will show ``FlyC:0/1``, indicating
+that there are 0 errors and 1 message. Whenever
+you type, an asterisk should briefly appear after ``FlyC``, indicating that
+your file is being checked.
 
+Some unicode characters might look weird (or make a line very high). See below to fix that.
 
 Key Bindings and Commands
 =========================
@@ -190,7 +141,7 @@ To profile Lean performace on the file in the buffer, enter <kbd>M-x lean-execut
 
 
 Some basic configurations (optional)
-====================================
+------------------------------------
 
 ```lisp
 (custom-set-variables
@@ -222,6 +173,12 @@ Some basic configurations (optional)
    '(("\\<\\(thread_local\\)\\>" . font-lock-warning-face)
     ("\\<\\(constexpr\\)\\>" . font-lock-keyword-face)
     ))
+
+(require 'ido)
+(ido-mode t)
+(setq completion-ignored-extensions
+       (append '(".ilean" ".olean" ".clean" ".d") completion-ignored-extensions))
+
 ```
 
 Known Issues and Possible Solutions
@@ -233,8 +190,11 @@ Unicode
 If you experience a problem rendering unicode symbols on emacs,
 please download the following fonts and install them on your machine:
 
+ - [Dejavu Fonts](https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2/download)
+
+Alternatively, download:
+
  - [Quivira.ttf](http://www.quivira-font.com/files/Quivira.ttf)
- - [Dejavu Fonts](http://sourceforge.net/projects/dejavu/files/dejavu/2.35/dejavu-fonts-ttf-2.35.tar.bz2)
  - [NotoSans](https://github.com/googlei18n/noto-fonts/blob/master/hinted/NotoSans-Regular.ttc?raw=true)
  - [NotoSansSymbols](https://github.com/googlei18n/noto-fonts/blob/master/unhinted/NotoSansSymbols-Regular.ttf?raw=true)
 
@@ -245,7 +205,7 @@ Then, have the following lines in your emacs setup to use `DejaVu Sans Mono` fon
   (set-face-attribute 'default nil :font "DejaVu Sans Mono-11"))
 ```
 
-You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts) package.
+Also install [emacs-unicode-fonts](https://github.com/rolandwalker/unicode-fonts) package.
 
  - Run `M-x package-refresh-contents`, `M-x package-install`, and type `unicode-fonts`.
  - Add the following lines in your emacs setup:
@@ -254,6 +214,57 @@ You may also need to install [emacs-unicode-fonts](https://github.com/rolandwalk
 (require 'unicode-fonts)
 (unicode-fonts-setup)
 ```
+
+
+Installing packages manually
+----------------------------
+
+If you want to install the packages manually, you can use <kbd>M-x package-install</kbd> to install the following packages:
+
+ - [dash][dash]
+ - [dash-functional][dash]
+ - [f][f]
+ - [s][s]
+
+[emacs24]: http://www.gnu.org/software/emacs
+[dash]: https://github.com/magnars/dash.el
+[f]: https://github.com/rejeep/f.el
+[s]: https://github.com/magnars/s.el
+
+The following packages are optional, but strongly recommended.
+
+ - [company][company]
+ - [flycheck][flycheck]
+ - [fill-column-indicator][fci]
+
+Both the optional and required packages will be installed for you
+automatically the first time you use ``lean-mode``, if you follow the
+installation instructions below.
+
+[company]: http://company-mode.github.io/
+[flycheck]: http://www.flycheck.org/manual/latest/index.html
+[fci]: https://github.com/alpaker/Fill-Column-Indicator
+
+Init file
+---------
+
+The init file can be found in different places on different systems:
+
+- Emacs will check for a file named ``.emacs`` in your home directory.
+- With GNU Emacs, it is common to use ``.emacs.d/init.el`` instead.
+- With Aquamacs, it is common to use ``~/Library/Preferences/Aquamacs Emacs/Preferences.el``.
+
+On Windows, there are two additional complications:
+
+- It may be hard to figure out what Emacs considers to be your "home
+  directory".
+- The file explorer may not let you create a file named ``.emacs``,
+  since it begins with a period.
+
+One solution is to run Emacs itself and create the file using C-c C-f
+(control-C, control-F) and then entering ``~/.emacs``. (The tilde
+indicates your home directory.) On Windows, you can also name the file
+``_emacs``.
 
 Contributions
 =============
