@@ -360,15 +360,13 @@ namespace group
   Group.mk _ trivial_group
 
   abbreviation G0 := Trivial_group
-
+  
   definition trivial_group_of_is_contr [H : is_contr G] : G ≃g G0 :=
   begin
     fapply isomorphism_of_equiv,
     { apply equiv_unit_of_is_contr},
     { intros, reflexivity}
   end
-
-  variable {G}
 
   /-
     A group where the point in the pointed type corresponds with 1 in the group.
