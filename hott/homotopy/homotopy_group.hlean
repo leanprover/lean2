@@ -223,6 +223,52 @@ namespace is_trunc
     cases A with A a, exact H k H'
   end
 
+
+
+  definition ab_group_homotopy_group_of_is_conn (n : ℕ) (A : Type*) [H : is_conn 1 A] :
+    ab_group (π[n] A) :=
+  begin
+    have is_conn 0 A, from !is_conn_of_is_conn_succ,
+    cases n with n,
+    { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
+    cases n with n,
+    { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
+    exact ab_group_homotopy_group n A
+  end
+
+  definition is_contr_of_trivial_homotopy' (n : ℕ₋₂) (A : Type) [is_trunc n A] [is_conn -1 A]
+    (H : Πk a, is_contr (π[k] (pointed.MK A a))) : is_contr A :=
+  begin
+    assert aa : trunc -1 A,
+    { apply center },
+    assert H3 : is_conn 0 A,
+    { induction aa with a, exact H 0 a },
+    exact is_contr_of_trivial_homotopy n A H
+  end
+
+  definition is_conn_of_trivial_homotopy (n : ℕ₋₂) (m : ℕ) (A : Type) [is_trunc n A] [is_conn 0 A]
+    (H : Π(k : ℕ) a, k ≤ m → is_contr (π[k] (pointed.MK A a))) : is_conn m A :=
+  begin
+    apply is_contr_of_trivial_homotopy_nat m (trunc m A),
+    intro k a H2,
+    induction a with a,
+    apply is_trunc_equiv_closed_rev,
+      exact equiv_of_pequiv (homotopy_group_trunc_of_le (pointed.MK A a) _ _ H2),
+    exact H k a H2
+  end
+
+  definition is_conn_of_trivial_homotopy_pointed (n : ℕ₋₂) (m : ℕ) (A : Type*) [is_trunc n A]
+    (H : Π(k : ℕ), k ≤ m → is_contr (π[k] A)) : is_conn m A :=
+  begin
+    have is_conn 0 A, proof H 0 !zero_le qed,
+    apply is_conn_of_trivial_homotopy n m A,
+    intro k a H2, revert a, apply is_conn.elim -1,
+    cases A with A a, exact H k H2
+  end
+
+
+
+
   definition is_conn_fun_of_equiv_on_homotopy_groups.{u} (n : ℕ) {A B : Type.{u}} (f : A → B)
     [is_equiv (trunc_functor 0 f)]
     (H1 : Πa k, k ≤ n → is_equiv (homotopy_group_functor k (pmap_of_map f a)))

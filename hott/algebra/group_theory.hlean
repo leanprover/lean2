@@ -18,10 +18,6 @@ namespace group
   definition Group.struct' [instance] [reducible] (G : Group) : group G :=
   Group.struct G
 
-  definition ab_group_Group_of_AbGroup [instance] [constructor] [priority 900]
-    (G : AbGroup) : ab_group (Group_of_AbGroup G) :=
-  begin esimp, exact _ end
-
   definition ab_group_pSet_of_Group [instance] (G : AbGroup) : ab_group (pSet_of_Group G) :=
   AbGroup.struct G
 
@@ -29,74 +25,21 @@ namespace group
     group (pSet_of_Group G) :=
   Group.struct G
 
-  /- group homomorphisms -/
-/-
-  definition is_homomorphism [class] [reducible]
-    {G₁ G₂ : Type} [has_mul G₁] [has_mul G₂] (φ : G₁ → G₂) : Type :=
-  Π(g h : G₁), φ (g * h) = φ g * φ h
+  /- left and right actions -/
+  definition is_equiv_mul_right [constructor] {A : Group} (a : A) : is_equiv (λb, b * a) :=
+  adjointify _ (λb : A, b * a⁻¹) (λb, !inv_mul_cancel_right) (λb, !mul_inv_cancel_right)
 
-  section
-  variables {G G₁ G₂ G₃ : Type} {g h : G₁} (ψ : G₂ → G₃) {φ₁ φ₂ : G₁ → G₂} (φ : G₁ → G₂)
-            [group G] [group G₁] [group G₂] [group G₃]
-            [is_homomorphism ψ] [is_homomorphism φ₁] [is_homomorphism φ₂] [is_homomorphism φ]
+  definition right_action [constructor] {A : Group} (a : A) : A ≃ A :=
+  equiv.mk _ (is_equiv_mul_right a)
 
-  definition respect_mul {G₁ G₂ : Type} [has_mul G₁] [has_mul G₂] (φ : G₁ → G₂)
-    [is_homomorphism φ] : Π(g h : G₁), φ (g * h) = φ g * φ h :=
-  by assumption
+  definition is_equiv_add_right [constructor] {A : AddGroup} (a : A) : is_equiv (λb, b + a) :=
+  adjointify _ (λb : A, b - a) (λb, !neg_add_cancel_right) (λb, !add_neg_cancel_right)
 
-  theorem respect_one /- φ -/ : φ 1 = 1 :=
-  mul.right_cancel
-    (calc
-      φ 1 * φ 1 = φ (1 * 1) : respect_mul φ
-            ... = φ 1 : ap φ !one_mul
-            ... = 1 * φ 1 : one_mul)
+  definition add_right_action [constructor] {A : AddGroup} (a : A) : A ≃ A :=
+  equiv.mk _ (is_equiv_add_right a)
 
-  theorem respect_inv /- φ -/ (g : G₁) : φ g⁻¹ = (φ g)⁻¹ :=
-  eq_inv_of_mul_eq_one (!respect_mul⁻¹ ⬝ ap φ !mul.left_inv ⬝ !respect_one)
+  /- homomorphisms -/
 
-  definition is_embedding_homomorphism /- φ -/ (H : Π{g}, φ g = 1 → g = 1) : is_embedding φ :=
-  begin
-    apply function.is_embedding_of_is_injective,
-    intro g g' p,
-    apply eq_of_mul_inv_eq_one,
-    apply H,
-    refine !respect_mul ⬝ _,
-    rewrite [respect_inv φ, p],
-    apply mul.right_inv
-  end
-
-  definition is_homomorphism_compose {ψ : G₂ → G₃} {φ : G₁ → G₂}
-    (H1 : is_homomorphism ψ) (H2 : is_homomorphism φ) : is_homomorphism (ψ ∘ φ) :=
-  λg h, ap ψ !respect_mul ⬝ !respect_mul
-
-  definition is_homomorphism_id (G : Type) [group G] : is_homomorphism (@id G) :=
-  λg h, idp
-
-  end
-
-  section additive
-
-  definition is_add_homomorphism [class] [reducible] {G₁ G₂ : Type} [has_add G₁] [has_add G₂]
-    (φ : G₁ → G₂) : Type :=
-  Π(g h : G₁), φ (g + h) = φ g + φ h
-
-  variables {G₁ G₂ : Type} (φ : G₁ → G₂) [add_group G₁] [add_group G₂] [is_add_homomorphism φ]
-
-  definition respect_add /- φ -/ : Π(g h : G₁), φ (g + h) = φ g + φ h :=
-  by assumption
-
-  theorem respect_zero /- φ -/ : φ 0 = 0 :=
-  add.right_cancel
-    (calc
-      φ 0 + φ 0 = φ (0 + 0) : respect_add φ
-            ... = φ 0 : ap φ !zero_add
-            ... = 0 + φ 0 : zero_add)
-
-  theorem respect_neg /- φ -/ (g : G₁) : φ (-g) = -(φ g) :=
-  eq_neg_of_add_eq_zero (!respect_add⁻¹ ⬝ ap φ !add.left_inv ⬝ !respect_zero)
-
-  end additive
--/
   structure homomorphism (G₁ G₂ : Group) : Type :=
     (φ : G₁ → G₂)
     (p : is_mul_hom φ)
@@ -277,33 +220,102 @@ namespace group
   infixl ` ⬝gp `:75 := isomorphism.trans_eq
   infixl ` ⬝pg `:75 := isomorphism.eq_trans
 
-  definition pmap_of_isomorphism [constructor] (φ : G₁ ≃g G₂) :
-    G₁ →* G₂ :=
+  definition pmap_of_isomorphism [constructor] (φ : G₁ ≃g G₂) : G₁ →* G₂ :=
   pequiv_of_isomorphism φ
 
-  /- category of groups -/
+  definition to_fun_isomorphism_trans {G H K : Group} (φ : G ≃g H) (ψ : H ≃g K) :
+    φ ⬝g ψ ~ ψ ∘ φ :=
+  by reflexivity
 
-  section
-  open category
-  definition precategory_group [constructor] : precategory Group :=
-  precategory.mk homomorphism
-                 @homomorphism_compose
-                 @homomorphism_id
-                 (λG₁ G₂ G₃ G₄ φ₃ φ₂ φ₁, homomorphism_eq (λg, idp))
-                 (λG₁ G₂ φ, homomorphism_eq (λg, idp))
-                 (λG₁ G₂ φ, homomorphism_eq (λg, idp))
+  definition add_homomorphism (G H : AddGroup) : Type := homomorphism G H
+  infix ` →a `:55 := add_homomorphism
+
+  definition agroup_fun [coercion] [unfold 3] [reducible] {G H : AddGroup} (φ : G →a H) : G → H :=
+  φ
+
+  definition add_homomorphism.struct [instance] {G H : AddGroup} (φ : G →a H) : is_add_hom φ :=
+  homomorphism.addstruct φ
+
+  definition add_homomorphism.mk [constructor] {G H : AddGroup} (φ : G → H) (h : is_add_hom φ) : G →g H :=
+  homomorphism.mk φ h
+
+  definition add_homomorphism_compose [constructor] [trans] {G₁ G₂ G₃ : AddGroup}
+    (ψ : G₂ →a G₃) (φ : G₁ →a G₂) : G₁ →a G₃ :=
+  add_homomorphism.mk (ψ ∘ φ) (is_add_hom_compose _ _)
+
+  definition add_homomorphism_id [constructor] [refl] (G : AddGroup) : G →a G :=
+  add_homomorphism.mk (@id G) (is_add_hom_id G)
+
+  abbreviation aid [constructor] := @add_homomorphism_id
+  infixr ` ∘a `:75 := add_homomorphism_compose
+
+  definition to_respect_add' {H₁ H₂ : AddGroup} (χ : H₁ →a H₂) (g h : H₁) : χ (g + h) = χ g + χ h :=
+  respect_add χ g h
+
+  theorem to_respect_zero' {H₁ H₂ : AddGroup} (χ : H₁ →a H₂) : χ 0 = 0 :=
+  respect_zero χ
+
+  theorem to_respect_neg' {H₁ H₂ : AddGroup} (χ : H₁ →a H₂) (g : H₁) : χ (-g) = -(χ g) :=
+  respect_neg χ g
+
+  definition homomorphism_add [constructor] {G H : AddAbGroup} (φ ψ : G →a H) : G →a H :=
+  add_homomorphism.mk (λg, φ g + ψ g)
+    abstract begin
+      intro g g', refine ap011 add !to_respect_add' !to_respect_add' ⬝ _,
+      refine !add.assoc ⬝ ap (add _) (!add.assoc⁻¹ ⬝ ap (λx, x + _) !add.comm ⬝ !add.assoc) ⬝ !add.assoc⁻¹
+    end end
+
+  definition homomorphism_mul [constructor] {G H : AbGroup} (φ ψ : G →g H) : G →g H :=
+  homomorphism.mk (λg, φ g * ψ g) (to_respect_add (homomorphism_add φ ψ))
+
+  definition pmap_of_homomorphism_gid (G : Group) : pmap_of_homomorphism (gid G) ~* pid G :=
+  begin
+    fapply phomotopy_of_homotopy, reflexivity
   end
 
-  -- TODO
-  -- definition category_group : category Group :=
-  -- category.mk precategory_group
-  -- begin
-  --   intro G₁ G₂,
-  --   fapply adjointify,
-  --   { intro φ, fapply Group_eq, },
-  --   { },
-  --   { }
-  -- end
+  definition pmap_of_homomorphism_gcompose {G H K : Group} (ψ : H →g K) (φ : G →g H)
+    : pmap_of_homomorphism (ψ ∘g φ) ~* pmap_of_homomorphism ψ ∘* pmap_of_homomorphism φ :=
+  begin
+    fapply phomotopy_of_homotopy, reflexivity
+  end
+
+  definition pmap_of_homomorphism_phomotopy {G H : Group} {φ ψ : G →g H} (H : φ ~ ψ)
+    : pmap_of_homomorphism φ ~* pmap_of_homomorphism ψ :=
+  begin
+    fapply phomotopy_of_homotopy, exact H
+  end
+
+  definition pequiv_of_isomorphism_trans {G₁ G₂ G₃ : Group} (φ : G₁ ≃g G₂) (ψ : G₂ ≃g G₂) :
+    pequiv_of_isomorphism (φ ⬝g ψ) ~* pequiv_of_isomorphism ψ ∘* pequiv_of_isomorphism φ :=
+  begin
+    apply phomotopy_of_homotopy, reflexivity
+  end
+
+  definition isomorphism_eq {G H : Group} {φ ψ : G ≃g H} (p : φ ~ ψ) : φ = ψ :=
+  begin
+    induction φ with φ φe, induction ψ with ψ ψe,
+    exact apd011 isomorphism.mk (homomorphism_eq p) !is_prop.elimo
+  end
+
+  definition is_set_isomorphism [instance] (G H : Group) : is_set (G ≃g H) :=
+  begin
+    have H : G ≃g H ≃ Σ(f : G →g H), is_equiv f,
+    begin
+      fapply equiv.MK,
+      { intro φ, induction φ, constructor, assumption },
+      { intro v, induction v, constructor, assumption },
+      { intro v, induction v, reflexivity },
+      { intro φ, induction φ, reflexivity }
+    end,
+    apply is_trunc_equiv_closed_rev, exact H
+  end
+
+  definition trivial_homomorphism (A B : Group) : A →g B :=
+  homomorphism.mk (λa, 1) (λa a', (mul_one 1)⁻¹)
+
+  definition trivial_add_homomorphism (A B : AddGroup) : A →a B :=
+  homomorphism.mk (λa, 0) (λa a', (add_zero 0)⁻¹)
+
 
   /- given an equivalence A ≃ B we can transport a group structure on A to a group structure on B -/
 
@@ -347,19 +359,43 @@ namespace group
 
   end
 
+  section
+    variables {A B : Type} (f : A ≃ B) [ab_group A]
+    definition group_equiv_mul_comm (b b' : B) : group_equiv_mul f b b' = group_equiv_mul f b' b :=
+    by rewrite [↑group_equiv_mul, mul.comm]
+
+    definition ab_group_equiv_closed : ab_group B :=
+    ⦃ab_group, group_equiv_closed f,
+      mul_comm := group_equiv_mul_comm f⦄
+  end
+
   variable (G)
 
   /- the trivial group -/
   open unit
-  --rename: group_unit
-  definition trivial_group [constructor] : group unit :=
+  definition group_unit [constructor] : group unit :=
   group.mk _ (λx y, star) (λx y z, idp) star (unit.rec idp) (unit.rec idp) (λx, star) (λx, idp)
 
-  --rename trivial_group
-  definition Trivial_group [constructor] : Group :=
-  Group.mk _ trivial_group
+  definition ab_group_unit [constructor] : ab_group unit :=
+  ⦃ab_group, group_unit, mul_comm := λx y, idp⦄
 
-  abbreviation G0 := Trivial_group
+  definition trivial_group [constructor] : Group :=
+  Group.mk _ group_unit
+
+  abbreviation G0 := trivial_group
+
+  definition AbGroup_of_Group.{u} (G : Group.{u}) (H : Π x y : G, x * y = y * x) : AbGroup.{u} :=
+  begin
+    induction G,
+    fapply AbGroup.mk,
+    assumption,
+    exact ⦃ab_group, struct', mul_comm := H⦄
+  end
+
+  definition trivial_ab_group : AbGroup.{0} :=
+  begin
+    fapply AbGroup_of_Group trivial_group, intro x y, reflexivity
+  end
 
   definition trivial_group_of_is_contr [H : is_contr G] : G ≃g G0 :=
   begin
@@ -367,6 +403,33 @@ namespace group
     { apply equiv_unit_of_is_contr},
     { intros, reflexivity}
   end
+
+  definition ab_group_of_is_contr (A : Type) [is_contr A] : ab_group A :=
+  have ab_group unit, from ab_group_unit,
+  ab_group_equiv_closed (equiv_unit_of_is_contr A)⁻¹ᵉ
+
+  definition group_of_is_contr (A : Type) [is_contr A] : group A :=
+  have ab_group A, from ab_group_of_is_contr A, by apply _
+
+  definition ab_group_lift_unit : ab_group (lift unit) :=
+  ab_group_of_is_contr (lift unit)
+
+  definition trivial_ab_group_lift : AbGroup :=
+  AbGroup.mk _ ab_group_lift_unit
+
+  definition from_trivial_ab_group (A : AbGroup) : trivial_ab_group →g A :=
+  trivial_homomorphism trivial_ab_group A
+
+  definition is_embedding_from_trivial_ab_group (A : AbGroup) :
+    is_embedding (from_trivial_ab_group A) :=
+  begin
+    fapply is_embedding_of_is_injective,
+    intro x y p,
+    induction x, induction y, reflexivity
+  end
+
+  definition to_trivial_ab_group (A : AbGroup) : A →g trivial_ab_group :=
+  trivial_homomorphism A trivial_ab_group
 
   variable {G}
 

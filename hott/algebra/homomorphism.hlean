@@ -58,11 +58,17 @@ section add_group_A_B
       have x₁ - x₂ = 0, from H _ this,
       eq_of_sub_eq_zero this)
 
-  definition eq_zero_of_is_add_hom [add_group B] {f : A → B} [is_add_hom f]
+  definition eq_zero_of_is_add_hom {f : A → B} [is_add_hom f]
       [is_embedding f] {a : A} (fa0 : f a = 0) :
     a = 0 :=
   have f a = f 0, by rewrite [fa0, respect_zero f],
   show a = 0, from is_injective_of_is_embedding this
+
+  theorem eq_zero_of_eq_zero_of_is_embedding {f : A → B} [is_add_hom f] [is_embedding f]
+    {a : A} (h : f a = 0) : a = 0 :=
+  have f a = f 0, by rewrite [h, respect_zero],
+  show a = 0, from is_injective_of_is_embedding this
+
 end add_group_A_B
 
 /- multiplicative structures -/

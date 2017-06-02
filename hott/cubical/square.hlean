@@ -10,13 +10,13 @@ open eq equiv is_equiv sigma
 
 namespace eq
 
-  variables {A B : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ a₁ a₂ a₃ a₄ : A}
+  variables {A B C : Type} {a a' a'' a₀₀ a₂₀ a₄₀ a₀₂ a₂₂ a₂₄ a₀₄ a₄₂ a₄₄ a₁ a₂ a₃ a₄ : A}
             /-a₀₀-/ {p₁₀ p₁₀' : a₀₀ = a₂₀} /-a₂₀-/ {p₃₀ : a₂₀ = a₄₀} /-a₄₀-/
        {p₀₁ p₀₁' : a₀₀ = a₀₂} /-s₁₁-/ {p₂₁ p₂₁' : a₂₀ = a₂₂} /-s₃₁-/ {p₄₁ : a₄₀ = a₄₂}
             /-a₀₂-/ {p₁₂ p₁₂' : a₀₂ = a₂₂} /-a₂₂-/ {p₃₂ : a₂₂ = a₄₂} /-a₄₂-/
        {p₀₃ : a₀₂ = a₀₄} /-s₁₃-/ {p₂₃ : a₂₂ = a₂₄} /-s₃₃-/ {p₄₃ : a₄₂ = a₄₄}
             /-a₀₄-/ {p₁₄ : a₀₄ = a₂₄} /-a₂₄-/ {p₃₄ : a₂₄ = a₄₄} /-a₄₄-/
-
+            {b : B} {c : C}
 
   inductive square {A : Type} {a₀₀ : A}
     : Π{a₂₀ a₀₂ a₂₂ : A}, a₀₀ = a₂₀ → a₀₂ = a₂₂ → a₀₀ = a₀₂ → a₂₀ = a₂₂ → Type :=
@@ -632,5 +632,94 @@ namespace eq
   begin
     induction q, esimp at r, induction r using idp_rec_on, exact hrfl
   end
+
+  /- some higher coherence conditions -/
+
+
+  theorem whisker_bl_whisker_tl_eq (p : a = a')
+    : whisker_bl p (whisker_tl p ids) = con.right_inv p ⬝ph vrfl :=
+  by induction p; reflexivity
+
+  theorem ap_is_constant_natural_square {g : B → C} {f : A → B} (H : Πa, g (f a) = c) (p : a = a') :
+    (ap_is_constant H p)⁻¹ ⬝ph natural_square H p ⬝hp ap_constant p c =
+      whisker_bl (H a') (whisker_tl (H a) ids) :=
+  begin induction p, esimp, rewrite inv_inv, rewrite whisker_bl_whisker_tl_eq end
+
+  definition inv_ph_eq_of_eq_ph {p : a₀₀ = a₀₂} {r : p₀₁ = p} {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁}
+    {s₁₁' : square p₁₀ p₁₂ p p₂₁} (t : s₁₁ = r ⬝ph s₁₁') : r⁻¹ ⬝ph s₁₁ = s₁₁' :=
+  by induction r; exact t
+
+  -- the following is used for torus.elim_surf
+  theorem whisker_square_aps_eq {f : A → B}
+    {q₁₀ : f a₀₀ = f a₂₀} {q₀₁ : f a₀₀ = f a₀₂} {q₂₁ : f a₂₀ = f a₂₂} {q₁₂ : f a₀₂ = f a₂₂}
+    {r₁₀ : ap f p₁₀ = q₁₀} {r₀₁ : ap f p₀₁ = q₀₁} {r₂₁ : ap f p₂₁ = q₂₁} {r₁₂ : ap f p₁₂ = q₁₂}
+    {s₁₁ : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂} {t₁₁ : square q₁₀ q₁₂ q₀₁ q₂₁}
+    (u : square (ap02 f s₁₁) (eq_of_square t₁₁)
+                (ap_con f p₁₀ p₂₁ ⬝ (r₁₀ ◾ r₂₁)) (ap_con f p₀₁ p₁₂ ⬝ (r₀₁ ◾ r₁₂)))
+    : whisker_square r₁₀ r₁₂ r₀₁ r₂₁ (aps f (square_of_eq s₁₁)) = t₁₁ :=
+  begin
+    induction r₁₀, induction r₀₁, induction r₁₂, induction r₂₁,
+    induction p₁₂, induction p₁₀, induction p₂₁, esimp at *, induction s₁₁, esimp at *,
+    esimp [square_of_eq],
+    apply eq_of_fn_eq_fn !square_equiv_eq, esimp,
+    exact (eq_bot_of_square u)⁻¹
+  end
+
+  definition natural_square_eq {A B : Type} {a a' : A} {f g : A → B} (p : f ~ g) (q : a = a')
+    : natural_square p q = square_of_pathover (apd p q) :=
+  idp
+
+  definition eq_of_square_hrfl_hconcat_eq {A : Type} {a a' : A} {p p' : a = a'} (q : p = p')
+    : eq_of_square (hrfl ⬝hp q⁻¹) = !idp_con ⬝ q :=
+  by induction q; induction p; reflexivity
+
+  definition aps_vrfl {A B : Type} {a a' : A} (f : A → B) (p : a = a') :
+    aps f (vrefl p) = vrefl (ap f p) :=
+  by induction p; reflexivity
+
+  definition aps_hrfl {A B : Type} {a a' : A} (f : A → B) (p : a = a') :
+    aps f (hrefl p) = hrefl (ap f p) :=
+  by induction p; reflexivity
+
+  -- should the following two equalities be cubes?
+  definition natural_square_ap_fn {A B C : Type} {a a' : A} {g h : A → B} (f : B → C) (p : g ~ h)
+    (q : a = a') : natural_square (λa, ap f (p a)) q =
+      ap_compose f g q ⬝ph (aps f (natural_square p q) ⬝hp (ap_compose f h q)⁻¹) :=
+  begin
+    induction q, exact !aps_vrfl⁻¹
+  end
+
+  definition natural_square_compose {A B C : Type} {a a' : A} {g g' : B → C}
+    (p : g ~ g') (f : A → B) (q : a = a') : natural_square (λa, p (f a)) q =
+    ap_compose g f q ⬝ph (natural_square p (ap f q) ⬝hp (ap_compose g' f q)⁻¹) :=
+  by induction q; reflexivity
+
+  definition natural_square_eq2 {A B : Type} {a a' : A} {f f' : A → B} (p : f ~ f') {q q' : a = a'}
+    (r : q = q') : natural_square p q = ap02 f r ⬝ph (natural_square p q' ⬝hp (ap02 f' r)⁻¹) :=
+  by induction r; reflexivity
+
+  definition natural_square_refl {A B : Type} {a a' : A} (f : A → B) (q : a = a')
+    : natural_square (homotopy.refl f) q = hrfl :=
+  by induction q; reflexivity
+
+  definition aps_eq_hconcat {p₀₁'} (f : A → B) (q : p₀₁' = p₀₁) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) :
+    aps f (q ⬝ph s₁₁) = ap02 f q ⬝ph aps f s₁₁ :=
+  by induction q; reflexivity
+
+  definition aps_hconcat_eq {p₂₁'} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁' = p₂₁) :
+    aps f (s₁₁ ⬝hp r⁻¹) = aps f s₁₁ ⬝hp (ap02 f r)⁻¹ :=
+  by induction r; reflexivity
+
+  definition aps_hconcat_eq' {p₂₁'} (f : A → B) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁) (r : p₂₁ = p₂₁') :
+    aps f (s₁₁ ⬝hp r) = aps f s₁₁ ⬝hp ap02 f r :=
+  by induction r; reflexivity
+
+  definition aps_square_of_eq (f : A → B) (s : p₁₀ ⬝ p₂₁ = p₀₁ ⬝ p₁₂) :
+    aps f (square_of_eq s) = square_of_eq ((ap_con f p₁₀ p₂₁)⁻¹ ⬝ ap02 f s ⬝ ap_con f p₀₁ p₁₂) :=
+  by induction p₁₂; esimp at *; induction s; induction p₂₁; induction p₁₀; reflexivity
+
+  definition aps_eq_hconcat_eq {p₀₁' p₂₁'} (f : A → B) (q : p₀₁' = p₀₁) (s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁)
+    (r : p₂₁' = p₂₁) : aps f (q ⬝ph s₁₁ ⬝hp r⁻¹) = ap02 f q ⬝ph aps f s₁₁ ⬝hp (ap02 f r)⁻¹ :=
+  by induction q; induction r; reflexivity
 
 end eq

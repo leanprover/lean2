@@ -59,7 +59,7 @@ namespace pushout
   protected definition code_equiv (x : BL + TR) (y : TL) :
     @hom C _ x (sum.inl (f y)) ≃ @hom C _ x (sum.inr (g y)) :=
   begin
-    refine @is_prop.elim_set _ _ _ _ _ (ksurj y), { apply @is_trunc_equiv: apply is_set_hom},
+    refine @prop_trunc.elim_set _ _ _ _ _ (ksurj y), { apply @is_trunc_equiv: apply is_set_hom},
     { intro v, cases v with s p,
       exact code_equiv_pt x p},
     intro v v', cases v with s p, cases v' with s' p',
@@ -74,7 +74,7 @@ namespace pushout
     refine @set_quotient.rec_prop _ _ _ _ _ h, {intro l, apply is_trunc_eq, apply is_set_hom},
     intro l,
     have ksurj (k s) = tr (fiber.mk s idp), from !is_prop.elim,
-    refine ap (λz, to_fun (@is_prop.elim_set _ _ _ _ _ z) (class_of l)) this ⬝ _,
+    refine ap (λz, to_fun (@prop_trunc.elim_set _ _ _ _ _ z) (class_of l)) this ⬝ _,
     change class_of ([iE k F G (tr idp), DE k F G s, iD k F G (tr idp)] ++ l) =
            class_of (DE k F G s :: l) :> @hom C _ _ _,
     refine eq_of_rel (tr _) ⬝ (eq_of_rel (tr _)),

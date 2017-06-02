@@ -145,6 +145,8 @@ namespace is_trunc
   definition center (A : Type) [H : is_contr A] : A :=
   contr_internal.center (is_trunc.to_internal -2 A)
 
+  definition center' {A : Type} (H : is_contr A) : A := center A
+
   definition center_eq [H : is_contr A] (a : A) : !center = a :=
   contr_internal.center_eq (is_trunc.to_internal -2 A) a
 
@@ -337,12 +339,16 @@ namespace is_trunc
             {a a₂ : A} (p : a = a₂)
             (c : C a) (c₂ : C a₂)
 
-  definition is_prop.elimo [H : is_prop (C a)] : c =[p] c₂ :=
-  pathover_of_eq_tr !is_prop.elim
-
   definition is_trunc_pathover [instance]
     (n : ℕ₋₂) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
   is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr
+
+  definition is_prop.elimo [H : is_prop (C a)] : c =[p] c₂ :=
+  pathover_of_eq_tr !is_prop.elim
+
+  definition is_prop_elimo_self {A : Type} (B : A → Type) {a : A} (b : B a) {H : is_prop (B a)} :
+    @is_prop.elimo A B a a idp b b H = idpo :=
+  !is_prop.elim
 
   variables {p c c₂}
   theorem is_set.elimo (q q' : c =[p] c₂) [H : is_set (C a)] : q = q' :=

@@ -90,6 +90,29 @@ namespace prod
   definition ap_prod_mk_right (p : b = b') : ap (λb, prod.mk a b) p = prod_eq idp p :=
   ap_eq_ap011_right prod.mk a p
 
+  definition pair_eq_eta {A B : Type} {u v : A × B}
+    (p : u = v) : pair_eq (p..1) (p..2) = prod.eta u ⬝ p ⬝ (prod.eta v)⁻¹ :=
+  by induction p; induction u; reflexivity
+
+  definition prod_eq_eq {A B : Type} {u v : A × B}
+    {p₁ q₁ : u.1 = v.1} {p₂ q₂ : u.2 = v.2} (α₁ : p₁ = q₁) (α₂ : p₂ = q₂)
+    : prod_eq p₁ p₂ = prod_eq q₁ q₂ :=
+  by cases α₁; cases α₂; reflexivity
+
+  definition prod_eq_assemble {A B : Type} {u v : A × B}
+    {p q : u = v} (α₁ : p..1 = q..1) (α₂ : p..2 = q..2) : p = q :=
+  (prod_eq_eta p)⁻¹ ⬝ prod.prod_eq_eq α₁ α₂ ⬝ prod_eq_eta q
+
+  definition eq_pr1_concat {A B : Type} {u v w : A × B}
+    (p : u = v) (q : v = w)
+    : (p ⬝ q)..1 = p..1 ⬝ q..1 :=
+  by cases q; reflexivity
+
+  definition eq_pr2_concat {A B : Type} {u v w : A × B}
+    (p : u = v) (q : v = w)
+    : (p ⬝ q)..2 = p..2 ⬝ q..2 :=
+  by cases q; reflexivity
+
   /- Groupoid structure -/
   definition prod_eq_inv (p : a = a') (q : b = b') : (prod_eq p q)⁻¹ = prod_eq p⁻¹ q⁻¹ :=
   by cases p; cases q; reflexivity
@@ -124,6 +147,19 @@ namespace prod
     induction s using idp_rec_on,
     apply idpo
   end
+
+  open prod.ops
+  definition prod_pathover_equiv {A : Type} {B C : A → Type} {a a' : A} (p : a = a')
+    (x : B a × C a) (x' : B a' × C a') : x =[p] x' ≃ x.1 =[p] x'.1 × x.2 =[p] x'.2 :=
+  begin
+    fapply equiv.MK,
+    { intro q, induction q, constructor: constructor },
+    { intro v, induction v with q r, exact prod_pathover _ _ _ q r },
+    { intro v, induction v with q r, induction x with b c, induction x' with b' c',
+      esimp at *, induction q, refine idp_rec_on r _, reflexivity },
+    { intro q, induction q, induction x with b c, reflexivity }
+  end
+
 
   /-
     TODO:
@@ -301,6 +337,8 @@ namespace prod
   definition ptprod [constructor] {n : ℕ₋₂} (A B : n-Type*) : n-Type* :=
   ptrunctype.mk' n (A × B)
 
+  definition pprod_functor [constructor] {A B C D : Type*} (f : A →* C) (g : B →* D) : A ×* B →* C ×* D :=
+  pmap.mk (prod_functor f g) (prod_eq (respect_pt f) (respect_pt g))
 
 
 end prod

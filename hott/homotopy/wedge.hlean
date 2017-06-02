@@ -16,14 +16,27 @@ infixr ` ∨ ` := pwedge
 
 namespace wedge
 
+  protected definition glue {A B : Type*} : inl pt = inr pt :> wedge A B :=
+  pushout.glue ⋆
+
   protected definition rec {A B : Type*} {P : wedge A B → Type} (Pinl : Π(x : A), P (inl x))
-    (Pinr : Π(x : B), P (inr x)) (Pglue : pathover P (Pinl pt) (glue ⋆) (Pinr pt))
+    (Pinr : Π(x : B), P (inr x)) (Pglue : pathover P (Pinl pt) wedge.glue (Pinr pt))
     (y : wedge A B) : P y :=
   by induction y; apply Pinl; apply Pinr; induction x; exact Pglue
 
   protected definition elim {A B : Type*} {P : Type} (Pinl : A → P)
     (Pinr : B → P) (Pglue : Pinl pt = Pinr pt) (y : wedge A B) : P :=
   by induction y with a b x; exact Pinl a; exact Pinr b; induction x; exact Pglue
+
+  protected definition rec_glue {A B : Type*} {P : wedge A B → Type} (Pinl : Π(x : A), P (inl x))
+    (Pinr : Π(x : B), P (inr x)) (Pglue : pathover P (Pinl pt) wedge.glue (Pinr pt)) :
+    apd (wedge.rec Pinl Pinr Pglue) wedge.glue = Pglue :=
+  !pushout.rec_glue
+
+  protected definition elim_glue {A B : Type*} {P : Type} (Pinl : A → P)
+    (Pinr : B → P) (Pglue : Pinl pt = Pinr pt) : ap (wedge.elim Pinl Pinr Pglue) wedge.glue = Pglue :=
+  !pushout.elim_glue
+
 
 end wedge
 
@@ -38,7 +51,7 @@ namespace wedge
     { fapply pmap.mk, intro a, apply pinr a, apply respect_pt },
     { fapply is_equiv.adjointify, intro x, fapply pushout.elim_on x,
       exact λ x, Point A, exact id, intro u, reflexivity,
-      intro x, fapply pushout.rec_on x, intro u, cases u, esimp, apply (glue unit.star)⁻¹,
+      intro x, fapply pushout.rec_on x, intro u, cases u, esimp, apply wedge.glue⁻¹,
       intro a, reflexivity,
       intro u, cases u, esimp, apply eq_pathover,
       refine _ ⬝hp !ap_id⁻¹, fapply eq_hconcat, apply ap_compose inr,

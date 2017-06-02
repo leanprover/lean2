@@ -146,26 +146,7 @@ namespace fiber
     : ppoint f ~* pmap.mk pr1 idp ∘* pfiber.sigma_char f :=
   !phomotopy.refl
 
-  definition pfiber_loop_space {A B : Type*} (f : A →* B) : pfiber (Ω→ f) ≃* Ω (pfiber f) :=
-    pequiv_of_equiv
-    (calc pfiber (Ω→ f) ≃ Σ(p : Point A = Point A), ap1 f p = rfl
-                          : (fiber.sigma_char (ap1 f) (Point (Ω B)))
-                    ... ≃ Σ(p : Point A = Point A), (respect_pt f) = ap f p ⬝ (respect_pt f)
-                          : (sigma_equiv_sigma_right (λp,
-                              calc (ap1 f p = rfl) ≃ !respect_pt⁻¹ ⬝ (ap f p ⬝ !respect_pt) = rfl
-                                                     : equiv_eq_closed_left _ (con.assoc _ _ _)
-                                               ... ≃ ap f p ⬝ (respect_pt f) = (respect_pt f)
-                                                     : eq_equiv_inv_con_eq_idp
-                                               ... ≃ (respect_pt f) = ap f p ⬝ (respect_pt f)
-                                                     : eq_equiv_eq_symm))
-                    ... ≃ fiber.mk (Point A) (respect_pt f) = fiber.mk pt (respect_pt f)
-                          : fiber_eq_equiv
-                    ... ≃ Ω (pfiber f)
-                          : erfl)
-    (begin cases f with f p, cases A with A a, cases B with B b, esimp at p, esimp at f,
-           induction p, reflexivity end)
-
-  definition pfiber_equiv_of_phomotopy {A B : Type*} {f g : A →* B} (h : f ~* g)
+  definition pfiber_pequiv_of_phomotopy {A B : Type*} {f g : A →* B} (h : f ~* g)
     : pfiber f ≃* pfiber g :=
   begin
     fapply pequiv_of_equiv,
@@ -202,11 +183,124 @@ namespace fiber
     { apply eq_pathover_Fl' }
   end
 
-  definition pfiber_equiv_of_square {A B C D : Type*} {f : A →* B} {g : C →* D} (h : A ≃* C)
+  definition pfiber_pequiv_of_square {A B C D : Type*} {f : A →* B} {g : C →* D} (h : A ≃* C)
     (k : B ≃* D) (s : k ∘* f ~* g ∘* h) : pfiber f ≃* pfiber g :=
     calc pfiber f ≃* pfiber (k ∘* f) : pequiv_postcompose
-              ... ≃* pfiber (g ∘* h) : pfiber_equiv_of_phomotopy s
+              ... ≃* pfiber (g ∘* h) : pfiber_pequiv_of_phomotopy s
               ... ≃* pfiber g : pequiv_precompose
+
+  definition pcompose_ppoint {A B : Type*} (f : A →* B) : f ∘* ppoint f ~* pconst (pfiber f) B :=
+  begin
+    fapply phomotopy.mk,
+    { exact point_eq },
+    { exact !idp_con⁻¹ }
+  end
+
+  definition point_fiber_eq {A B : Type} {f : A → B} {b : B} {x y : fiber f b}
+    (p : point x = point y) (q : point_eq x = ap f p ⬝ point_eq y) :
+    ap point (fiber_eq p q) = p :=
+  begin
+    induction x with a r, induction y with a' s, esimp at *, induction p,
+    induction q using eq.rec_symm, induction s, reflexivity
+  end
+
+  definition fiber_eq_equiv_fiber {A B : Type} {f : A → B} {b : B} (x y : fiber f b) :
+    x = y ≃ fiber (ap1_gen f (point_eq x) (point_eq y)) (idpath b) :=
+  calc
+    x = y ≃ fiber.sigma_char f b x = fiber.sigma_char f b y :
+      eq_equiv_fn_eq_of_equiv (fiber.sigma_char f b) x y
+      ... ≃ Σ(p : point x = point y), point_eq x =[p] point_eq y : sigma_eq_equiv
+      ... ≃ Σ(p : point x = point y), (point_eq x)⁻¹ ⬝ ap f p ⬝ point_eq y = idp :
+      sigma_equiv_sigma_right (λp,
+      calc point_eq x =[p] point_eq y ≃ point_eq x = ap f p ⬝ point_eq y : eq_pathover_equiv_Fl
+           ... ≃ ap f p ⬝ point_eq y = point_eq x : eq_equiv_eq_symm
+           ... ≃ (point_eq x)⁻¹ ⬝ (ap f p ⬝ point_eq y) = idp : eq_equiv_inv_con_eq_idp
+           ... ≃ (point_eq x)⁻¹ ⬝ ap f p ⬝ point_eq y = idp : equiv_eq_closed_left _ !con.assoc⁻¹)
+      ... ≃ fiber (ap1_gen f (point_eq x) (point_eq y)) (idpath b) : fiber.sigma_char
+
+  definition loop_pfiber [constructor] {A B : Type*} (f : A →* B) : Ω (pfiber f) ≃* pfiber (Ω→ f) :=
+  pequiv_of_equiv (fiber_eq_equiv_fiber pt pt)
+    begin
+      induction f with f f₀, induction B with B b₀, esimp at (f,f₀), induction f₀, reflexivity
+    end
+
+  definition pfiber_loop_space {A B : Type*} (f : A →* B) : pfiber (Ω→ f) ≃* Ω (pfiber f) :=
+  (loop_pfiber f)⁻¹ᵉ*
+
+  definition point_fiber_eq_equiv_fiber {A B : Type} {f : A → B} {b : B} {x y : fiber f b}
+    (p : x = y) : point (fiber_eq_equiv_fiber x y p) = ap1_gen point idp idp p :=
+  by induction p; reflexivity
+
+  lemma ppoint_loop_pfiber {A B : Type*} (f : A →* B) :
+    ppoint (Ω→ f) ∘* loop_pfiber f ~* Ω→ (ppoint f) :=
+  phomotopy.mk (point_fiber_eq_equiv_fiber)
+    begin
+     induction f with f f₀, induction B with B b₀, esimp at (f,f₀), induction f₀, reflexivity
+    end
+
+  lemma ppoint_loop_pfiber_inv {A B : Type*} (f : A →* B) :
+    Ω→ (ppoint f) ∘* (loop_pfiber f)⁻¹ᵉ* ~* ppoint (Ω→ f) :=
+  (phomotopy_pinv_right_of_phomotopy (ppoint_loop_pfiber f))⁻¹*
+
+  lemma pfiber_pequiv_of_phomotopy_ppoint {A B : Type*} {f g : A →* B} (h : f ~* g)
+    : ppoint g ∘* pfiber_pequiv_of_phomotopy h ~* ppoint f :=
+  begin
+    induction f with f f₀, induction g with g g₀, induction h with h h₀, induction B with B b₀,
+    esimp at *, induction h₀, induction g₀,
+    fapply phomotopy.mk,
+    { reflexivity },
+    { esimp [pfiber_pequiv_of_phomotopy], exact !point_fiber_eq⁻¹ }
+  end
+
+  lemma pequiv_postcompose_ppoint {A B B' : Type*} (f : A →* B) (g : B ≃* B')
+    : ppoint f ∘* fiber.pequiv_postcompose f g ~* ppoint (g ∘* f) :=
+  begin
+    induction f with f f₀, induction g with g hg g₀, induction B with B b₀,
+    induction B' with B' b₀', esimp at *, induction g₀, induction f₀,
+    fapply phomotopy.mk,
+    { reflexivity },
+    { esimp [pequiv_postcompose], symmetry,
+      refine !ap_compose⁻¹ ⬝ _, apply ap_constant }
+  end
+
+  lemma pequiv_precompose_ppoint {A A' B : Type*} (f : A →* B) (g : A' ≃* A)
+    : ppoint f ∘* fiber.pequiv_precompose f g ~* g ∘* ppoint (f ∘* g) :=
+  begin
+    induction f with f f₀, induction g with g hg g₀, induction B with B b₀,
+    induction A with A a₀', esimp at *, induction g₀, induction f₀,
+    reflexivity,
+  end
+
+  definition pfiber_pequiv_of_square_ppoint {A B C D : Type*} {f : A →* B} {g : C →* D}
+    (h : A ≃* C) (k : B ≃* D) (s : k ∘* f ~* g ∘* h)
+    : ppoint g ∘* pfiber_pequiv_of_square h k s ~* h ∘* ppoint f :=
+  begin
+    refine !passoc⁻¹* ⬝* _,
+    refine pwhisker_right _ !pequiv_precompose_ppoint ⬝* _,
+    refine !passoc ⬝* _,
+    apply pwhisker_left,
+    refine !passoc⁻¹* ⬝* _,
+    refine pwhisker_right _ !pfiber_pequiv_of_phomotopy_ppoint ⬝* _,
+    apply pinv_right_phomotopy_of_phomotopy,
+    refine !pequiv_postcompose_ppoint⁻¹*,
+  end
+
+  -- this breaks certain proofs if it is an instance
+  definition is_trunc_fiber (n : ℕ₋₂) {A B : Type} (f : A → B) (b : B)
+    [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (fiber f b) :=
+  is_trunc_equiv_closed_rev n !fiber.sigma_char
+
+  definition is_trunc_pfiber (n : ℕ₋₂) {A B : Type*} (f : A →* B)
+    [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (pfiber f) :=
+  is_trunc_fiber n f pt
+
+  definition fiber_equiv_of_is_contr [constructor] {A B : Type} (f : A → B) (b : B) [is_contr B] :
+    fiber f b ≃ A :=
+  !fiber.sigma_char ⬝e !sigma_equiv_of_is_contr_right
+
+  definition pfiber_pequiv_of_is_contr [constructor] {A B : Type*} (f : A →* B) [is_contr B] :
+    pfiber f ≃* A :=
+  pequiv_of_equiv (fiber_equiv_of_is_contr f pt) idp
 
 end fiber
 

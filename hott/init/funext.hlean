@@ -278,6 +278,13 @@ namespace eq
     refine homotopy.rec_on' p _, intro q, induction q, exact H
   end
 
+  protected definition homotopy.rec_on_idp_left {A : Type} {P : A → Type} {g : Πa, P a}
+    {Q : Πf, (f ~ g) → Type} {f : Π x, P x}
+    (p : f ~ g) (H : Q g (homotopy.refl g)) : Q f p :=
+  begin
+    induction p using homotopy.rec_on, induction q, exact H
+  end
+
   definition eq_of_homotopy_inv {f g : Π x, P x} (H : f ~ g)
     : eq_of_homotopy (λx, (H x)⁻¹) = (eq_of_homotopy H)⁻¹ :=
   begin

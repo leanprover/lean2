@@ -137,6 +137,18 @@ namespace eq
     ap010 f (ap g p) a = ap010 (λy, f (g y)) p a :=
   eq.rec_on p idp
 
+  definition ap_eq_ap010 {A B C : Type} (f : A → B → C) {a a' : A} (p : a = a') (b : B) :
+    ap (λa, f a b) p = ap010 f p b :=
+  by reflexivity
+
+  definition ap011_idp {A B C : Type} (f : A → B → C) {a a' : A} (p : a = a') (b : B) :
+    ap011 f p idp = ap010 f p b :=
+  by reflexivity
+
+  definition ap011_flip {A B C : Type} (f : A → B → C) {a a' : A} {b b' : B} (p : a = a') (q : b = b') :
+    ap011 f p q = ap011 (λb a, f a b) q p :=
+  by induction q; induction p; reflexivity
+
   /- the following theorems are function extentionality for functions with multiple arguments -/
 
   definition eq_of_homotopy2 {f g : Πa b, C a b} (H : f ~2 g) : f = g :=

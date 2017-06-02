@@ -126,6 +126,10 @@ namespace trunc
   definition or.intro_left  [reducible] [constructor] (x : X) : X ∨ Y             := tr (inl x)
   definition or.intro_right [reducible] [constructor] (y : Y) : X ∨ Y             := tr (inr y)
 
+  definition exists.elim {A : Type} {p : A → Type} {B : Type} [is_prop B] (H : Exists p)
+    (H' : ∀ (a : A), p a → B) : B :=
+  trunc.elim (sigma.rec H') H
+
   definition is_contr_of_merely_prop [H : is_prop A] (aa : merely A) : is_contr A :=
   is_contr_of_inhabited_prop (trunc.rec_on aa id)
 

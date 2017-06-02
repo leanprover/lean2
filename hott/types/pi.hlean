@@ -326,6 +326,11 @@ namespace pi
   local attribute ne [reducible]
   theorem is_prop_ne [instance] {A : Type} (a b : A) : is_prop (a ≠ b) := _
 
+  definition is_contr_pi_of_neg {A : Type} (B : A → Type) (H : ¬ A) : is_contr (Πa, B a) :=
+  begin
+    apply is_contr.mk (λa, empty.elim (H a)), intro f, apply eq_of_homotopy, intro x, contradiction
+  end
+
   /- Symmetry of Π -/
   definition is_equiv_flip [instance] {P : A → A' → Type}
     : is_equiv (@function.flip A A' P) :=

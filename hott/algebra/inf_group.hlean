@@ -331,6 +331,9 @@ section inf_group
   ⦃ right_cancel_inf_semigroup, s,
     mul_right_cancel := @mul_right_cancel A s ⦄
 
+  definition one_unique {a : A} (H : Πb, a * b = b) : a = 1 :=
+  !mul_one⁻¹ ⬝ H 1
+
 end inf_group
 
 structure ab_inf_group [class] (A : Type) extends inf_group A, comm_inf_monoid A
@@ -532,6 +535,9 @@ section add_inf_group
 
   theorem add_eq_of_eq_sub {a b c : A} (H : a = c - b) : a + b = c :=
   add_eq_of_eq_add_neg H
+
+  definition zero_unique {a : A} (H : Πb, a + b = b) : a = 0 :=
+  !add_zero⁻¹ ⬝ H 0
 
 end add_inf_group
 

@@ -8,10 +8,10 @@ Properties of trunc_index, is_trunc, trunctype, trunc, and the pointed versions 
 
 -- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .prop_trunc
 
-import .pointed ..function algebra.order types.nat.order
+import .pointed ..function algebra.order types.nat.order types.unit
 
 open eq sigma sigma.ops pi function equiv trunctype
-     is_equiv prod pointed nat is_trunc algebra sum
+     is_equiv prod pointed nat is_trunc algebra sum unit
 
   /- basic computation with ℕ₋₂, its operations and its order -/
 namespace trunc_index
@@ -471,6 +471,22 @@ namespace is_trunc
   have is_trunc (0+[ℕ₋₂]n) A, by rewrite [trunc_index.zero_add]; exact _,
   is_trunc_loopn 0 n A
 
+  definition pequiv_punit_of_is_contr [constructor] (A : Type*) (H : is_contr A) : A ≃* punit :=
+  pequiv_of_equiv (equiv_unit_of_is_contr A) (@is_prop.elim unit _ _ _)
+
+  definition pequiv_punit_of_is_contr' [constructor] (A : Type) (H : is_contr A)
+    : pointed.MK A (center A) ≃* punit :=
+  pequiv_punit_of_is_contr (pointed.MK A (center A)) H
+
+  definition is_trunc_is_contr_fiber (n : ℕ₋₂) {A B : Type} (f : A → B)
+    (b : B) [is_trunc n A] [is_trunc n B] : is_trunc n (is_contr (fiber f b)) :=
+  begin
+    cases n,
+    { apply is_contr_of_inhabited_prop, apply is_contr_fun_of_is_equiv,
+      apply is_equiv_of_is_contr },
+    { apply is_trunc_succ_of_is_prop }
+  end
+
 end is_trunc open is_trunc
 
 namespace trunc
@@ -735,9 +751,10 @@ namespace trunc
     revert n, induction k with k IH: intro n,
     { reflexivity},
     { refine _ ⬝e* loop_ptrunc_pequiv n (Ω[k] A),
-      rewrite [loopn_succ_eq], apply loop_pequiv_loop,
+      change Ω (Ω[k] (ptrunc (n + succ k) A)) ≃* Ω (ptrunc (n + 1) (Ω[k] A)),
+      apply loop_pequiv_loop,
       refine _ ⬝e* IH (n.+1),
-      rewrite succ_add_nat}
+      exact loopn_pequiv_loopn k (pequiv_of_eq (ap (λn, ptrunc n A) !succ_add_nat⁻¹)) }
   end
 
   definition loopn_ptrunc_pequiv_con {n : ℕ₋₂} {k : ℕ} {A : Type*}

@@ -353,4 +353,27 @@ namespace circle
   definition circle_base_mul [reducible] (x : S¹) : circle_mul base x = x :=
   idp
 
+  /-
+    Suppose for `f, g : A -> B` we prove a homotopy `H : f ~ g` by induction on the element in `A`.
+    And suppose `p : a = a'` is a path constructor in `A`.
+    Then `natural_square_tr H p` has type `square (H a) (H a') (ap f p) (ap g p)` and is equal
+    to the square which defined H on the path constructor
+  -/
+
+  definition natural_square_elim_loop {A : Type} {f g : S¹ → A} (p : f base = g base)
+    (q : square p p (ap f loop) (ap g loop))
+    : natural_square (circle.rec p (eq_pathover q)) loop = q :=
+  begin
+    refine ap square_of_pathover !rec_loop ⬝ _,
+    exact to_right_inv !eq_pathover_equiv_square q
+  end
+
+  definition circle_elim_constant [unfold 5] {A : Type} {a : A} {p : a = a} (r : p = idp) (x : S¹) :
+    circle.elim a p x = a :=
+  begin
+    induction x,
+    { reflexivity },
+    { apply eq_pathover_constant_right, apply hdeg_square, exact !elim_loop ⬝ r }
+  end
+
 end circle

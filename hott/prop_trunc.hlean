@@ -35,7 +35,7 @@ namespace is_trunc
       induction (P a b), apply idp},
   end
 
-  definition is_prop_is_trunc [instance] (n : trunc_index) :
+  definition is_prop_is_trunc (n : trunc_index) :
     Π (A : Type), is_prop (is_trunc n A) :=
   begin
     induction n,
@@ -50,4 +50,10 @@ namespace is_trunc
       apply equiv.to_is_equiv,
       apply is_trunc.pi_char},
   end
+
+  local attribute is_prop_is_trunc [instance]
+  definition is_trunc_succ_is_trunc [instance] (n m : ℕ₋₂) (A : Type) :
+    is_trunc (n.+1) (is_trunc m A) :=
+  !is_trunc_succ_of_is_prop
+
 end is_trunc

@@ -119,6 +119,10 @@ namespace is_equiv
              (λ b, ap f !Hty⁻¹ ⬝ right_inv f b)
              (λ a, !Hty⁻¹ ⬝ left_inv f a)
 
+  definition inv_homotopy_inv {A B : Type} {f g : A → B} [is_equiv f] [is_equiv g] (p : f ~ g)
+    : f⁻¹ ~ g⁻¹ :=
+  λb, (left_inv g (f⁻¹ b))⁻¹ ⬝ ap g⁻¹ ((p (f⁻¹ b))⁻¹ ⬝ right_inv f b)
+
   definition is_equiv_up [instance] [constructor] (A : Type)
     : is_equiv (up : A → lift A) :=
   adjointify up down (λa, by induction a;reflexivity) (λa, idp)
@@ -375,6 +379,9 @@ namespace equiv
 
   definition eq_of_fn_eq_fn_ap (f : A ≃ B) {x y : A} (q : x = y) : eq_of_fn_eq_fn' f (ap f q) = q :=
   eq_of_fn_eq_fn'_ap f q
+
+  definition to_inv_homotopy_inv {f g : A ≃ B} (p : f ~ g) : f⁻¹ᵉ ~ g⁻¹ᵉ :=
+  inv_homotopy_inv p
 
   --we need this theorem for the funext_of_ua proof
   theorem inv_eq {A B : Type} (eqf eqg : A ≃ B) (p : eqf = eqg) : (to_fun eqf)⁻¹ = (to_fun eqg)⁻¹ :=

@@ -31,3 +31,4 @@ Types in HoTT:
 * [pullback](pullback.hlean)
 * [univ](univ.hlean)
 * [type_functor](type_functor.hlean)
+* [pointed2](pointed2.hlean): equalities between pointed homotopies, squares of poitned maps and pointed homotopies, and pointed maps in or out of `ppmap A B`

@@ -281,6 +281,11 @@ namespace eq
     (q : b =[p] b₂) : f b =[p] g b₂ :=
   by induction q; exact apo10 r b
 
+  definition apo011 {A : Type} {B C D : A → Type} {a a' : A} {p : a = a'} {b : B a} {b' : B a'}
+    {c : C a} {c' : C a'} (f : Π⦃a⦄, B a → C a → D a) (q : b =[p] b') (r : c =[p] c') :
+    f b c =[p] f b' c' :=
+  begin induction q, induction r using idp_rec_on, exact idpo end
+
   definition apdo011 {A : Type} {B : A → Type} {C : Π⦃a⦄, B a → Type}
     (f : Π⦃a⦄ (b : B a), C b) {a a' : A} (p : a = a') {b : B a} {b' : B a'} (q : b =[p] b')
       : f b =[apd011 C p q] f b' :=
@@ -444,6 +449,5 @@ namespace eq
     : apd0111 (λa b c, f (m c)) p q (pathover_tro q c) ⬝ ap (@f _ _) (fn_tro_eq_tro_fn2 q m c) =
       apd0111 f (ap k p) (pathover_ap B k (apo l q)) (pathover_tro _ (m c)) :=
   by induction q; reflexivity
-
 
 end eq

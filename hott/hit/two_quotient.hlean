@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Floris van Doorn
 -/
 
-import homotopy.circle eq2 algebra.e_closure cubical.squareover cubical.cube cubical.square2
+import homotopy.circle eq2 algebra.e_closure cubical.squareover cubical.cube
 
 open quotient eq circle sum sigma equiv function relation e_closure
 

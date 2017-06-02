@@ -347,4 +347,42 @@ namespace eq
   infixr ` ⬝p3 `:75 := eq_concat3
   infixl ` ⬝3p `:75 := concat3_eq
 
+  definition whisker001 {p₀₀₁' : a₀₀₀ = a₀₀₂} (q : p₀₀₁' = p₀₀₁)
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) : cube (q ⬝ph s₀₁₁) s₂₁₁ (q ⬝ph s₁₀₁) s₁₂₁ s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition whisker021 {p₀₂₁' : a₀₂₀ = a₀₂₂} (q : p₀₂₁' = p₀₂₁)
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube (s₀₁₁ ⬝hp q⁻¹) s₂₁₁ s₁₀₁ (q ⬝ph s₁₂₁) s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition whisker021' {p₀₂₁' : a₀₂₀ = a₀₂₂} (q : p₀₂₁ = p₀₂₁')
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube (s₀₁₁ ⬝hp q) s₂₁₁ s₁₀₁ (q⁻¹ ⬝ph s₁₂₁) s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition whisker201 {p₂₀₁' : a₂₀₀ = a₂₀₂} (q : p₂₀₁' = p₂₀₁)
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube s₀₁₁ (q ⬝ph s₂₁₁) (s₁₀₁ ⬝hp q⁻¹) s₁₂₁ s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition whisker201' {p₂₀₁' : a₂₀₀ = a₂₀₂} (q : p₂₀₁ = p₂₀₁')
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube s₀₁₁ (q⁻¹ ⬝ph s₂₁₁) (s₁₀₁ ⬝hp q) s₁₂₁ s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition whisker221 {p₂₂₁' : a₂₂₀ = a₂₂₂} (q : p₂₂₁ = p₂₂₁')
+    (c : cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) : cube s₀₁₁ (s₂₁₁ ⬝hp q) s₁₀₁ (s₁₂₁ ⬝hp q) s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition move221 {p₂₂₁' : a₂₂₀ = a₂₂₂} {s₁₂₁ : square p₁₂₀ p₁₂₂ p₀₂₁ p₂₂₁'} (q : p₂₂₁ = p₂₂₁')
+    (c : cube s₀₁₁ (s₂₁₁ ⬝hp q) s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube s₀₁₁ s₂₁₁ s₁₀₁ (s₁₂₁ ⬝hp q⁻¹) s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
+  definition move201 {p₂₀₁' : a₂₀₀ = a₂₀₂} {s₁₀₁ : square p₁₀₀ p₁₀₂ p₀₀₁ p₂₀₁'}  (q : p₂₀₁' = p₂₀₁)
+    (c : cube s₀₁₁ (q ⬝ph s₂₁₁) s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂) :
+    cube s₀₁₁ s₂₁₁ (s₁₀₁ ⬝hp q) s₁₂₁ s₁₁₀ s₁₁₂ :=
+  by induction q; exact c
+
 end eq

@@ -48,10 +48,10 @@ namespace category
 
     local attribute is_equiv_iso_of_equiv [instance]
 
-    definition iso_of_eq_eq_compose (A B : Set) : @iso_of_eq _ _ A B =
+    definition iso_of_eq_eq_compose (A B : Set) : @iso_of_eq _ _ A B ~
       @iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
       @ap _ _ (to_fun (trunctype.sigma_char 0)) A B :=
-    eq_of_homotopy (λp, eq.rec_on p idp)
+    λp, eq.rec_on p idp
 
     definition equiv_equiv_iso (A B : set) : (A ≃ B) ≃ (A ≅ B) :=
     equiv.MK (λf, iso_of_equiv f)
@@ -75,11 +75,8 @@ namespace category
            (@is_equiv_subtype_eq_inv _ _ _ _ _))
          !univalence)
        !is_equiv_iso_of_equiv,
-    let H₂ := (iso_of_eq_eq_compose A B)⁻¹ in
-    begin
-      rewrite H₂ at H₁,
-      assumption
-    end
+    is_equiv.homotopy_closed _ (iso_of_eq_eq_compose A B)⁻¹ʰᵗʸ
+
   end set
 
   definition category_Set [instance] [constructor] : category Set :=

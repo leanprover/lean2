@@ -8,7 +8,7 @@ Declaration of set-quotients, i.e. quotient of a mere relation which is then set
 
 import function algebra.relation types.trunc types.eq hit.quotient
 
-open eq is_trunc trunc quotient equiv
+open eq is_trunc trunc quotient equiv is_equiv
 
 namespace set_quotient
 section
@@ -85,6 +85,36 @@ namespace set_quotient
 
   definition is_surjective_class_of : is_surjective (class_of : A → set_quotient R) :=
   λx, set_quotient.rec_on x (λa, tr (fiber.mk a idp)) (λa a' r, !is_prop.elimo)
+
+  definition is_prop_set_quotient {A : Type} (R : A → A → Prop) [is_prop A] :
+    is_prop (set_quotient R) :=
+  begin
+    apply is_prop.mk, intro x y,
+    induction x using set_quotient.rec_prop, induction y using set_quotient.rec_prop,
+    exact ap class_of !is_prop.elim
+  end
+
+  local attribute is_prop_set_quotient [instance]
+  definition is_trunc_set_quotient [instance] (n : ℕ₋₂) {A : Type} (R : A → A → Prop) [is_trunc n A] :
+    is_trunc n (set_quotient R) :=
+  begin
+    cases n with n, { apply is_contr_of_inhabited_prop, exact class_of !center },
+    cases n with n, { apply _ },
+    apply is_trunc_succ_succ_of_is_set
+  end
+
+  definition is_equiv_class_of [constructor] {A : Type} [is_set A] (R : A → A → Prop)
+    (p : Π⦃a b⦄, R a b → a = b) : is_equiv (@class_of A R) :=
+  begin
+    fapply adjointify,
+    { intro x, induction x, exact a, exact p H },
+    { intro x, induction x using set_quotient.rec_prop, reflexivity },
+    { intro a, reflexivity }
+  end
+
+  definition equiv_set_quotient [constructor] {A : Type} [is_set A] (R : A → A → Prop)
+    (p : Π⦃a b⦄, R a b → a = b) : A ≃ set_quotient R :=
+  equiv.mk _ (is_equiv_class_of R p)
 
   /- non-dependent universal property -/
 

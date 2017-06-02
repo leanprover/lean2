@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Theorems about the integers specific to HoTT
 -/
 
-import .basic types.eq arity algebra.bundled
+import .order types.eq arity algebra.bundled
 open core eq is_equiv equiv algebra is_trunc
 open nat (hiding pred)
 
@@ -28,6 +28,12 @@ namespace int
   AddAbGroup.mk ℤ _
 
   notation `agℤ` := AbGroup_int
+
+  definition ring_int : Ring :=
+  Ring.mk ℤ _
+
+  notation `rℤ` := ring_int
+
   end
 
   definition is_equiv_succ [constructor] [instance] : is_equiv succ :=
@@ -42,6 +48,17 @@ namespace int
   rec_nat_on a erfl
                (λb g, f ⬝e g)
                (λb g, g ⬝e f⁻¹ᵉ)
+
+  definition max0 : ℤ → ℕ
+  | (of_nat n) := n
+  | (-[1+ n])  := 0
+
+  lemma le_max0 : Π(n : ℤ), n ≤ of_nat (max0 n)
+  | (of_nat n) := proof le.refl n qed
+  | (-[1+ n])  := proof unit.star qed
+
+  lemma le_of_max0_le {n : ℤ} {m : ℕ} (h : max0 n ≤ m) : n ≤ of_nat m :=
+  le.trans (le_max0 n) (of_nat_le_of_nat_of_le h)
 
   -- definition iterate_trans {A : Type} (f : A ≃ A) (a : ℤ)
   --   : iterate f a ⬝e f = iterate f (a + 1) :=

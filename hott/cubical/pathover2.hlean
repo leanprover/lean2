@@ -117,6 +117,10 @@ namespace eq
     apply ap_compose_ap02_constant
   end
 
+  theorem apd_constant' {A A' : Type} {B : A' → Type} {a₁ a₂ : A} {a' : A'} (b : B a')
+    (p : a₁ = a₂) : apd (λx, b) p = pathover_of_eq p idp :=
+  by induction p; reflexivity
+
   definition apd_change_path {B : A → Type} {a a₂ : A} (f : Πa, B a) {p p' : a = a₂} (s : p = p')
     : apd f p' = change_path s (apd f p) :=
   by induction s; reflexivity

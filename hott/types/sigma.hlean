@@ -214,6 +214,25 @@ namespace sigma
     induction s using idp_rec_on, apply idpo
   end
 
+  definition pathover_pr1 [unfold 9] {A : Type} {B : A → Type} {C : Πa, B a → Type}
+    {a a' : A} {p : a = a'} {x : Σb, C a b} {x' : Σb', C a' b'}
+    (q : x =[p] x') : x.1 =[p] x'.1 :=
+  begin induction q, constructor end
+
+  definition sigma_pathover_equiv_of_is_prop {A : Type} {B : A → Type} (C : Πa, B a → Type)
+    {a a' : A} (p : a = a') (x : Σb, C a b) (x' : Σb', C a' b')
+    [Πa b, is_prop (C a b)] : x =[p] x' ≃ x.1 =[p] x'.1 :=
+  begin
+    fapply equiv.MK,
+    { exact pathover_pr1 },
+    { intro q, induction x with b c, induction x' with b' c', esimp at q, induction q,
+      apply pathover_idp_of_eq, exact sigma_eq idp !is_prop.elimo },
+    { intro q, induction x with b c, induction x' with b' c', esimp at q, induction q,
+      have c = c', from !is_prop.elim, induction this,
+      rewrite [▸*, is_prop_elimo_self (C a) c] },
+    { intro q, induction q, induction x with b c, rewrite [▸*, is_prop_elimo_self (C a) c] }
+  end
+
   /-
     TODO:
     * define the projections from the type u =[p] v
@@ -273,6 +292,10 @@ namespace sigma
   definition ap_sigma_functor_eq_dpair (p : a = a') (q : b =[p] b') :
     ap (sigma_functor f g) (sigma_eq p q) = sigma_eq (ap f p) (pathover.rec_on q idpo) :=
   by induction q; reflexivity
+
+  definition sigma_ua {A B : Type} (C : A ≃ B → Type) :
+    (Σ(p : A = B), C (equiv_of_eq p)) ≃ Σ(e : A ≃ B), C e :=
+  sigma_equiv_sigma_left' !eq_equiv_equiv
 
   -- definition ap_sigma_functor_eq (p : u.1 = v.1) (q : u.2 =[p] v.2)
   --   : ap (sigma_functor f g) (sigma_eq p q) =
@@ -510,7 +533,6 @@ namespace sigma
   definition eq_base_of_is_prop_sigma {A : Type} (B : A → Type) (H : is_prop (Σa, B a)) {a a' : A}
     (b : B a) (b' : B a') : a = a' :=
   (is_prop.elim ⟨a, b⟩ ⟨a', b'⟩)..1
-
 
 end sigma
 

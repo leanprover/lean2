@@ -302,10 +302,17 @@ namespace sphere
   definition sphere_eq_pbool : S* 0 = pbool :=
   pType_eq sphere_equiv_bool idp
 
+  definition psphere_pequiv_iterate_psusp (n : ℕ) : psphere n ≃* iterate_psusp n pbool :=
+  begin
+    induction n with n e,
+    { exact psphere_pequiv_pbool },
+    { exact psusp_pequiv e }
+  end
+
   definition psphere_pmap_pequiv' (A : Type*) (n : ℕ) : ppmap (S* n) A ≃* Ω[n] A :=
   begin
     revert A, induction n with n IH: intro A,
-    { refine _ ⬝e* !pmap_pbool_pequiv, exact pequiv_ppcompose_right psphere_pequiv_pbool⁻¹ᵉ* },
+    { refine _ ⬝e* !ppmap_pbool_pequiv, exact pequiv_ppcompose_right psphere_pequiv_pbool⁻¹ᵉ* },
     { refine psusp_adjoint_loop (S* n) A ⬝e* IH (Ω A) ⬝e* !loopn_succ_in⁻¹ᵉ*  }
   end
 

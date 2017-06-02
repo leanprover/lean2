@@ -226,20 +226,43 @@ namespace susp
   definition psusp_pequiv [constructor] (f : X ≃* Y) : psusp X ≃* psusp Y :=
   pequiv_of_equiv (susp.equiv f) idp
 
-  definition psusp_functor_compose (g : Y →* Z) (f : X →* Y)
-    : psusp_functor (g ∘* f) ~* psusp_functor g ∘* psusp_functor f :=
+  definition psusp_functor_pcompose (g : Y →* Z) (f : X →* Y) :
+    psusp_functor (g ∘* f) ~* psusp_functor g ∘* psusp_functor f :=
   begin
-    fconstructor,
-    { intro a, induction a,
+    fapply phomotopy.mk,
+    { intro x, induction x,
       { reflexivity },
       { reflexivity },
-      { apply eq_pathover, apply hdeg_square,
-        rewrite [▸*,ap_compose' _ (psusp_functor f)],
-        krewrite +susp.elim_merid } },
-    { reflexivity }
+      { apply eq_pathover, apply hdeg_square, esimp,
+        refine !elim_merid ⬝ _ ⬝ (ap_compose (psusp_functor g) _ _)⁻¹ᵖ,
+        refine _ ⬝ ap02 _ !elim_merid⁻¹, exact !elim_merid⁻¹ }},
+    { reflexivity },
   end
 
-  -- adjunction from Coq-HoTT
+  definition psusp_functor_phomotopy {f g : X →* Y} (p : f ~* g) :
+    psusp_functor f ~* psusp_functor g :=
+  begin
+    fapply phomotopy.mk,
+    { intro x, induction x,
+      { reflexivity },
+      { reflexivity },
+      { apply eq_pathover, apply hdeg_square, esimp, refine !elim_merid ⬝ _ ⬝ !elim_merid⁻¹ᵖ,
+        exact ap merid (p a), }},
+    { reflexivity },
+  end
+
+  definition psusp_functor_pid (A : Type*) : psusp_functor (pid A) ~* pid (psusp A) :=
+  begin
+    fapply phomotopy.mk,
+    { intro x, induction x,
+      { reflexivity },
+      { reflexivity },
+      { apply eq_pathover_id_right, apply hdeg_square, apply elim_merid }},
+    { reflexivity },
+  end
+
+  /- adjunction originally  ported from Coq-HoTT,
+     but we proved some additional naturality conditions -/
 
   definition loop_psusp_unit [constructor] (X : Type*) : X →* Ω(psusp X) :=
   begin
@@ -324,6 +347,28 @@ namespace susp
   definition loop_psusp_intro [constructor] {X Y : Type*} (f : psusp X →* Y) : X →* Ω Y :=
   ap1 f ∘* loop_psusp_unit X
 
+  definition psusp_elim_psusp_functor {A B C : Type*} (g : B →* Ω C) (f : A →* B) :
+    psusp.elim g ∘* psusp_functor f ~* psusp.elim (g ∘* f) :=
+  begin
+    refine !passoc ⬝* _, exact pwhisker_left _ !psusp_functor_pcompose⁻¹*
+  end
+
+  definition psusp_elim_phomotopy {A B : Type*} {f g : A →* Ω B} (p : f ~* g) : psusp.elim f ~* psusp.elim g :=
+  pwhisker_left _ (psusp_functor_phomotopy p)
+
+  definition psusp_elim_natural {X Y Z : Type*} (g : Y →* Z) (f : X →* Ω Y)
+    : g ∘* psusp.elim f ~* psusp.elim (Ω→ g ∘* f) :=
+  begin
+    refine _ ⬝* pwhisker_left _ !psusp_functor_pcompose⁻¹*,
+    refine !passoc⁻¹* ⬝* _ ⬝* !passoc,
+    exact pwhisker_right _ !loop_psusp_counit_natural
+  end
+
+  definition loop_psusp_intro_natural {X Y Z : Type*} (g : psusp Y →* Z) (f : X →* Y) :
+    loop_psusp_intro (g ∘* psusp_functor f) ~* loop_psusp_intro g ∘* f :=
+  pwhisker_right _ !ap1_pcompose ⬝* !passoc ⬝* pwhisker_left _ !loop_psusp_unit_natural⁻¹* ⬝*
+  !passoc⁻¹*
+
   definition psusp_adjoint_loop_right_inv {X Y : Type*} (g : X →* Ω Y) :
     loop_psusp_intro (psusp.elim g) ~* g :=
   begin
@@ -338,7 +383,7 @@ namespace susp
   definition psusp_adjoint_loop_left_inv {X Y : Type*} (f : psusp X →* Y) :
     psusp.elim (loop_psusp_intro f) ~* f :=
   begin
-    refine !pwhisker_left !psusp_functor_compose ⬝* _,
+    refine !pwhisker_left !psusp_functor_pcompose ⬝* _,
     refine !passoc⁻¹* ⬝* _,
     refine !pwhisker_right !loop_psusp_counit_natural⁻¹* ⬝* _,
     refine !passoc ⬝* _,
@@ -388,7 +433,7 @@ namespace susp
     esimp [psusp_adjoint_loop],
     refine _ ⬝* !passoc⁻¹*,
     apply pwhisker_left,
-    apply psusp_functor_compose
+    apply psusp_functor_pcompose
   end
 
   /- iterated suspension -/
@@ -441,5 +486,7 @@ namespace susp
     { refine !psusp_adjoint_loop ⬝e* !IH ⬝e* _, apply pequiv_ppcompose_left,
       symmetry, apply loopn_succ_in }
   end
+
+
 
 end susp

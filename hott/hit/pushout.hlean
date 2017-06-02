@@ -112,6 +112,16 @@ namespace pushout
 
   variables {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
 
+  protected theorem elim_inl {P : Type} (Pinl : BL → P) (Pinr : TR → P)
+    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) {b b' : BL} (p : b = b')
+    : ap (pushout.elim Pinl Pinr Pglue) (ap inl p) = ap Pinl p :=
+  !ap_compose⁻¹
+
+  protected theorem elim_inr {P : Type} (Pinl : BL → P) (Pinr : TR → P)
+    (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) {b b' : TR} (p : b = b')
+    : ap (pushout.elim Pinl Pinr Pglue) (ap inr p) = ap Pinr p :=
+  !ap_compose⁻¹
+
   /- The non-dependent universal property -/
   definition pushout_arrow_equiv (C : Type)
     : (pushout f g → C) ≃ (Σ(i : BL → C) (j : TR → C), Πc, i (f c) = j (g c)) :=

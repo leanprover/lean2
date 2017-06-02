@@ -67,11 +67,11 @@ namespace eq
     p₁ ⬝ (p₂ ⬝ p₃ ⬝ p₄) ⬝ p₅ = (p₁ ⬝ p₂) ⬝ p₃ ⬝ (p₄ ⬝ p₅) :=
   by induction p₅; induction p₄; induction p₃; reflexivity
 
-  -- The left inverse law.
+  -- The right inverse law.
   definition con.right_inv [unfold 4] (p : x = y) : p ⬝ p⁻¹ = idp :=
   by induction p; reflexivity
 
-  -- The right inverse law.
+  -- The left inverse law.
   definition con.left_inv [unfold 4] (p : x = y) : p⁻¹ ⬝ p = idp :=
   by induction p; reflexivity
 
@@ -111,6 +111,12 @@ namespace eq
   definition elim_inv_inv [unfold 5] {A : Type} {a b : A} {C : a = b → Type}
     (H₁ : a = b) (H₂ : C (H₁⁻¹⁻¹)) : C H₁ :=
   eq.rec_on (inv_inv H₁) H₂
+
+  definition eq.rec_symm {A : Type} {a₀ : A} {P : Π⦃a₁⦄, a₁ = a₀ → Type}
+    (H : P idp) ⦃a₁ : A⦄ (p : a₁ = a₀) : P p :=
+  begin
+    cases p, exact H
+  end
 
   /- Theorems for moving things around in equations -/
 
@@ -234,6 +240,9 @@ namespace eq
   protected definition homotopy.refl [refl] [reducible] [unfold_full] (f : Πx, P x) : f ~ f :=
   λ x, idp
 
+  protected definition homotopy.rfl [reducible] [unfold_full] {f : Πx, P x} : f ~ f :=
+  homotopy.refl f
+
   protected definition homotopy.symm [symm] [reducible] [unfold_full] {f g : Πx, P x} (H : f ~ g)
     : g ~ f :=
   λ x, (H x)⁻¹
@@ -242,6 +251,9 @@ namespace eq
     (H1 : f ~ g) (H2 : g ~ h) : f ~ h :=
   λ x, H1 x ⬝ H2 x
 
+  infix ` ⬝hty `:75 := homotopy.trans
+  postfix `⁻¹ʰᵗʸ`:(max+1) := homotopy.symm
+
   definition hwhisker_left [unfold_full] (g : B → C) {f f' : A → B} (H : f ~ f') :
     g ∘ f ~ g ∘ f' :=
   λa, ap g (H a)
@@ -249,6 +261,19 @@ namespace eq
   definition hwhisker_right [unfold_full] (f : A → B) {g g' : B → C} (H : g ~ g') :
     g ∘ f ~ g' ∘ f :=
   λa, H (f a)
+
+  definition compose_id (f : A → B) : f ∘ id ~ f :=
+  by reflexivity
+
+  definition id_compose (f : A → B) : id ∘ f ~ f :=
+  by reflexivity
+
+  definition compose2 {A B C : Type} {g g' : B → C} {f f' : A → B}
+    (p : g ~ g') (q : f ~ f') : g ∘ f ~ g' ∘ f' :=
+  hwhisker_right f p ⬝hty hwhisker_left g' q
+
+  definition hassoc {A B C D : Type} (h : C → D) (g : B → C) (f : A → B) : (h ∘ g) ∘ f ~ h ∘ (g ∘ f) :=
+  λa, idp
 
   definition homotopy_of_eq {f g : Πx, P x} (H1 : f = g) : f ~ g :=
   H1 ▸ homotopy.refl f
@@ -276,14 +301,6 @@ namespace eq
 
   definition ap011 [unfold 9] (f : A → B → C) (Ha : a = a') (Hb : b = b') : f a b = f a' b' :=
   by cases Ha; exact ap (f a) Hb
-
-  definition ap_eq_ap011_left (f : A → B → C) (Ha : a = a') (b : B) :
-    ap (λa, f a b) Ha = ap011 f Ha idp :=
-  by induction Ha; reflexivity
-
-  definition ap_eq_ap011_right (f : A → B → C) (a : A) (Hb : b = b') :
-    ap (f a) Hb = ap011 f idp Hb :=
-  by reflexivity
 
   /- More theorems for moving things around in equations -/
 
@@ -452,6 +469,22 @@ namespace eq
   definition ap_ap10 (f g : A → B) (h : B → C) (p : f = g) (a : A) :
     ap h (ap10 p a) = ap10 (ap (λ f', h ∘ f') p) a:=
   by induction p; reflexivity
+
+  /- some lemma's about ap011 -/
+
+  definition ap_eq_ap011_left (f : A → B → C) (Ha : a = a') (b : B) :
+    ap (λa, f a b) Ha = ap011 f Ha idp :=
+  by induction Ha; reflexivity
+
+  definition ap_eq_ap011_right (f : A → B → C) (a : A) (Hb : b = b') :
+    ap (f a) Hb = ap011 f idp Hb :=
+  by reflexivity
+
+  definition ap_ap011 {A B C D : Type} (g : C → D) (f : A → B → C) {a a' : A} {b b' : B}
+    (p : a = a') (q : b = b') : ap g (ap011 f p q) = ap011 (λa b, g (f a b)) p q :=
+  begin
+    induction p, exact (ap_compose g (f a) q)⁻¹
+  end
 
 
   /- Transport and the groupoid structure of paths -/

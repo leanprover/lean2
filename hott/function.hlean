@@ -7,24 +7,18 @@ Ported from Coq HoTT
 Theorems about embeddings and surjections
 -/
 
-import hit.trunc types.equiv cubical.square
+import hit.trunc types.equiv cubical.square types.nat
 
-open equiv sigma sigma.ops eq trunc is_trunc pi is_equiv fiber prod
+open equiv sigma sigma.ops eq trunc is_trunc pi is_equiv fiber prod pointed nat
 
-variables {A B C : Type} (f : A → B) {b : B}
+variables {A B C : Type} (f f' : A → B) {b : B}
 
 /- the image of a map is the (-1)-truncated fiber -/
 definition image' [constructor] (f : A → B) (b : B) : Type := ∥ fiber f b ∥
 definition is_prop_image' [instance] (f : A → B) (b : B) : is_prop (image' f b) := !is_trunc_trunc
 definition image [constructor] (f : A → B) (b : B) : Prop := Prop.mk (image' f b) _
 
-definition image.mk [constructor] {f : A → B} {b : B} (a : A) (p : f a = b)
-  : image f b :=
-tr (fiber.mk a p)
-
-protected definition image.rec [unfold 8] [recursor 8] {f : A → B} {b : B} {P : image' f b → Type}
-  [H : Πv, is_prop (P v)] (H : Π(a : A) (p : f a = b), P (image.mk a p)) (v : image' f b) : P v :=
-begin unfold [image'] at *, induction v with v, induction v with a p, exact H a p end
+definition total_image {A B : Type} (f : A → B) : Type := sigma (image f)
 
 definition is_embedding [class] (f : A → B) := Π(a a' : A), is_equiv (ap f : a = a' → f a = f a')
 
@@ -49,6 +43,33 @@ structure is_constant [class] (f : A → B) :=
 structure is_conditionally_constant [class] (f : A → B) :=
   (g : ∥A∥ → B)
   (eq : Π(a : A), f a = g (tr a))
+
+section image
+protected definition image.mk [constructor] {f : A → B} {b : B} (a : A) (p : f a = b)
+  : image f b :=
+tr (fiber.mk a p)
+
+protected definition image.rec [unfold 8] [recursor 8] {f : A → B} {b : B} {P : image' f b → Type}
+  [H : Πv, is_prop (P v)] (H : Π(a : A) (p : f a = b), P (image.mk a p)) (v : image' f b) : P v :=
+begin unfold [image'] at *, induction v with v, induction v with a p, exact H a p end
+
+definition image.elim {A B : Type} {f : A → B} {C : Type} [is_prop C] {b : B}
+  (H : image f b) (H' : ∀ (a : A), f a = b → C) : C :=
+begin
+  refine (trunc.elim _ H),
+  intro H'', cases H'' with a Ha, exact H' a Ha
+end
+
+definition image.equiv_exists {A B : Type} {f : A → B} {b : B} : image f b ≃ ∃ a, f a = b :=
+trunc_equiv_trunc _ (fiber.sigma_char _ _)
+
+definition image_pathover {f : A → B} {x y : B} (p : x = y) (u : image f x) (v : image f y) :
+  u =[p] v :=
+!is_prop.elimo
+
+/- total_image.elim_set is in hit.prop_trunc to avoid dependency cycle -/
+
+end image
 
 namespace function
 
@@ -303,6 +324,51 @@ namespace function
   definition is_embedding_pr1 [instance] [constructor] {A : Type} (B : A → Type) [H : Π a, is_prop (B a)]
       : is_embedding (@pr1 A B) :=
   λv v', to_is_equiv (sigma_eq_equiv v v' ⬝e !sigma_equiv_of_is_contr_right)
+
+  variables {f f'}
+  definition is_embedding_homotopy_closed (p : f ~ f') (H : is_embedding f) : is_embedding f' :=
+  begin
+    intro a a', fapply is_equiv_of_equiv_of_homotopy,
+    exact equiv.mk (ap f) _ ⬝e equiv_eq_closed_left _ (p a) ⬝e equiv_eq_closed_right _ (p a'),
+    intro q, esimp, exact (eq_bot_of_square (transpose (natural_square p q)))⁻¹
+  end
+
+  definition is_embedding_homotopy_closed_rev (p : f' ~ f) (H : is_embedding f) : is_embedding f' :=
+  is_embedding_homotopy_closed p⁻¹ʰᵗʸ H
+
+  definition is_surjective_homotopy_closed (p : f ~ f') (H : is_surjective f) : is_surjective f' :=
+  begin
+    intro b, induction H b with a q,
+    exact image.mk a ((p a)⁻¹ ⬝ q)
+  end
+
+  definition is_surjective_homotopy_closed_rev (p : f' ~ f) (H : is_surjective f) :
+    is_surjective f' :=
+  is_surjective_homotopy_closed p⁻¹ʰᵗʸ H
+
+  definition is_equiv_ap1_gen_of_is_embedding {A B : Type} (f : A → B) [is_embedding f]
+    {a a' : A} {b b' : B} (q : f a = b) (q' : f a' = b') : is_equiv (ap1_gen f q q') :=
+  begin
+    induction q, induction q',
+    exact is_equiv.homotopy_closed _ (ap1_gen_idp_left f)⁻¹ʰᵗʸ,
+  end
+
+  definition is_equiv_ap1_of_is_embedding {A B : Type*} (f : A →* B) [is_embedding f] :
+    is_equiv (Ω→ f) :=
+  is_equiv_ap1_gen_of_is_embedding f (respect_pt f) (respect_pt f)
+
+  definition loop_pequiv_loop_of_is_embedding [constructor] {A B : Type*} (f : A →* B)
+    [is_embedding f] : Ω A ≃* Ω B :=
+  pequiv_of_pmap (Ω→ f) (is_equiv_ap1_of_is_embedding f)
+
+  definition loopn_pequiv_loopn_of_is_embedding [constructor] (n : ℕ) [H : is_succ n]
+    {A B : Type*} (f : A →* B) [is_embedding f] : Ω[n] A ≃* Ω[n] B :=
+  begin
+    induction H with n,
+    exact !loopn_succ_in ⬝e*
+      loopn_pequiv_loopn n (loop_pequiv_loop_of_is_embedding f) ⬝e*
+      !loopn_succ_in⁻¹ᵉ*
+  end
 
   /-
     The definitions

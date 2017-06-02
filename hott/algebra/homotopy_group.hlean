@@ -23,6 +23,12 @@ namespace eq
   definition ab_inf_group_loop [constructor] [instance] (A : Type*) : ab_inf_group (Ω (Ω A)) :=
   ⦃ab_inf_group, inf_group_loop _, mul_comm := eckmann_hilton⦄
 
+  definition inf_group_loopn (n : ℕ) (A : Type*) [H : is_succ n] : inf_group (Ω[n] A) :=
+  by induction H; exact _
+
+  definition ab_inf_group_loopn (n : ℕ) (A : Type*) [H : is_at_least_two n] : ab_inf_group (Ω[n] A) :=
+  by induction H; exact _
+
   definition gloop [constructor] (A : Type*) : InfGroup :=
   InfGroup.mk (Ω A) (inf_group_loop A)
 
@@ -124,6 +130,13 @@ namespace eq
     { exact homotopy_group_succ_in_con},
   end
 
+  definition is_contr_homotopy_group_of_is_contr (A : Type*) (n : ℕ) [is_contr A] : is_contr (π[n] A) :=
+  begin
+    apply is_trunc_trunc_of_is_trunc,
+    apply is_contr_loop_of_is_trunc,
+    apply is_trunc_of_is_contr
+  end
+
   definition homotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)
     : π[n] A →* π[n] B :=
   ptrunc_functor 0 (apn n f)
@@ -194,6 +207,12 @@ namespace eq
   end
 
   notation `π→g[`:95 n:0 `]`:0 := homotopy_group_homomorphism n
+
+  definition homotopy_group_homomorphism_pcompose (n : ℕ) [H : is_succ n] {A B C : Type*} (g : B →* C)
+    (f : A →* B) : π→g[n] (g ∘* f) ~ π→g[n] g ∘ π→g[n] f :=
+  begin
+    induction H with n, exact to_homotopy (homotopy_group_functor_compose (succ n) g f)
+  end
 
   definition homotopy_group_isomorphism_of_pequiv [constructor] (n : ℕ) {A B : Type*} (f : A ≃* B)
     : πg[n+1] A ≃g πg[n+1] B :=

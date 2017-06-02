@@ -3,8 +3,10 @@ Copyright (c) 2014-2016 Jakob von Raumer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jakob von Raumer, Floris van Doorn
 
-Ported from Coq HoTT
+Early library ported from Coq HoTT, but greatly extended since.
 The basic definitions are in init.pointed
+
+See also .pointed2
 -/
 
 import .nat.basic ..arity ..prop_trunc
@@ -125,6 +127,10 @@ namespace pointed
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
 
   infixr ` ∘* `:60 := pcompose
+
+  definition respect_pt_pcompose {A B C : Type*} (g : B →* C) (f : A →* B)
+    : respect_pt (g ∘* f) = ap g (respect_pt f) ⬝ respect_pt g :=
+  idp
 
   definition passoc [constructor] (h : C →* D) (g : B →* C) (f : A →* B) : (h ∘* g) ∘* f ~* h ∘* (g ∘* f) :=
   phomotopy.mk (λa, idp)
@@ -348,6 +354,10 @@ namespace pointed
   definition phomotopy_of_eq [constructor] {A B : Type*} {f g : A →* B} (p : f = g) : f ~* g :=
   phomotopy.mk (ap010 pmap.to_fun p) begin induction p, apply idp_con end
 
+  definition phomotopy_of_eq_idp {A B : Type*} (f : A →* B) :
+    phomotopy_of_eq idp = phomotopy.refl f :=
+  idp
+
   definition pconcat_eq [constructor] {A B : Type*} {f g h : A →* B} (p : f ~* g) (q : g = h)
     : f ~* h :=
   p ⬝* phomotopy_of_eq q
@@ -358,6 +368,10 @@ namespace pointed
 
   infix ` ⬝*p `:75 := pconcat_eq
   infix ` ⬝p* `:75 := eq_pconcat
+
+  definition pr1_phomotopy_eq {A B : Type*} {f g : A →* B} {p q : f ~* g} (r : p = q) (a : A) :
+    p a = q a :=
+  ap010 to_homotopy r a
 
   definition pmap_eq_equiv_internal {A B : Type*} (f g : A →* B) : (f = g) ≃ (f ~* g) :=
   calc (f = g) ≃ pmap.sigma_char f = pmap.sigma_char g
@@ -397,6 +411,19 @@ namespace pointed
   definition eq_of_phomotopy (p : f ~* g) : f = g :=
   to_inv (pmap_eq_equiv f g) p
 
+  definition eq_of_phomotopy_refl {X Y : Type*} (f : X →* Y) :
+    eq_of_phomotopy (phomotopy.refl f) = idpath f :=
+  begin
+    apply to_inv_eq_of_eq, reflexivity
+  end
+
+  definition phomotopy_of_homotopy {X Y : Type*} {f g : X →* Y} (h : f ~ g) [is_set Y] : f ~* g :=
+  begin
+    fapply phomotopy.mk,
+    { exact h },
+    { apply is_set.elim }
+  end
+
   -- TODO: flip arguments in s
   definition pmap_eq (r : Πa, f a = g a) (s : respect_pt f = (r pt) ⬝ respect_pt g) : f = g :=
   eq_of_phomotopy (phomotopy.mk r s⁻¹)
@@ -404,6 +431,37 @@ namespace pointed
   definition pmap_eq_of_homotopy {A B : Type*} {f g : A →* B} [is_set B] (p : f ~ g) : f = g :=
   pmap_eq p !is_set.elim
 
+  definition phomotopy_of_eq_of_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g) :
+    phomotopy_of_eq (eq_of_phomotopy p) = p :=
+  to_right_inv (pmap_eq_equiv f g) p
+
+  definition phomotopy_rec_on_eq [recursor] {A B : Type*} {f g : A →* B}
+    {Q : (f ~* g) → Type} (p : f ~* g) (H : Π(q : f = g), Q (phomotopy_of_eq q)) : Q p :=
+  phomotopy_of_eq_of_phomotopy p ▸ H (eq_of_phomotopy p)
+
+  definition phomotopy_rec_on_idp [recursor] {A B : Type*} {f : A →* B}
+    {Q : Π{g}, (f ~* g) → Type} {g : A →* B} (p : f ~* g) (H : Q (phomotopy.refl f)) : Q p :=
+  begin
+    induction p using phomotopy_rec_on_eq,
+    induction q, exact H
+  end
+
+  definition phomotopy_rec_on_eq_phomotopy_of_eq {A B : Type*} {f g: A →* B}
+    {Q : (f ~* g) → Type} (p : f = g) (H : Π(q : f = g), Q (phomotopy_of_eq q)) :
+    phomotopy_rec_on_eq (phomotopy_of_eq p) H = H p :=
+  begin
+    unfold phomotopy_rec_on_eq,
+    refine ap (λp, p ▸ _) !adj ⬝ _,
+    refine !tr_compose⁻¹ ⬝ _,
+    apply apdt
+  end
+
+  definition phomotopy_rec_on_idp_refl {A B : Type*} (f : A →* B)
+    {Q : Π{g}, (f ~* g) → Type} (H : Q (phomotopy.refl f)) :
+    phomotopy_rec_on_idp phomotopy.rfl H = H :=
+  !phomotopy_rec_on_eq_phomotopy_of_eq
+
+  /- adjunction between (-)₊ : Type → Type* and pType.carrier : Type* → Type  -/
   definition pmap_equiv_left (A : Type) (B : Type*) : A₊ →* B ≃ (A → B) :=
   begin
     fapply equiv.MK,
@@ -440,11 +498,20 @@ namespace pointed
     resulting pointed homotopy is reflexivity
   -/
   definition pap (F : (A →* B) → (C →* D)) {f g : A →* B} (p : f ~* g) : F f ~* F g :=
-  phomotopy.mk (ap010 (λf, pmap.to_fun (F f)) (eq_of_phomotopy p))
-               begin cases eq_of_phomotopy p, apply idp_con end
+  begin
+    induction p using phomotopy_rec_on_idp, reflexivity
+  end
+
+  definition pap_refl (F : (A →* B) → (C →* D)) (f : A →* B) :
+    pap F (phomotopy.refl f) = phomotopy.refl (F f) :=
+  !phomotopy_rec_on_idp_refl
 
   definition ap1_phomotopy {f g : A →* B} (p : f ~* g) : Ω→ f ~* Ω→ g :=
   pap Ω→ p
+
+  definition ap1_phomotopy_refl {X Y : Type*} (f : X →* Y) :
+    ap1_phomotopy (phomotopy.refl f) = phomotopy.refl (Ω→ f) :=
+  !pap_refl
 
   --a proof not using function extensionality:
   definition ap1_phomotopy_explicit {f g : A →* B} (p : f ~* g) : Ω→ f ~* Ω→ g :=
@@ -463,6 +530,26 @@ namespace pointed
     induction n with n IH,
     { exact p},
     { exact ap1_phomotopy IH}
+  end
+
+  -- the following two definitiongs are mostly the same, maybe we should remove one
+  definition ap_eq_of_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g) (a : A) :
+    ap (λf : A →* B, f a) (eq_of_phomotopy p) = p a :=
+  ap010 to_homotopy (phomotopy_of_eq_of_phomotopy p) a
+
+  definition to_fun_eq_of_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g) (a : A) :
+    ap010 pmap.to_fun (eq_of_phomotopy p) a = p a :=
+  begin
+    induction p using phomotopy_rec_on_idp,
+    exact ap (λx, ap010 pmap.to_fun x a) !eq_of_phomotopy_refl
+  end
+
+  definition ap1_eq_of_phomotopy {A B : Type*} {f g : A →* B} (p : f ~* g) :
+    ap Ω→ (eq_of_phomotopy p) = eq_of_phomotopy (ap1_phomotopy p) :=
+  begin
+    induction p using phomotopy_rec_on_idp,
+    refine ap02 _ !eq_of_phomotopy_refl ⬝ !eq_of_phomotopy_refl⁻¹ ⬝ ap eq_of_phomotopy _,
+    exact !ap1_phomotopy_refl⁻¹
   end
 
   /- pointed homotopies between the given pointed maps -/
@@ -508,6 +595,20 @@ namespace pointed
 
   definition ap1_pconst [constructor] (A B : Type*) : Ω→(pconst A B) ~* pconst (Ω A) (Ω B) :=
   phomotopy.mk (λp, ap1_gen_idp_left (const A pt) p ⬝ ap_constant p pt) rfl
+
+  definition ap1_gen_con_left {A B : Type} {a a' : A} {b₀ b₁ b₂ : B}
+    {f : A → b₀ = b₁} {f' : A → b₁ = b₂} {q₀ q₁ : b₀ = b₁} {q₀' q₁' : b₁ = b₂}
+    (r₀ : f a = q₀) (r₁ : f a' = q₁) (r₀' : f' a = q₀') (r₁' : f' a' = q₁') (p : a = a') :
+      ap1_gen (λa, f a ⬝ f' a) (r₀ ◾ r₀') (r₁ ◾ r₁') p =
+      whisker_right q₀' (ap1_gen f r₀ r₁ p) ⬝ whisker_left q₁ (ap1_gen f' r₀' r₁' p) :=
+  begin induction r₀, induction r₁, induction r₀', induction r₁', induction p, reflexivity end
+
+  definition ap1_gen_con_left_idp {A B : Type} {a : A} {b₀ b₁ b₂ : B}
+    {f : A → b₀ = b₁} {f' : A → b₁ = b₂} {q₀ : b₀ = b₁} {q₁ : b₁ = b₂}
+    (r₀ : f a = q₀) (r₁ : f' a = q₁) :
+      ap1_gen_con_left r₀ r₀ r₁ r₁ idp =
+      !con.left_inv ⬝ (ap (whisker_right q₁) !con.left_inv ◾ ap (whisker_left _) !con.left_inv)⁻¹ :=
+  begin induction r₀, induction r₁, reflexivity end
 
   definition ptransport_change_eq [constructor] {A : Type} (B : A → Type*) {a a' : A} {p q : a = a'}
     (r : p = q) : ptransport B p ~* ptransport B q :=
@@ -654,6 +755,9 @@ namespace pointed
   definition to_pmap_pequiv_trans {A B C : Type*} (f : A ≃* B) (g : B ≃* C)
     : pequiv.to_pmap (f ⬝e* g) = g ∘* f :=
   !to_pmap_pequiv_of_pmap
+
+  definition to_fun_pequiv_trans {X Y Z : Type*} (f : X ≃* Y) (g :Y ≃* Z) : f ⬝e* g ~ g ∘ f :=
+  λx, idp
 
   definition pequiv_change_fun [constructor] (f : A ≃* B) (f' : A →* B) (Heq : f ~ f') : A ≃* B :=
   pequiv_of_pmap f' (is_equiv.homotopy_closed f Heq)
@@ -892,6 +996,10 @@ namespace pointed
   definition loop_pequiv_loop [constructor] (f : A ≃* B) : Ω A ≃* Ω B :=
   loopn_pequiv_loopn 1 f
 
+  definition loop_pequiv_eq_closed [constructor] {A : Type} {a a' : A} (p : a = a')
+    : pointed.MK (a = a) idp ≃* pointed.MK (a' = a') idp :=
+  pequiv_of_equiv (loop_equiv_eq_closed p) (con.left_inv p)
+
   definition to_pmap_loopn_pequiv_loopn [constructor] (n : ℕ) (f : A ≃* B)
     : loopn_pequiv_loopn n f ~* apn n f :=
   !to_pmap_pequiv_MK2
@@ -918,6 +1026,12 @@ namespace pointed
   definition loop_pequiv_loop_rfl (A : Type*) :
     loop_pequiv_loop (pequiv.refl A) ~* pequiv.refl (Ω A) :=
   loopn_pequiv_loopn_rfl 1 A
+
+  definition apn_pinv (n : ℕ) {A B : Type*} (f : A ≃* B) :
+    Ω→[n] f⁻¹ᵉ* ~* (loopn_pequiv_loopn n f)⁻¹ᵉ* :=
+  begin
+    refine !to_pinv_pequiv_MK2⁻¹*
+  end
 
   definition pmap_functor [constructor] {A A' B B' : Type*} (f : A' →* A) (g : B →* B') :
     ppmap A B →* ppmap A' B' :=
@@ -949,20 +1063,6 @@ namespace pointed
     { esimp [pequiv.trans, pequiv.symm],
       exact !con.right_inv⁻¹ ⬝ ((!idp_con⁻¹ ⬝ !ap_id⁻¹) ◾ (!ap_id⁻¹⁻² ⬝ !idp_con⁻¹)), }
   end
-
-/- -- TODO
-  definition pmap_pequiv_pmap {A A' B B' : Type*} (f : A ≃* A') (g : B ≃* B') :
-    ppmap A B ≃* ppmap A' B' :=
-  pequiv.MK (pmap_functor f⁻¹ᵉ* g) (pmap_functor f g⁻¹ᵉ*)
-    abstract begin
-      intro a, esimp, apply pmap_eq,
-      { esimp, },
-      { }
-    end end
-    abstract begin
-
-    end end
--/
 
   /- properties of iterated loop space -/
   variable (A)
@@ -1071,7 +1171,7 @@ namespace pointed
       refine pwhisker_left g !pleft_inv ⬝* !pcompose_pid, },
   end
 
-  definition loop_pmap_commute (A B : Type*) : Ω(ppmap A B) ≃* (ppmap A (Ω B)) :=
+  definition loop_ppmap_commute (A B : Type*) : Ω(ppmap A B) ≃* (ppmap A (Ω B)) :=
     pequiv_of_equiv
       (calc Ω(ppmap A B) ≃ (pconst A B ~* pconst A B)                       : pmap_eq_equiv _ _
                      ... ≃ Σ(p : pconst A B ~ pconst A B), p pt ⬝ rfl = rfl : phomotopy.sigma_char
@@ -1084,7 +1184,7 @@ namespace pointed
   definition papply_pcompose [constructor] {A : Type*} (B : Type*) (a : A) : ppmap A B →* B :=
   pmap.mk (λ(f : A →* B), f a) idp
 
-  definition pmap_pbool_pequiv [constructor] (B : Type*) : ppmap pbool B ≃* B :=
+  definition ppmap_pbool_pequiv [constructor] (B : Type*) : ppmap pbool B ≃* B :=
   begin
     fapply pequiv.MK,
     { exact papply B tt },

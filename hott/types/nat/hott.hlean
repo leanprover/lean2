@@ -6,9 +6,9 @@ Author: Floris van Doorn
 Theorems about the natural numbers specific to HoTT
 -/
 
-import .order types.pointed
+import .order types.pointed .sub
 
-open is_trunc unit empty eq equiv algebra pointed
+open is_trunc unit empty eq equiv algebra pointed is_equiv equiv function
 
 namespace nat
   definition is_prop_le [instance] (n m : ℕ) : is_prop (n ≤ m) :=
@@ -193,6 +193,45 @@ namespace nat
 
   definition is_at_least_two_bit1 [constructor] (n : ℕ) [H : is_succ n] : is_at_least_two (bit1 n) :=
   by exact _
+
+  /- some facts about iterate -/
+
+  definition iterate_succ {A : Type} (f : A → A) (n : ℕ) (x : A) :
+    f^[succ n] x = f^[n] (f x) :=
+  by induction n with n p; reflexivity; exact ap f p
+
+  lemma iterate_sub {A : Type} (f : A ≃ A) {n m : ℕ} (h : n ≥ m) (a : A) :
+    iterate f (n - m) a = iterate f n (iterate f⁻¹ m a) :=
+  begin
+    revert n h, induction m with m p: intro n h,
+    { reflexivity },
+    { cases n with n, exfalso, apply not_succ_le_zero _ h,
+      rewrite [succ_sub_succ], refine p n (le_of_succ_le_succ h) ⬝ _,
+      refine ap (f^[n]) _ ⬝ !iterate_succ⁻¹, exact !to_right_inv⁻¹ }
+  end
+
+  definition iterate_commute {A : Type} {f g : A → A} (n : ℕ) (h : f ∘ g ~ g ∘ f) :
+    iterate f n ∘ g ~ g ∘ iterate f n :=
+  by induction n with n IH; reflexivity; exact λx, ap f (IH x) ⬝ !h
+
+  definition iterate_equiv {A : Type} (f : A ≃ A) (n : ℕ) : A ≃ A :=
+  equiv.mk (iterate f n)
+           (by induction n with n IH; apply is_equiv_id; exact is_equiv_compose f (iterate f n))
+
+  definition iterate_inv {A : Type} (f : A ≃ A) (n : ℕ) :
+    (iterate_equiv f n)⁻¹ ~ iterate f⁻¹ n :=
+  begin
+    induction n with n p: intro a,
+      reflexivity,
+      exact p (f⁻¹ a) ⬝ !iterate_succ⁻¹
+  end
+
+  definition iterate_left_inv {A : Type} (f : A ≃ A) (n : ℕ) (a : A) : f⁻¹ᵉ^[n] (f^[n] a) = a :=
+  (iterate_inv f n (f^[n] a))⁻¹ ⬝ to_left_inv (iterate_equiv f n) a
+
+  definition iterate_right_inv {A : Type} (f : A ≃ A) (n : ℕ) (a : A) : f^[n] (f⁻¹ᵉ^[n] a) = a :=
+  ap (f^[n]) (iterate_inv f n a)⁻¹ ⬝ to_right_inv (iterate_equiv f n) a
+
 
 
 end nat

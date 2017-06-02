@@ -1,4 +1,4 @@
-import function types.trunc hit.colimit homotopy.connectedness --types.nat.hott hit.trunc cubical.square
+import types.trunc hit.colimit homotopy.connectedness
 
 open eq is_trunc unit quotient seq_colim pi nat equiv sum algebra is_conn function
 
@@ -409,7 +409,7 @@ open prop_trunc trunc
 -- Corollaries for the actual truncation.
 namespace is_trunc
   local attribute is_prop_trunc_one_step_tr [instance]
-  definition is_prop.elim_set {A : Type} {P : Type} [is_set P] (f : A → P)
+  definition prop_trunc.elim_set [unfold 6] {A : Type} {P : Type} [is_set P] (f : A → P)
     (p : Πa a', f a = f a') (x : trunc -1 A) : P :=
   begin
     have y : trunc 0 (one_step_tr A),
@@ -420,8 +420,32 @@ namespace is_trunc
     { exact p a a'}
   end
 
-  definition is_prop.elim_set_tr {A : Type} {P : Type} {H : is_set P} (f : A → P)
-    (p : Πa a', f a = f a') (a : A) : is_prop.elim_set f p (tr a) = f a :=
+  definition prop_trunc.elim_set_tr {A : Type} {P : Type} {H : is_set P} (f : A → P)
+    (p : Πa a', f a = f a') (a : A) : prop_trunc.elim_set f p (tr a) = f a :=
   by reflexivity
+
+  open sigma
+
+  local attribute prop_trunc.elim_set [recursor 6]
+  definition total_image.elim_set [unfold 8]
+    {A B : Type} {f : A → B} {C : Type} [is_set C]
+    (g : A → C) (h : Πa a', f a = f a' → g a = g a') (x : total_image f) : C :=
+  begin
+    induction x with b v,
+    induction v using prop_trunc.elim_set with x x x',
+    { induction x with a p, exact g a },
+    { induction x with a p, induction x' with a' p', induction p', exact h _ _ p }
+  end
+
+  definition total_image.rec [unfold 7]
+    {A B : Type} {f : A → B} {C : total_image f → Type} [H : Πx, is_prop (C x)]
+    (g : Πa, C ⟨f a, image.mk a idp⟩)
+    (x : total_image f) : C x :=
+  begin
+    induction x with b v,
+    refine @image.rec _ _ _ _ _ (λv, H ⟨b, v⟩) _ v,
+    intro a p,
+    induction p, exact g a
+  end
 
 end is_trunc
