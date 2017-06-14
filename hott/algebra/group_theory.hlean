@@ -46,7 +46,7 @@ namespace group
 
   infix ` →g `:55 := homomorphism
 
-  definition group_fun [unfold 3] [coercion] := @homomorphism.φ
+  abbreviation group_fun [unfold 3] [coercion] [reducible] := @homomorphism.φ
   definition homomorphism.struct [unfold 3] [instance] [priority 900] {G₁ G₂ : Group}
     (φ : G₁ →g G₂) : is_mul_hom φ :=
   homomorphism.p φ
@@ -96,7 +96,7 @@ namespace group
   homomorphism.mk f
     (λg h, (p (g * h))⁻¹ ⬝ to_respect_mul φ g h ⬝ ap011 mul (p g) (p h))
 
-  definition homomorphism_eq (p : group_fun φ₁ ~ group_fun φ₂) : φ₁ = φ₂ :=
+  definition homomorphism_eq (p : φ₁ ~ φ₂) : φ₁ = φ₂ :=
   begin
     induction φ₁ with φ₁ q₁, induction φ₂ with φ₂ q₂, esimp at p, induction p,
     exact ap (homomorphism.mk φ₁) !is_prop.elim
@@ -143,7 +143,7 @@ namespace group
 
   /- categorical structure of groups + homomorphisms -/
 
-  definition homomorphism_compose [constructor] [trans] (ψ : G₂ →g G₃) (φ : G₁ →g G₂) : G₁ →g G₃ :=
+  definition homomorphism_compose [constructor] [trans] [reducible] (ψ : G₂ →g G₃) (φ : G₁ →g G₂) : G₁ →g G₃ :=
   homomorphism.mk (ψ ∘ φ) (is_mul_hom_compose _ _)
 
   variable (G)
@@ -230,7 +230,7 @@ namespace group
   definition add_homomorphism (G H : AddGroup) : Type := homomorphism G H
   infix ` →a `:55 := add_homomorphism
 
-  definition agroup_fun [coercion] [unfold 3] [reducible] {G H : AddGroup} (φ : G →a H) : G → H :=
+  abbreviation agroup_fun [coercion] [unfold 3] [reducible] {G H : AddGroup} (φ : G →a H) : G → H :=
   φ
 
   definition add_homomorphism.struct [instance] {G H : AddGroup} (φ : G →a H) : is_add_hom φ :=
@@ -239,7 +239,7 @@ namespace group
   definition add_homomorphism.mk [constructor] {G H : AddGroup} (φ : G → H) (h : is_add_hom φ) : G →g H :=
   homomorphism.mk φ h
 
-  definition add_homomorphism_compose [constructor] [trans] {G₁ G₂ G₃ : AddGroup}
+  definition add_homomorphism_compose [constructor] [trans] [reducible] {G₁ G₂ G₃ : AddGroup}
     (ψ : G₂ →a G₃) (φ : G₁ →a G₂) : G₁ →a G₃ :=
   add_homomorphism.mk (ψ ∘ φ) (is_add_hom_compose _ _)
 
