@@ -37,6 +37,14 @@ definition lt   {A : Type} [s : has_lt A]   : A → A → Prop := has_lt.lt
 
 definition ge [reducible] {A : Type} [s : has_le A] (a b : A) : Prop := le b a
 definition gt [reducible] {A : Type} [s : has_lt A] (a b : A) : Prop := lt b a
+
+/-
+  bit0 and bit1 are two auxiliary definition used when parsing numerals such as 13, 0, 26.
+  The parser will generate the terms (bit1 (bit0 (bit1 one))), zero, and
+  (bit0 (bit1 (bit0 (bit1 one)))). This works in any type with an addition, a zero and a one.
+  More specifically, there must be type class instances for the classes for has_add, has_zero and
+  has_one
+-/
 definition bit0 {A : Type} [s  : has_add A] (a  : A)                 : A := add a a
 definition bit1 {A : Type} [s₁ : has_one A] [s₂ : has_add A] (a : A) : A := add (bit0 a) one
 

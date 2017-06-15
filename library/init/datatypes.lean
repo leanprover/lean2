@@ -80,9 +80,8 @@ or.inr Hb
 structure sigma {A : Type} (B : A → Type) :=
 mk :: (pr1 : A) (pr2 : B pr1)
 
--- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
--- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
--- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
+-- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26
+-- in an [priority n] flag.
 inductive pos_num : Type :=
 | one  : pos_num
 | bit1 : pos_num → pos_num
