@@ -59,7 +59,7 @@ definition sigma.pr2 [reducible] [unfold 3] {A : Type} {B : A → Type} (p : sig
 sigma.rec (λ a b, b) p
 
 -- pos_num and num are two auxiliary datatypes used when parsing numerals such as 13, 0, 26.
--- The parser will generate the terms (pos (bit1 (bit1 (bit0 one)))), zero, and (pos (bit0 (bit1 (bit1 one)))).
+-- The parser will generate the terms (pos (bit1 (bit0 (bit1 one)))), zero, and (pos (bit0 (bit1 (bit0 (bit1 one))))).
 -- This representation can be coerced in whatever we want (e.g., naturals, integers, reals, etc).
 inductive pos_num : Type :=
 | one  : pos_num
