@@ -75,7 +75,7 @@ We get the long exact sequence of homotopy groups by taking the set-truncation o
 
 import .chain_complex algebra.homotopy_group eq2
 
-open eq pointed sigma fiber equiv is_equiv is_trunc nat trunc algebra function sum
+open eq pointed sigma fiber equiv is_equiv is_trunc nat trunc algebra function
 /--------------
     PART 1
  --------------/
@@ -247,7 +247,8 @@ namespace chain_complex
     fiber_sequence_carrier_pequiv n (fiber_sequence_fun (n + 3) x) =
       ap1 (fiber_sequence_fun n) (fiber_sequence_carrier_pequiv (n + 1) x)⁻¹ :=
   begin
-    apply homotopy_of_inv_homotopy_pre (fiber_sequence_carrier_pequiv (n + 1)),
+    refine @(homotopy_of_inv_homotopy_pre (fiber_sequence_carrier_pequiv (n + 1)))
+             !pequiv.to_is_equiv _ _ _,
     apply fiber_sequence_fun_eq_helper n
   end
 

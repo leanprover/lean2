@@ -502,6 +502,10 @@ namespace sigma
     (u.1 = v.1) ≃ (u = v) :=
   equiv.mk !subtype_eq _
 
+  definition subtype_eq_equiv [constructor] [H : Πa, is_prop (B a)] (u v : {a | B a}) :
+    (u = v) ≃ (u.1 = v.1) :=
+  (equiv_subtype u v)⁻¹ᵉ
+
   definition subtype_eq_inv {A : Type} {B : A → Type} [H : Πa, is_prop (B a)] (u v : Σa, B a)
     : u = v → u.1 = v.1 :=
   subtype_eq⁻¹ᶠ

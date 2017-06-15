@@ -179,7 +179,7 @@ namespace EM
     [is_conn 0 X] [is_trunc 1 X] : EM1 G ≃* X :=
   begin
     apply EM1_pequiv' (pequiv_of_isomorphism e ⬝e* ptrunc_pequiv 0 (Ω X)),
-    refine is_equiv.preserve_binary_of_inv_preserve _ mul concat _,
+    refine equiv.preserve_binary_of_inv_preserve _ mul concat _,
     intro p q,
     exact to_respect_mul e⁻¹ᵍ (tr p) (tr q)
   end

@@ -239,7 +239,7 @@ namespace chain_complex
     intro y q, esimp at *,
     have H2 : tcc_to_fn X (f m) ((equiv_of_eq (ap (λx, X x) (c m)))⁻¹ᵉ (e⁻¹ y)) = pt,
     begin
-      refine _ ⬝ ap e⁻¹ᵉ* q ⬝ (respect_pt (e⁻¹ᵉ*)), apply eq_inv_of_eq, clear q, revert y,
+      refine _ ⬝ ap e⁻¹ᵉ* q ⬝ (respect_pt (e⁻¹ᵉ*)), apply @eq_inv_of_eq _ _ e, clear q, revert y,
       apply inv_homotopy_of_homotopy_pre e,
       apply inv_homotopy_of_homotopy_pre, apply p
     end,

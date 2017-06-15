@@ -116,17 +116,17 @@ namespace pointed
 
   /- categorical properties of pointed maps -/
 
-  definition pmap_of_map [constructor] {A B : Type} (f : A → B) (a : A) :
-    pointed.MK A a →* pointed.MK B (f a) :=
-  pmap.mk f idp
-
   definition pid [constructor] [refl] (A : Type*) : A →* A :=
   pmap.mk id idp
 
-  definition pcompose [constructor] [trans] (g : B →* C) (f : A →* B) : A →* C :=
+  definition pcompose [constructor] [trans] {A B C : Type*} (g : B →* C) (f : A →* B) : A →* C :=
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
 
   infixr ` ∘* `:60 := pcompose
+
+  definition pmap_of_map [constructor] {A B : Type} (f : A → B) (a : A) :
+    pointed.MK A a →* pointed.MK B (f a) :=
+  pmap.mk f idp
 
   definition respect_pt_pcompose {A B C : Type*} (g : B →* C) (f : A →* B)
     : respect_pt (g ∘* f) = ap g (respect_pt f) ⬝ respect_pt g :=
@@ -372,6 +372,19 @@ namespace pointed
   definition pr1_phomotopy_eq {A B : Type*} {f g : A →* B} {p q : f ~* g} (r : p = q) (a : A) :
     p a = q a :=
   ap010 to_homotopy r a
+
+  definition pwhisker_left [constructor] (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
+  phomotopy.mk (λa, ap h (p a))
+    abstract !con.assoc⁻¹ ⬝ whisker_right _ (!ap_con⁻¹ ⬝ ap02 _ (to_homotopy_pt p)) end
+
+  definition pwhisker_right [constructor] (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
+  phomotopy.mk (λa, p (h a))
+    abstract !con.assoc⁻¹ ⬝ whisker_right _ (!ap_con_eq_con_ap)⁻¹ ⬝ !con.assoc ⬝
+             whisker_left _ (to_homotopy_pt p) end
+
+  definition pconcat2 [constructor] {A B C : Type*} {h i : B →* C} {f g : A →* B}
+    (q : h ~* i) (p : f ~* g) : h ∘* f ~* i ∘* g :=
+  pwhisker_left _ p ⬝* pwhisker_right _ q
 
   definition pmap_eq_equiv_internal {A B : Type*} (f g : A →* B) : (f = g) ≃ (f ~* g) :=
   calc (f = g) ≃ pmap.sigma_char f = pmap.sigma_char g
@@ -676,9 +689,65 @@ namespace pointed
 
   /- pointed equivalences -/
 
-  /- constructors / projections + variants -/
+  structure pequiv (A B : Type*) :=
+  mk' :: (to_pmap : A →* B)
+         (to_pinv1 : B →* A)
+         (to_pinv2 : B →* A)
+         (pright_inv : to_pmap ∘* to_pinv1 ~* pid B)
+         (pleft_inv : to_pinv2 ∘* to_pmap ~* pid A)
+
+  attribute pequiv.to_pmap [coercion]
+  infix ` ≃* `:25 := pequiv
+
+  definition to_pinv [unfold 3] (f : A ≃* B) : B →* A :=
+  pequiv.to_pinv1 f
+
+  definition pleft_inv' (f : A ≃* B) : to_pinv f ∘* f ~* pid A :=
+  let g := to_pinv f in
+  let h := pequiv.to_pinv2 f in
+  calc g ∘* f ~* pid A ∘* (g ∘* f)    : by exact !pid_pcompose⁻¹*
+          ... ~* (h ∘* f) ∘* (g ∘* f) : by exact pwhisker_right _ (pequiv.pleft_inv f)⁻¹*
+          ... ~* h ∘* (f ∘* g) ∘* f   : by exact !passoc ⬝* pwhisker_left _ !passoc⁻¹*
+          ... ~* h ∘* pid B ∘* f      : by exact !pwhisker_left (!pwhisker_right !pequiv.pright_inv)
+          ... ~* h ∘* f               : by exact pwhisker_left _ !pid_pcompose
+          ... ~* pid A                : by exact pequiv.pleft_inv f
+
+  definition equiv_of_pequiv [coercion] [constructor] (f : A ≃* B) : A ≃ B :=
+  have is_equiv f, from adjointify f (to_pinv f) (pequiv.pright_inv f) (pleft_inv' f),
+  equiv.mk f _
+
+  attribute pointed._trans_of_equiv_of_pequiv pequiv._trans_of_to_pmap [unfold 3]
+
+  definition pequiv.to_is_equiv [instance] [constructor] (f : A ≃* B) :
+    is_equiv (pointed._trans_of_equiv_of_pequiv f) :=
+  adjointify f (to_pinv f) (pequiv.pright_inv f) (pleft_inv' f)
+
+  definition pequiv.to_is_equiv' [instance] [constructor] (f : A ≃* B) :
+    is_equiv (pequiv._trans_of_to_pmap f) :=
+  pequiv.to_is_equiv f
+
+  protected definition pequiv.MK2 [constructor] (f : A →* B) (g : B →* A)
+    (gf : g ∘* f ~* !pid) (fg : f ∘* g ~* !pid) : A ≃* B :=
+  pequiv.mk' f g g fg gf
+
+  definition pinv [constructor] (f : A →* B) (H : is_equiv f) : B →* A :=
+  pmap.mk f⁻¹ᶠ (ap f⁻¹ᶠ (respect_pt f)⁻¹ ⬝ (left_inv f pt))
+
   definition pequiv_of_pmap [constructor] (f : A →* B) (H : is_equiv f) : A ≃* B :=
-  pequiv.mk f _ (respect_pt f)
+  pequiv.mk' f (pinv f H) (pinv f H)
+  abstract begin
+    fapply phomotopy.mk, exact right_inv f,
+    induction f with f f₀, induction B with B b₀, esimp at *, induction f₀, esimp,
+    exact adj f pt ⬝ ap02 f !idp_con⁻¹
+  end end
+  abstract begin
+    fapply phomotopy.mk, exact left_inv f,
+    induction f with f f₀, induction B with B b₀, esimp at *, induction f₀, esimp,
+    exact !idp_con⁻¹ ⬝ !idp_con⁻¹
+  end end
+
+  definition pequiv.mk [constructor] (f : A → B) (H : is_equiv f) (p : f pt = pt) : A ≃* B :=
+  pequiv_of_pmap (pmap.mk f p) H
 
   definition pequiv_of_equiv [constructor] (f : A ≃ B) (H : f pt = pt) : A ≃* B :=
   pequiv.mk f _ H
@@ -687,15 +756,30 @@ namespace pointed
     (gf : Πa, g (f a) = a) (fg : Πb, f (g b) = b) : A ≃* B :=
   pequiv.mk f (adjointify f g fg gf) (respect_pt f)
 
-  definition equiv_of_pequiv [constructor] (f : A ≃* B) : A ≃ B :=
-  equiv.mk f _
+  /- categorical properties of pointed equivalences -/
 
-  definition to_pinv [constructor] (f : A ≃* B) : B →* A :=
-  pmap.mk f⁻¹ ((ap f⁻¹ (respect_pt f))⁻¹ ⬝ left_inv f pt)
+  protected definition pequiv.refl [refl] [constructor] (A : Type*) : A ≃* A :=
+  pequiv.mk' (pid A) (pid A) (pid A) !pid_pcompose !pcompose_pid
+
+  protected definition pequiv.rfl [constructor] : A ≃* A :=
+  pequiv.refl A
+
+  protected definition pequiv.symm [symm] [constructor] (f : A ≃* B) : B ≃* A :=
+  pequiv.mk' (pequiv.to_pinv1 f) f f (pleft_inv' f) (pequiv.pright_inv f)
+
+  protected definition pequiv.trans [trans] [constructor] (f : A ≃* B) (g : B ≃* C) : A ≃* C :=
+  pequiv_of_pmap (g ∘* f) !is_equiv_compose
+
+  definition pequiv_compose {A B C : Type*} (g : B ≃* C) (f : A ≃* B) : A ≃* C :=
+  pequiv_of_pmap (g ∘* f) (is_equiv_compose g f)
+
+  postfix `⁻¹ᵉ*`:(max + 1) := pequiv.symm
+  infix ` ⬝e* `:75 := pequiv.trans
+  infixr ` ∘*ᵉ `:60 := pequiv_compose
 
   definition to_pmap_pequiv_of_pmap {A B : Type*} (f : A →* B) (H : is_equiv f)
     : pequiv.to_pmap (pequiv_of_pmap f H) = f :=
-  by cases f; reflexivity
+  by reflexivity
 
   /-
      A version of pequiv.MK with stronger conditions.
@@ -704,47 +788,14 @@ namespace pointed
      This is not the case when using `pequiv.MK` (if g is a pointed map),
      that will only give an ordinary homotopy.
   -/
-  protected definition pequiv.MK2 [constructor] (f : A →* B) (g : B →* A)
-    (gf : g ∘* f ~* !pid) (fg : f ∘* g ~* !pid) : A ≃* B :=
-  pequiv.MK f g gf fg
 
   definition to_pmap_pequiv_MK2 [constructor] (f : A →* B) (g : B →* A)
     (gf : g ∘* f ~* !pid) (fg : f ∘* g ~* !pid) : pequiv.MK2 f g gf fg ~* f :=
-  phomotopy.mk (λb, idp) !idp_con
+  by reflexivity
 
   definition to_pinv_pequiv_MK2 [constructor] (f : A →* B) (g : B →* A)
     (gf : g ∘* f ~* !pid) (fg : f ∘* g ~* !pid) : to_pinv (pequiv.MK2 f g gf fg) ~* g :=
-  phomotopy.mk (λb, idp)
-    abstract [irreducible] begin
-      esimp,
-      note H := to_homotopy_pt gf, note H2 := to_homotopy_pt fg,
-      note H3 := eq_top_of_square (natural_square (to_homotopy fg) (respect_pt f)),
-      rewrite [▸* at *, H, H3, H2, ap_id, - +con.assoc, ap_compose' f g, con_inv,
-               - ap_inv, - +ap_con g],
-      apply whisker_right, apply ap02 g,
-      rewrite [ap_con, - + con.assoc, +ap_inv, +inv_con_cancel_right, con.left_inv],
-    end end
-
-  /- categorical properties of pointed equivalences -/
-
-  protected definition pequiv.refl [refl] [constructor] (A : Type*) : A ≃* A :=
-  pequiv_of_pmap !pid !is_equiv_id
-
-  protected definition pequiv.rfl [constructor] : A ≃* A :=
-  pequiv.refl A
-
-  protected definition pequiv.symm [symm] [constructor] (f : A ≃* B) : B ≃* A :=
-  pequiv_of_pmap (to_pinv f) !is_equiv_inv
-
-  protected definition pequiv.trans [trans] [constructor] (f : A ≃* B) (g : B ≃* C) : A ≃* C :=
-  pequiv_of_pmap (g ∘* f) !is_equiv_compose
-
-  definition pequiv_compose {A B C : Type*} (g : B ≃* C) (f : A ≃* B) : A ≃* C :=
-  pequiv_of_pmap (g ∘* f) (is_equiv_compose g f)
-
-  infixr ` ∘*ᵉ `:60 := pequiv_compose
-  postfix `⁻¹ᵉ*`:(max + 1) := pequiv.symm
-  infix ` ⬝e* `:75 := pequiv.trans
+  by reflexivity
 
   /- more on pointed equivalences -/
 
@@ -754,7 +805,7 @@ namespace pointed
 
   definition to_pmap_pequiv_trans {A B C : Type*} (f : A ≃* B) (g : B ≃* C)
     : pequiv.to_pmap (f ⬝e* g) = g ∘* f :=
-  !to_pmap_pequiv_of_pmap
+  by reflexivity
 
   definition to_fun_pequiv_trans {X Y Z : Type*} (f : X ≃* Y) (g :Y ≃* Z) : f ⬝e* g ~ g ∘ f :=
   λx, idp
@@ -796,8 +847,8 @@ namespace pointed
     {a₁ a₂ : A} (p : a₁ = a₂) : pequiv_of_eq (ap C p) ∘* f a₁ ~* f a₂ ∘* pequiv_of_eq (ap B p) :=
   pcast_commute f p
 
-  definition pequiv.eta_expand [constructor] {A B : Type*} (f : A ≃* B) : A ≃* B :=
-  pequiv.mk f _ (pequiv.resp_pt f)
+  -- definition pequiv.eta_expand [constructor] {A B : Type*} (f : A ≃* B) : A ≃* B :=
+  -- pequiv.mk' f (to_pinv f) (pequiv.to_pinv2 f) (pright_inv f) _
 
   /-
     the theorem pequiv_eq, which gives a condition for two pointed equivalences are equal
@@ -805,35 +856,11 @@ namespace pointed
   -/
 
   /- computation rules of pointed homotopies, possibly combined with pointed equivalences -/
-  definition pwhisker_left [constructor] (h : B →* C) (p : f ~* g) : h ∘* f ~* h ∘* g :=
-  phomotopy.mk (λa, ap h (p a))
-    abstract !con.assoc⁻¹ ⬝ whisker_right _ (!ap_con⁻¹ ⬝ ap02 _ (to_homotopy_pt p)) end
-
-  definition pwhisker_right [constructor] (h : C →* A) (p : f ~* g) : f ∘* h ~* g ∘* h :=
-  phomotopy.mk (λa, p (h a))
-    abstract !con.assoc⁻¹ ⬝ whisker_right _ (!ap_con_eq_con_ap)⁻¹ ⬝ !con.assoc ⬝
-             whisker_left _ (to_homotopy_pt p) end
-
-  definition pconcat2 [constructor] {A B C : Type*} {h i : B →* C} {f g : A →* B}
-    (q : h ~* i) (p : f ~* g) : h ∘* f ~* i ∘* g :=
-  pwhisker_left _ p ⬝* pwhisker_right _ q
-
   definition pleft_inv (f : A ≃* B) : f⁻¹ᵉ* ∘* f ~* pid A :=
-  phomotopy.mk (left_inv f)
-    abstract begin
-      esimp, symmetry, apply con_inv_cancel_left
-    end end
+  pleft_inv' f
 
   definition pright_inv (f : A ≃* B) : f ∘* f⁻¹ᵉ* ~* pid B :=
-  phomotopy.mk (right_inv f)
-    abstract begin
-      induction f with f H p, esimp,
-      rewrite [ap_con, +ap_inv, -adj f, -ap_compose],
-      note q := natural_square (right_inv f) p,
-      rewrite [ap_id at q],
-      apply eq_bot_of_square,
-      exact q
-    end end
+  pequiv.pright_inv f
 
   definition pcancel_left (f : B ≃* C) {g h : A →* B} (p : f ∘* g ~* f ∘* h) : g ~* h :=
   begin
@@ -1003,11 +1030,11 @@ namespace pointed
 
   definition to_pmap_loopn_pequiv_loopn [constructor] (n : ℕ) (f : A ≃* B)
     : loopn_pequiv_loopn n f ~* apn n f :=
-  !to_pmap_pequiv_MK2
+  by reflexivity
 
   definition to_pinv_loopn_pequiv_loopn [constructor] (n : ℕ) (f : A ≃* B)
     : (loopn_pequiv_loopn n f)⁻¹ᵉ* ~* apn n f⁻¹ᵉ* :=
-  !to_pinv_pequiv_MK2
+  by reflexivity
 
   definition loopn_pequiv_loopn_con (n : ℕ) (f : A ≃* B) (p q : Ω[n+1] A)
     : loopn_pequiv_loopn (n+1) f (p ⬝ q) =
@@ -1030,9 +1057,7 @@ namespace pointed
 
   definition apn_pinv (n : ℕ) {A B : Type*} (f : A ≃* B) :
     Ω→[n] f⁻¹ᵉ* ~* (loopn_pequiv_loopn n f)⁻¹ᵉ* :=
-  begin
-    refine !to_pinv_pequiv_MK2⁻¹*
-  end
+  by reflexivity
 
   definition pmap_functor [constructor] {A A' B B' : Type*} (f : A' →* A) (g : B →* B') :
     ppmap A B →* ppmap A' B' :=
@@ -1061,8 +1086,7 @@ namespace pointed
   begin
     fapply phomotopy.mk,
     { reflexivity},
-    { esimp [pequiv.trans, pequiv.symm],
-      exact !con.right_inv⁻¹ ⬝ ((!idp_con⁻¹ ⬝ !ap_id⁻¹) ◾ (!ap_id⁻¹⁻² ⬝ !idp_con⁻¹)), }
+    { symmetry, exact (!ap_id ⬝ !idp_con) ◾ (!idp_con ⬝ !ap_id) ⬝ !con.right_inv }
   end
 
   /- properties of iterated loop space -/

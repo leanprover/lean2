@@ -308,11 +308,49 @@ namespace equiv
 end equiv
 
 namespace pointed
-  open equiv is_equiv
-  definition pequiv_eq {A B : Type*} {p q : A ≃* B} (H : p = q :> (A →* B)) : p = q :=
+  open equiv is_equiv pointed prod
+  definition pequiv.sigma_char {A B : Type*} :
+    (A ≃* B) ≃ Σ(f : A →* B), (Σ(g : B →* A), f ∘* g ~* pid B) × (Σ(h : B →* A), h ∘* f ~* pid A) :=
   begin
-    cases p with f Hf, cases q with g Hg, esimp at *,
-    exact apd011 pequiv_of_pmap H !is_prop.elimo
+    fapply equiv.MK,
+    { intro f, exact ⟨f, (⟨pequiv.to_pinv1 f, pequiv.pright_inv f⟩,
+                          ⟨pequiv.to_pinv2 f, pequiv.pleft_inv f⟩)⟩, },
+    { intro f, exact pequiv.mk' f.1 (pr1 f.2).1 (pr2 f.2).1 (pr1 f.2).2 (pr2 f.2).2 },
+    { intro f, induction f with f v, induction v with hl hr, induction hl, induction hr,
+      reflexivity },
+    { intro f, induction f, reflexivity }
   end
+
+  variables {A B : Type*}
+  definition is_contr_pright_inv (f : A ≃* B) : is_contr (Σ(g : B →* A), f ∘* g ~* pid B) :=
+  begin
+    fapply is_trunc_equiv_closed,
+      { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
+    fapply is_contr_fiber_of_is_equiv,
+    exact pequiv.to_is_equiv (pequiv_ppcompose_left f)
+  end
+
+  definition is_contr_pleft_inv (f : A ≃* B) : is_contr (Σ(h : B →* A), h ∘* f ~* pid A) :=
+  begin
+    fapply is_trunc_equiv_closed,
+      { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
+    fapply is_contr_fiber_of_is_equiv,
+    exact pequiv.to_is_equiv (pequiv_ppcompose_right f)
+  end
+
+  definition pequiv_eq_equiv (f g : A ≃* B) : (f = g) ≃ f ~* g :=
+  have Π(f : A →* B), is_prop ((Σ(g : B →* A), f ∘* g ~* pid B) × (Σ(h : B →* A), h ∘* f ~* pid A)),
+  begin
+    intro f, apply is_prop_of_imp_is_contr, intro v,
+    let f' := pequiv.sigma_char⁻¹ᵉ ⟨f, v⟩,
+    apply is_trunc_prod, exact is_contr_pright_inv f', exact is_contr_pleft_inv f'
+  end,
+  calc (f = g) ≃ (pequiv.sigma_char f = pequiv.sigma_char g)
+                 : eq_equiv_fn_eq pequiv.sigma_char f g
+          ...  ≃ (f = g :> (A →* B)) : subtype_eq_equiv
+          ...  ≃ (f ~* g) : pmap_eq_equiv f g
+
+  definition pequiv_eq {f g : A ≃* B} (H : f ~* g) : f = g :=
+  (pequiv_eq_equiv f g)⁻¹ᵉ H
 
 end pointed

@@ -184,9 +184,9 @@ namespace group
   begin
     induction p,
     apply pequiv_eq,
-    fapply pmap_eq,
-    { intro g, reflexivity},
-    { apply is_prop.elim}
+    fapply phomotopy.mk,
+    { intro g, reflexivity },
+    { apply is_prop.elim }
   end
 
   definition to_ginv [constructor] (φ : G₁ ≃g G₂) : G₂ →g G₁ :=

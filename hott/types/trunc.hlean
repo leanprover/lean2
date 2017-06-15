@@ -567,6 +567,9 @@ namespace trunc
     : (tr a = tr a' :> trunc n.+1 A) ≃ trunc n (a = a') :=
   !trunc_eq_equiv
 
+  definition trunc_eq {n : ℕ₋₂} {a a' : A} (p : trunc n (a = a')) :tr a = tr a' :> trunc n.+1 A :=
+  !tr_eq_tr_equiv⁻¹ᵉ p
+
   definition code_mul {n : ℕ₋₂} {aa₁ aa₂ aa₃ : trunc n.+1 A}
     (g : trunc.code n aa₁ aa₂) (h : trunc.code n aa₂ aa₃) : trunc.code n aa₁ aa₃ :=
   begin

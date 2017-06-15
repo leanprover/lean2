@@ -266,9 +266,9 @@ namespace fiber
   lemma pequiv_precompose_ppoint {A A' B : Type*} (f : A →* B) (g : A' ≃* A)
     : ppoint f ∘* fiber.pequiv_precompose f g ~* g ∘* ppoint (f ∘* g) :=
   begin
-    induction f with f f₀, induction g with g hg g₀, induction B with B b₀,
-    induction A with A a₀', esimp at *, induction g₀, induction f₀,
-    reflexivity,
+    induction f with f f₀, induction g with g h₁ h₂ p₁ p₂, induction B with B b₀,
+    induction g with g g₀, induction A with A a₀', esimp at *, induction g₀, induction f₀,
+    reflexivity
   end
 
   definition pfiber_pequiv_of_square_ppoint {A B C D : Type*} {f : A →* B} {g : C →* D}

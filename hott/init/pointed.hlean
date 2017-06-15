@@ -119,13 +119,4 @@ namespace pointed
   abbreviation to_homotopy [coercion] [unfold 5] (p : f ~* g) : Πa, f a = g a :=
   phomotopy.homotopy p
 
-  /- pointed equivalences -/
-  structure pequiv (A B : Type*) extends equiv A B, pmap A B
-
-  attribute pequiv._trans_of_to_pmap pequiv._trans_of_to_equiv pequiv.to_pmap pequiv.to_equiv
-            [unfold 3]
-  attribute pequiv.to_is_equiv [instance]
-  attribute pequiv.to_pmap [coercion]
-  infix ` ≃* `:25 := pequiv
-
 end pointed
