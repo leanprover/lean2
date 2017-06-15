@@ -595,6 +595,15 @@ end
                (succ_lt_succ (lt_of_le_of_ne (le_of_lt_succ (is_lt x)) H))}
   end
 
+  definition cyclic_pred {n : ℕ} (x : fin n) : fin n :=
+  begin
+    cases n with n,
+    { exfalso, apply not_lt_zero _ (is_lt x)},
+    { cases x with m H, cases m with m,
+      { exact fin.mk n (self_lt_succ n) },
+      { exact fin.mk m (lt.trans (self_lt_succ m) H) }}
+  end
+
   /-
     We want to say that fin (succ n) always has a 0 and 1. However, we want a bit more, because
     sometimes we want a zero of (fin a) where a is either

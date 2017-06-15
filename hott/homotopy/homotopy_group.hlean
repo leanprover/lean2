@@ -7,7 +7,7 @@ Authors: Floris van Doorn, Clive Newstead
 
 import .LES_of_homotopy_groups .sphere .complex_hopf
 
-open eq is_trunc trunc_index pointed algebra trunc nat is_conn fiber pointed unit
+open eq is_trunc trunc_index pointed algebra trunc nat is_conn fiber pointed unit group
 
 namespace is_trunc
 
@@ -53,15 +53,6 @@ namespace is_trunc
     [H : is_conn_fun n f] (H2 : k ≤ n) : is_contr (π[k] (pfiber f)) :=
   @(trivial_homotopy_group_of_is_conn (pfiber f) H2) (H pt)
 
-  theorem homotopy_group_trunc_of_le (A : Type*) (n k : ℕ) (H : k ≤ n)
-    : π[k] (ptrunc n A) ≃* π[k] A :=
-  begin
-    refine !homotopy_group_pequiv_loop_ptrunc ⬝e* _,
-    refine loopn_pequiv_loopn _ (ptrunc_ptrunc_pequiv_left _ _) ⬝e* _,
-    exact of_nat_le_of_nat H,
-    exact !homotopy_group_pequiv_loop_ptrunc⁻¹ᵉ*,
-  end
-
   /- Corollaries of the LES of homotopy groups -/
   local attribute ab_group.to_group [coercion]
   local attribute is_equiv_tinverse [instance]
@@ -81,16 +72,9 @@ namespace is_trunc
       refine is_conn_fun_of_le f (zero_le_of_nat n)},
     { /- k > 0 -/
      have H2' : k ≤ n, from le.trans !self_le_succ H2,
-      exact
-      @is_equiv_of_trivial _
-        (LES_of_homotopy_groups f) _
-        (is_exact_LES_of_homotopy_groups f (k, 2))
-        (is_exact_LES_of_homotopy_groups f (succ k, 0))
-        (@is_contr_HG_fiber_of_is_connected A B k n f H H2')
-        (@is_contr_HG_fiber_of_is_connected A B (succ k) n f H H2)
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups f k 0) idp)
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups f k 1) idp)
-        (homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun f (k, 0)))},
+     exact LES_is_equiv_of_trivial f (succ k) 0
+             (@is_contr_HG_fiber_of_is_connected A B k n f H H2')
+             (@is_contr_HG_fiber_of_is_connected A B (succ k) n f H H2) },
   end
 
   theorem is_equiv_π_of_is_connected.{u v} {A : pType.{u}} {B : pType.{v}} {n k : ℕ} (f : A →* B)
@@ -131,7 +115,7 @@ namespace is_trunc
     (H : Πa k, is_equiv (π→[k + 1] (pmap_of_map f a))) : is_equiv f :=
   begin
     revert A B HA HB f H' H, induction n with n IH: intros,
-    { apply is_equiv_of_is_contr},
+    { apply is_equiv_of_is_contr },
     have Πa, is_equiv (Ω→ (pmap_of_map f a)),
     begin
       intro a,
@@ -223,8 +207,6 @@ namespace is_trunc
     cases A with A a, exact H k H'
   end
 
-
-
   definition ab_group_homotopy_group_of_is_conn (n : ℕ) (A : Type*) [H : is_conn 1 A] :
     ab_group (π[n] A) :=
   begin
@@ -233,7 +215,7 @@ namespace is_trunc
     { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
     cases n with n,
     { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
-    exact ab_group_homotopy_group n A
+    exact ab_group_homotopy_group (n+2) A
   end
 
   definition is_contr_of_trivial_homotopy' (n : ℕ₋₂) (A : Type) [is_trunc n A] [is_conn -1 A]
@@ -253,7 +235,7 @@ namespace is_trunc
     intro k a H2,
     induction a with a,
     apply is_trunc_equiv_closed_rev,
-      exact equiv_of_pequiv (homotopy_group_trunc_of_le (pointed.MK A a) _ _ H2),
+      exact equiv_of_pequiv (homotopy_group_ptrunc_of_le H2 (pointed.MK A a)),
     exact H k a H2
   end
 
@@ -265,9 +247,6 @@ namespace is_trunc
     intro k a H2, revert a, apply is_conn.elim -1,
     cases A with A a, exact H k H2
   end
-
-
-
 
   definition is_conn_fun_of_equiv_on_homotopy_groups.{u} (n : ℕ) {A B : Type.{u}} (f : A → B)
     [is_equiv (trunc_functor 0 f)]

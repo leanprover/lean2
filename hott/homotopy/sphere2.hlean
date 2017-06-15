@@ -27,22 +27,12 @@ namespace sphere
     fapply isomorphism_of_equiv,
     { fapply equiv.mk,
       { exact cc_to_fn (LES_of_homotopy_groups complex_phopf) (1, 2)},
-      { refine @is_equiv_of_trivial _
-        _ _
-        (is_exact_LES_of_homotopy_groups _ (1, 1))
-        (is_exact_LES_of_homotopy_groups _ (1, 2))
-        _
-        _
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups complex_phopf _ _) idp)
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups complex_phopf _ _) idp)
-        _,
-        { rewrite [LES_of_homotopy_groups_1, ▸*],
-          have H : 1 ≤[ℕ] 2, from !one_le_succ,
-          apply trivial_homotopy_group_of_is_conn, exact H, rexact is_conn_psphere 3},
+      { refine LES_is_equiv_of_trivial complex_phopf 1 2 _ _,
+        { have H : 1 ≤[ℕ] 2, from !one_le_succ,
+          apply trivial_homotopy_group_of_is_conn, exact H, rexact is_conn_psphere 3 },
         { refine tr_rev (λx, is_contr (ptrunctype._trans_of_to_pType x))
                         (LES_of_homotopy_groups_1 complex_phopf 2) _,
-          apply trivial_homotopy_group_of_is_conn, apply le.refl, rexact is_conn_psphere 3},
-        { exact homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun _ (0, 2))}}},
+          apply trivial_homotopy_group_of_is_conn, apply le.refl, rexact is_conn_psphere 3 }}},
     { exact homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun _ (0, 2))}
   end
 
@@ -54,23 +44,13 @@ namespace sphere
       { exact cc_to_fn (LES_of_homotopy_groups complex_phopf) (n+3, 0)},
       { have H : is_trunc 1 (pfiber complex_phopf),
         from @(is_trunc_equiv_closed_rev _ pfiber_complex_phopf) is_trunc_circle,
-        refine @is_equiv_of_trivial _
-        _ _
-        (is_exact_LES_of_homotopy_groups _ (n+2, 2))
-        (is_exact_LES_of_homotopy_groups _ (n+3, 0))
-        _
-        _
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups complex_phopf _ _) idp)
-        (@pgroup_of_group _ (group_LES_of_homotopy_groups complex_phopf _ _) idp)
-        _,
-        { rewrite [▸*, LES_of_homotopy_groups_2 _ (n +[ℕ] 2)],
-          have H2 : 1 ≤[ℕ] n + 1, from !one_le_succ,
-          exact @trivial_ghomotopy_group_of_is_trunc _ _ _ H H2},
+        refine LES_is_equiv_of_trivial complex_phopf (n+3) 0 _ _,
+        { have H2 : 1 ≤[ℕ] n + 1, from !one_le_succ,
+          exact @trivial_ghomotopy_group_of_is_trunc _ _ _ H H2 },
         { refine tr_rev (λx, is_contr (ptrunctype._trans_of_to_pType x))
                         (LES_of_homotopy_groups_2 complex_phopf _) _,
           have H2 : 1 ≤[ℕ] n + 2, from !one_le_succ,
-          apply trivial_ghomotopy_group_of_is_trunc _ _ _ H2},
-        { exact homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun _ (n+2, 0))}}},
+          apply trivial_ghomotopy_group_of_is_trunc _ _ _ H2 }}},
     { exact homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun _ (n+2, 0))}
   end
 

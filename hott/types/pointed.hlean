@@ -791,6 +791,7 @@ namespace pointed
   infix ` ⬝e*p `:75 := peconcat_eq
   infix ` ⬝pe* `:75 := eq_peconcat
 
+  -- rename pequiv_of_eq_natural
   definition pequiv_of_eq_commute [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
     {a₁ a₂ : A} (p : a₁ = a₂) : pequiv_of_eq (ap C p) ∘* f a₁ ~* f a₂ ∘* pequiv_of_eq (ap B p) :=
   pcast_commute f p

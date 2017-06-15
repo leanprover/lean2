@@ -49,6 +49,11 @@ definition stratified_succ {N : succ_str} {n : ℕ} (x : stratified_type N n)
   : stratified_type N n :=
 (if val (pr2 x) = n then S (pr1 x) else pr1 x, cyclic_succ (pr2 x))
 
+/- You might need to manually change the succ_str, to use predecessor as "successor" -/
+definition stratified_pred (N : succ_str) {n : ℕ} (x : stratified_type N n)
+  : stratified_type N n :=
+(if val (pr2 x) = 0 then S (pr1 x) else pr1 x, cyclic_pred (pr2 x))
+
 definition stratified [reducible] [constructor] (N : succ_str) (n : ℕ) : succ_str :=
 succ_str.mk (stratified_type N n) stratified_succ
 

@@ -37,26 +37,31 @@ namespace eq
 
   notation `π[`:95  n:0 `]`:0 := homotopy_group n
 
-  definition group_homotopy_group [instance] [constructor] [reducible] (n : ℕ) (A : Type*)
-    : group (π[succ n] A) :=
-  trunc_group (Ω[succ n] A)
+  section
+  local attribute inf_group_loopn [instance]
+  definition group_homotopy_group [instance] [constructor] [reducible] (n : ℕ) [is_succ n] (A : Type*)
+    : group (π[n] A) :=
+  trunc_group (Ω[n] A)
+  end
 
   definition group_homotopy_group2 [instance] (k : ℕ) (A : Type*) :
     group (carrier (ptrunctype.to_pType (π[k + 1] A))) :=
-  group_homotopy_group k A
+  group_homotopy_group (k+1) A
 
-  definition ab_group_homotopy_group [constructor] [reducible] (n : ℕ) (A : Type*)
-    : ab_group (π[succ (succ n)] A) :=
-  trunc_ab_group (Ω[succ (succ n)] A)
+  section
+  local attribute ab_inf_group_loopn [instance]
+  definition ab_group_homotopy_group [constructor] [reducible] (n : ℕ) [is_at_least_two n] (A : Type*)
+    : ab_group (π[n] A) :=
+  trunc_ab_group (Ω[n] A)
+  end
 
   local attribute ab_group_homotopy_group [instance]
 
-  definition ghomotopy_group [constructor] : Π(n : ℕ) [is_succ n] (A : Type*), Group
-  | (succ n) x A := Group.mk (π[succ n] A) _
+  definition ghomotopy_group [constructor] (n : ℕ) [is_succ n] (A : Type*) : Group :=
+  Group.mk (π[n] A) _
 
-  definition cghomotopy_group [constructor] :
-    Π(n : ℕ) [is_at_least_two n] (A : Type*), AbGroup
-  | (succ (succ n)) x A := AbGroup.mk (π[succ (succ n)] A) _
+  definition cghomotopy_group [constructor] (n : ℕ) [is_at_least_two n] (A : Type*) : AbGroup :=
+  AbGroup.mk (π[n] A) _
 
   definition fundamental_group [constructor] (A : Type*) : Group :=
   ghomotopy_group 1 A
@@ -258,18 +263,22 @@ namespace eq
   inv_preserve_binary (homotopy_group_pequiv_loop_ptrunc (succ k) A) mul concat
     (@homotopy_group_pequiv_loop_ptrunc_con k A) p q
 
-  definition ghomotopy_group_ptrunc [constructor] (k : ℕ) (A : Type*) :
-    πg[k+1] (ptrunc (k+1) A) ≃g πg[k+1] A :=
+  definition ghomotopy_group_ptrunc_of_le [constructor] {k n : ℕ} (H : k ≤ n) [Hk : is_succ k] (A : Type*) :
+    πg[k] (ptrunc n A) ≃g πg[k] A :=
   begin
     fapply isomorphism_of_equiv,
-    { exact homotopy_group_ptrunc (k+1) A},
-    { intro g₁ g₂,
+    { exact homotopy_group_ptrunc_of_le H A},
+    { intro g₁ g₂, induction Hk with k,
       refine _ ⬝ !homotopy_group_pequiv_loop_ptrunc_inv_con,
       apply ap ((homotopy_group_pequiv_loop_ptrunc (k+1) A)⁻¹ᵉ*),
       refine _ ⬝ !loopn_pequiv_loopn_con ,
       apply ap (loopn_pequiv_loopn (k+1) _),
       apply homotopy_group_pequiv_loop_ptrunc_con}
   end
+
+  definition ghomotopy_group_ptrunc [constructor] (k : ℕ) [is_succ k] (A : Type*) :
+    πg[k] (ptrunc k A) ≃g πg[k] A :=
+  ghomotopy_group_ptrunc_of_le (le.refl k) A
 
   /- some homomorphisms -/
 

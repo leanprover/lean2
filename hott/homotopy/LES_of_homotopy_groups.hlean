@@ -75,12 +75,14 @@ We get the long exact sequence of homotopy groups by taking the set-truncation o
 
 import .chain_complex algebra.homotopy_group eq2
 
-open eq pointed sigma fiber equiv is_equiv sigma.ops is_trunc nat trunc algebra function sum
+open eq pointed sigma fiber equiv is_equiv is_trunc nat trunc algebra function sum
 /--------------
     PART 1
  --------------/
 
 namespace chain_complex
+  section
+  open sigma.ops
 
   definition fiber_sequence_helper [constructor] (v : Σ(X Y : Type*), X →* Y)
     : Σ(Z X : Type*), Z →* X :=
@@ -90,7 +92,10 @@ namespace chain_complex
     : Σ(Z X : Type*), Z →* X :=
   iterate fiber_sequence_helper n v
 
+  end
+
   section
+  open sigma.ops
   universe variable u
   parameters {X Y : pType.{u}} (f : X →* Y)
   include f
@@ -470,10 +475,14 @@ namespace chain_complex
       PART 3
    --------------/
 
+  definition fibration_sequence [unfold 4] : fin 3 → Type*
+  | (fin.mk 0 H)     := Y
+  | (fin.mk 1 H)     := X
+  | (fin.mk 2 H)     := pfiber f
+  | (fin.mk (n+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
+
   definition loop_spaces2 [reducible] : +3ℕ → Type*
-  | (n, fin.mk 0 H) := Ω[n] Y
-  | (n, fin.mk 1 H) := Ω[n] X
-  | (n, fin.mk k H) := Ω[n] (pfiber f)
+  | (n, m) := Ω[n] (fibration_sequence m)
 
   definition loop_spaces2_add1 (n : ℕ) : Π(x : fin 3),
     loop_spaces2 (n+1, x) = Ω (loop_spaces2 (n, x))
@@ -629,11 +638,10 @@ namespace chain_complex
 /--------------
     PART 4
  --------------/
+  open prod.ops
 
-  definition homotopy_groups [reducible] : +3ℕ → Set*
-  | (n, fin.mk 0 H) := π[n] Y
-  | (n, fin.mk 1 H) := π[n] X
-  | (n, fin.mk k H) := π[n] (pfiber f)
+  definition homotopy_groups [reducible] : +3ℕ → Set* :=
+  λnm, π[nm.1] (fibration_sequence nm.2)
 
   definition homotopy_groups_pequiv_loop_spaces2 [reducible]
     : Π(n : +3ℕ), ptrunc 0 (loop_spaces2 n) ≃* homotopy_groups n
@@ -709,27 +717,23 @@ namespace chain_complex
 
   open group
 
-  definition group_LES_of_homotopy_groups (n : ℕ) : Π(x : fin (succ 2)),
-    group (LES_of_homotopy_groups (n + 1, x))
-  | (fin.mk 0     H) := begin rexact group_homotopy_group n Y end
-  | (fin.mk 1     H) := begin rexact group_homotopy_group n X end
-  | (fin.mk 2     H) := begin rexact group_homotopy_group n (pfiber f) end
-  | (fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
+  definition group_LES_of_homotopy_groups (n : ℕ) [is_succ n] (x : fin (succ 2)) :
+    group (LES_of_homotopy_groups (n, x)) :=
+  group_homotopy_group n (fibration_sequence x)
 
-  definition ab_group_LES_of_homotopy_groups (n : ℕ) : Π(x : fin (succ 2)),
-    ab_group (LES_of_homotopy_groups (n + 2, x))
-  | (fin.mk 0 H) := proof ab_group_homotopy_group n Y qed
-  | (fin.mk 1 H) := proof ab_group_homotopy_group n X qed
-  | (fin.mk 2 H) := proof ab_group_homotopy_group n (pfiber f) qed
-  | (fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
+  definition pgroup_LES_of_homotopy_groups (n : ℕ) [H : is_succ n] (x : fin (succ 2)) :
+    pgroup (LES_of_homotopy_groups (n, x)) :=
+  by induction H with n; exact @pgroup_of_group _ (group_LES_of_homotopy_groups (n+1) x) idp
 
-  definition Group_LES_of_homotopy_groups (x : +3ℕ) : Group.{u} :=
-  Group.mk (LES_of_homotopy_groups (nat.succ (pr1 x), pr2 x))
-              (group_LES_of_homotopy_groups (pr1 x) (pr2 x))
+  definition ab_group_LES_of_homotopy_groups (n : ℕ) [is_at_least_two n] (x : fin (succ 2)) :
+    ab_group (LES_of_homotopy_groups (n, x)) :=
+  ab_group_homotopy_group n (fibration_sequence x)
+
+  definition Group_LES_of_homotopy_groups (n : +3ℕ) : Group.{u} :=
+  πg[n.1+1] (fibration_sequence n.2)
 
   definition AbGroup_LES_of_homotopy_groups (n : +3ℕ) : AbGroup.{u} :=
-  AbGroup.mk (LES_of_homotopy_groups (pr1 n + 2, pr2 n))
-                  (ab_group_LES_of_homotopy_groups (pr1 n) (pr2 n))
+  πag[n.1+2] (fibration_sequence n.2)
 
   definition homomorphism_LES_of_homotopy_groups_fun : Π(k : +3ℕ),
     Group_LES_of_homotopy_groups (S k) →g Group_LES_of_homotopy_groups k
@@ -747,6 +751,52 @@ namespace chain_complex
       end end
     end
   | (k, fin.mk (l+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
+
+  definition LES_is_equiv_of_trivial (n : ℕ) (x : fin (succ 2)) [H : is_succ n]
+    (HX1 : is_contr (LES_of_homotopy_groups (stratified_pred snat' (n, x))))
+    (HX2 : is_contr (LES_of_homotopy_groups (stratified_pred snat' (n+1, x))))
+    : is_equiv (cc_to_fn LES_of_homotopy_groups (n, x)) :=
+  begin
+    induction H with n,
+    induction x with m H, cases m with m,
+    { rexact @is_equiv_of_trivial +3ℕ LES_of_homotopy_groups (n, 2) (is_exact_LES_of_homotopy_groups (n, 2))
+        proof (is_exact_LES_of_homotopy_groups (n+1, 0)) qed HX1 proof HX2 qed
+        proof pgroup_LES_of_homotopy_groups (n+1) 0 qed proof pgroup_LES_of_homotopy_groups (n+1) 1 qed
+        proof homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun (n, 0)) qed },
+    cases m with m,
+    { rexact @is_equiv_of_trivial +3ℕ LES_of_homotopy_groups (n+1, 0) (is_exact_LES_of_homotopy_groups (n+1, 0))
+        proof (is_exact_LES_of_homotopy_groups (n+1, 1)) qed HX1 proof HX2 qed
+        proof pgroup_LES_of_homotopy_groups (n+1) 1 qed proof pgroup_LES_of_homotopy_groups (n+1) 2 qed
+        proof homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun (n, 1)) qed }, cases m with m,
+    { rexact @is_equiv_of_trivial +3ℕ LES_of_homotopy_groups (n+1, 1) (is_exact_LES_of_homotopy_groups (n+1, 1))
+        proof (is_exact_LES_of_homotopy_groups (n+1, 2)) qed HX1 proof HX2 qed
+        proof pgroup_LES_of_homotopy_groups (n+1) 2 qed proof pgroup_LES_of_homotopy_groups (n+2) 0 qed
+        proof homomorphism.struct (homomorphism_LES_of_homotopy_groups_fun (n, 2)) qed },
+    exfalso, apply lt_le_antisymm H, apply le_add_left
+  end
+
+  definition LES_isomorphism_of_trivial_cod (n : ℕ) [H : is_succ n]
+    (HX1 : is_contr (πg[n] Y)) (HX2 : is_contr (πg[n+1] Y)) : πg[n] (pfiber f) ≃g πg[n] X :=
+  begin
+    induction H with n,
+    refine isomorphism.mk (homomorphism_LES_of_homotopy_groups_fun (n, 1)) _,
+    apply LES_is_equiv_of_trivial, apply HX1, apply HX2
+  end
+
+  definition LES_isomorphism_of_trivial_dom (n : ℕ) [H : is_succ n]
+    (HX1 : is_contr (πg[n] X)) (HX2 : is_contr (πg[n+1] X)) : πg[n+1] (Y) ≃g πg[n] (pfiber f) :=
+  begin
+    induction H with n,
+    refine isomorphism.mk (homomorphism_LES_of_homotopy_groups_fun (n, 2)) _,
+    apply LES_is_equiv_of_trivial, apply HX1, apply HX2
+  end
+
+  definition LES_isomorphism_of_trivial_pfiber (n : ℕ)
+    (HX1 : is_contr (π[n] (pfiber f))) (HX2 : is_contr (πg[n+1] (pfiber f))) : πg[n+1] X ≃g πg[n+1] Y :=
+  begin
+    refine isomorphism.mk (homomorphism_LES_of_homotopy_groups_fun (n, 0)) _,
+    apply LES_is_equiv_of_trivial, apply HX1, apply HX2
+  end
 
   end
 
@@ -794,22 +844,22 @@ namespace chain_complex
       refine _ ⬝* !apn_pcompose⁻¹*, reflexivity end
   | (n, fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
 
-  definition type_fibration_sequence [constructor] : type_chain_complex +3ℕ :=
+  definition type_LES_fibration_sequence [constructor] : type_chain_complex +3ℕ :=
   transfer_type_chain_complex
     (LES_of_loop_spaces2 f)
     fibration_sequence_fun
     fibration_sequence_pequiv
     fibration_sequence_fun_phomotopy
 
-  definition is_exact_type_fibration_sequence : is_exact_t type_fibration_sequence :=
+  definition is_exact_type_fibration_sequence : is_exact_t type_LES_fibration_sequence :=
   begin
     intro n,
     apply is_exact_at_t_transfer,
     apply is_exact_LES_of_loop_spaces2
   end
 
-  definition fibration_sequence [constructor] : chain_complex +3ℕ :=
-  trunc_chain_complex type_fibration_sequence
+  definition LES_fibration_sequence [constructor] : chain_complex +3ℕ :=
+  trunc_chain_complex type_LES_fibration_sequence
 
   end
 
