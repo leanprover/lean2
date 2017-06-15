@@ -6,7 +6,7 @@ Authors: Floris van Doorn, Ulrik Buchholtz
 Declaration of suspension
 -/
 
-import hit.pushout types.pointed cubical.square .connectedness
+import hit.pushout types.pointed2 cubical.square .connectedness
 
 open pushout unit eq equiv
 

@@ -179,16 +179,6 @@ namespace group
   isomorphism_of_equiv (equiv_of_eq (ap Group.carrier φ))
     begin intros, induction φ, reflexivity end
 
-  definition pequiv_of_isomorphism_of_eq {G₁ G₂ : Group} (p : G₁ = G₂) :
-    pequiv_of_isomorphism (isomorphism_of_eq p) = pequiv_of_eq (ap pType_of_Group p) :=
-  begin
-    induction p,
-    apply pequiv_eq,
-    fapply phomotopy.mk,
-    { intro g, reflexivity },
-    { apply is_prop.elim }
-  end
-
   definition to_ginv [constructor] (φ : G₁ ≃g G₂) : G₂ →g G₁ :=
   homomorphism.mk φ⁻¹
     abstract begin

@@ -15,10 +15,10 @@ Contains
 
 import algebra.homotopy_group eq2
 
-open pointed eq unit is_trunc trunc nat group is_equiv equiv sigma function
+open pointed eq unit is_trunc trunc nat group is_equiv equiv sigma function bool
 
 namespace pointed
-
+  variables {A B C : Type*}
 
   section psquare
   /-
@@ -30,7 +30,7 @@ namespace pointed
     Then the following are operations on squares
   -/
 
-  variables {A A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
+  variables {A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
             {f₁₀ f₁₀' : A₀₀ →* A₂₀} {f₃₀ : A₂₀ →* A₄₀}
             {f₀₁ f₀₁' : A₀₀ →* A₀₂} {f₂₁ f₂₁' : A₂₀ →* A₂₂} {f₄₁ : A₄₀ →* A₄₂}
             {f₁₂ f₁₂' : A₀₂ →* A₂₂} {f₃₂ : A₂₂ →* A₄₂}
@@ -362,7 +362,7 @@ namespace pointed
     Squares of pointed homotopies
   -/
 
-  variables {A B C : Type*} {f f' f₀₀ f₂₀ f₄₀ f₀₂ f₂₂ f₄₂ f₀₄ f₂₄ f₄₄ : A →* B}
+  variables {f f' f₀₀ f₂₀ f₄₀ f₀₂ f₂₂ f₄₂ f₀₄ f₂₄ f₄₄ : A →* B}
             {p₁₀ : f₀₀ ~* f₂₀} {p₃₀ : f₂₀ ~* f₄₀}
             {p₀₁ : f₀₀ ~* f₀₂} {p₂₁ : f₂₀ ~* f₂₂} {p₄₁ : f₄₀ ~* f₄₂}
             {p₁₂ : f₀₂ ~* f₂₂} {p₃₂ : f₂₂ ~* f₄₂}
@@ -549,6 +549,76 @@ namespace pointed
     refine !phomotopy_of_eq_of_phomotopy ◾** idp ⬝ q,
   end
 
+  /- properties of ppmap, the pointed type of pointed maps -/
+  definition pcompose_pconst [constructor] (f : B →* C) : f ∘* pconst A B ~* pconst A C :=
+  phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
+
+  definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
+  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻¹
+
+  definition ppcompose_left [constructor] (g : B →* C) : ppmap A B →* ppmap A C :=
+  pmap.mk (pcompose g) (eq_of_phomotopy (pcompose_pconst g))
+
+  definition ppcompose_right [constructor] (f : A →* B) : ppmap B C →* ppmap A C :=
+  pmap.mk (λg, g ∘* f) (eq_of_phomotopy (pconst_pcompose f))
+
+  /- TODO: give construction using pequiv.MK, which computes better (see comment for a start of the proof) -/
+  definition pequiv_ppcompose_left [constructor] (g : B ≃* C) : ppmap A B ≃* ppmap A C :=
+  pequiv.MK' (ppcompose_left g) (ppcompose_left g⁻¹ᵉ*)
+    begin intro f, apply eq_of_phomotopy, apply pinv_pcompose_cancel_left end
+    begin intro f, apply eq_of_phomotopy, apply pcompose_pinv_cancel_left end
+  -- pequiv.MK (ppcompose_left g) (ppcompose_left g⁻¹ᵉ*)
+  --   abstract begin
+  --     apply phomotopy_mk_ppmap (pinv_pcompose_cancel_left g), esimp,
+  --     refine !trans_refl ⬝ _,
+  --     refine _ ⬝ (!phomotopy_of_eq_con ⬝ (!phomotopy_of_eq_pcompose_left ⬝
+  --       ap (pwhisker_left _) !phomotopy_of_eq_of_phomotopy) ◾** !phomotopy_of_eq_of_phomotopy)⁻¹,
+
+  --   end end
+  --   abstract begin
+  --     exact sorry
+  --   end end
+
+  definition pequiv_ppcompose_right [constructor] (f : A ≃* B) : ppmap B C ≃* ppmap A C :=
+  begin
+    fapply pequiv.MK',
+    { exact ppcompose_right f },
+    { exact ppcompose_right f⁻¹ᵉ* },
+    { intro g, apply eq_of_phomotopy, apply pcompose_pinv_cancel_right },
+    { intro g, apply eq_of_phomotopy, apply pinv_pcompose_cancel_right },
+  end
+
+  definition loop_ppmap_commute (A B : Type*) : Ω(ppmap A B) ≃* (ppmap A (Ω B)) :=
+    pequiv_of_equiv
+      (calc Ω(ppmap A B) ≃ (pconst A B ~* pconst A B)                       : pmap_eq_equiv _ _
+                     ... ≃ Σ(p : pconst A B ~ pconst A B), p pt ⬝ rfl = rfl : phomotopy.sigma_char
+                     ... ≃ (A →* Ω B)                                       : pmap.sigma_char)
+      (by reflexivity)
+
+  definition papply [constructor] {A : Type*} (B : Type*) (a : A) : ppmap A B →* B :=
+  pmap.mk (λ(f : A →* B), f a) idp
+
+  definition papply_pcompose [constructor] {A : Type*} (B : Type*) (a : A) : ppmap A B →* B :=
+  pmap.mk (λ(f : A →* B), f a) idp
+
+  definition ppmap_pbool_pequiv [constructor] (B : Type*) : ppmap pbool B ≃* B :=
+  begin
+    fapply pequiv.MK',
+    { exact papply B tt },
+    { exact pbool_pmap },
+    { intro f, fapply pmap_eq,
+      { intro b, cases b, exact !respect_pt⁻¹, reflexivity },
+      { exact !con.left_inv⁻¹ }},
+    { intro b, reflexivity },
+  end
+
+  definition papn_pt [constructor] (n : ℕ) (A B : Type*) : ppmap A B →* ppmap (Ω[n] A) (Ω[n] B) :=
+  pmap.mk (λf, apn n f) (eq_of_phomotopy !apn_pconst)
+
+  definition papn_fun [constructor] {n : ℕ} {A : Type*} (B : Type*) (p : Ω[n] A) :
+    ppmap A B →* Ω[n] B :=
+  papply _ p ∘* papn_pt n A B
+
   definition pconst_pcompose_pconst (A B C : Type*) :
     pconst_pcompose (pconst A B) = pcompose_pconst (pconst B C) :=
   idp
@@ -688,7 +758,7 @@ namespace pointed
 
   section psquare
 
-  variables {A A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
+  variables {A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
             {f₁₀ f₁₀' : A₀₀ →* A₂₀} {f₃₀ : A₂₀ →* A₄₀}
             {f₀₁ f₀₁' : A₀₀ →* A₀₂} {f₂₁ f₂₁' : A₂₀ →* A₂₂} {f₄₁ : A₄₀ →* A₄₂}
             {f₁₂ f₁₂' : A₀₂ →* A₂₂} {f₃₂ : A₂₂ →* A₄₂}
@@ -842,6 +912,61 @@ namespace pointed
       !phomotopy_of_eq_of_phomotopy)  ⬝ _ ⬝ (ap phomotopy_of_eq (!pcompose_left_eq_of_phomotopy ◾
       idp ⬝ !eq_of_phomotopy_trans⁻¹) ⬝ !phomotopy_of_eq_of_phomotopy)⁻¹,
       apply symm_trans_eq_of_eq_trans, exact (ap1_pcompose_pconst_right f)⁻¹ }
+  end
+
+  open sigma.ops prod
+  definition pequiv.sigma_char {A B : Type*} :
+    (A ≃* B) ≃ Σ(f : A →* B), (Σ(g : B →* A), f ∘* g ~* pid B) × (Σ(h : B →* A), h ∘* f ~* pid A) :=
+  begin
+    fapply equiv.MK,
+    { intro f, exact ⟨f, (⟨pequiv.to_pinv1 f, pequiv.pright_inv f⟩,
+                          ⟨pequiv.to_pinv2 f, pequiv.pleft_inv f⟩)⟩, },
+    { intro f, exact pequiv.mk' f.1 (pr1 f.2).1 (pr2 f.2).1 (pr1 f.2).2 (pr2 f.2).2 },
+    { intro f, induction f with f v, induction v with hl hr, induction hl, induction hr,
+      reflexivity },
+    { intro f, induction f, reflexivity }
+  end
+
+  definition is_contr_pright_inv (f : A ≃* B) : is_contr (Σ(g : B →* A), f ∘* g ~* pid B) :=
+  begin
+    fapply is_trunc_equiv_closed,
+      { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
+    fapply is_contr_fiber_of_is_equiv,
+    exact pequiv.to_is_equiv (pequiv_ppcompose_left f)
+  end
+
+  definition is_contr_pleft_inv (f : A ≃* B) : is_contr (Σ(h : B →* A), h ∘* f ~* pid A) :=
+  begin
+    fapply is_trunc_equiv_closed,
+      { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
+    fapply is_contr_fiber_of_is_equiv,
+    exact pequiv.to_is_equiv (pequiv_ppcompose_right f)
+  end
+
+  definition pequiv_eq_equiv (f g : A ≃* B) : (f = g) ≃ f ~* g :=
+  have Π(f : A →* B), is_prop ((Σ(g : B →* A), f ∘* g ~* pid B) × (Σ(h : B →* A), h ∘* f ~* pid A)),
+  begin
+    intro f, apply is_prop_of_imp_is_contr, intro v,
+    let f' := pequiv.sigma_char⁻¹ᵉ ⟨f, v⟩,
+    apply is_trunc_prod, exact is_contr_pright_inv f', exact is_contr_pleft_inv f'
+  end,
+  calc (f = g) ≃ (pequiv.sigma_char f = pequiv.sigma_char g)
+                 : eq_equiv_fn_eq pequiv.sigma_char f g
+          ...  ≃ (f = g :> (A →* B)) : subtype_eq_equiv
+          ...  ≃ (f ~* g) : pmap_eq_equiv f g
+
+  definition pequiv_eq {f g : A ≃* B} (H : f ~* g) : f = g :=
+  (pequiv_eq_equiv f g)⁻¹ᵉ H
+
+  open algebra
+  definition pequiv_of_isomorphism_of_eq {G₁ G₂ : Group} (p : G₁ = G₂) :
+    pequiv_of_isomorphism (isomorphism_of_eq p) = pequiv_of_eq (ap pType_of_Group p) :=
+  begin
+    induction p,
+    apply pequiv_eq,
+    fapply phomotopy.mk,
+    { intro g, reflexivity },
+    { apply is_prop.elim }
   end
 
 end pointed
