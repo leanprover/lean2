@@ -305,9 +305,7 @@ namespace is_trunc
     { apply @is_contr_of_inhabited_prop,
       { apply is_trunc_equiv },
       { apply equiv_of_is_contr_of_is_contr}},
-    { apply is_trunc_is_embedding_closed,
-      { apply is_embedding_to_fun},
-      { apply minus_one_le_succ}}
+    { apply is_trunc_equiv }
   end
 
   /- univalence for truncated types -/
