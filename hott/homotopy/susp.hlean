@@ -275,7 +275,7 @@ namespace susp
     : loop_psusp_unit Y ∘* f ~* Ω→ (psusp_functor f) ∘* loop_psusp_unit X :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
-    fconstructor,
+    fapply phomotopy.mk,
     { intro x', symmetry,
       exact
         !ap1_gen_idp_left ⬝

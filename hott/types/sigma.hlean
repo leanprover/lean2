@@ -32,8 +32,11 @@ namespace sigma
   definition dpair_eq_dpair [unfold 8] (p : a = a') (q : b =[p] b') : ⟨a, b⟩ = ⟨a', b'⟩ :=
   apd011 sigma.mk p q
 
-  definition sigma_eq [unfold 3 4] (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
+  definition sigma_eq [unfold 5 6] (p : u.1 = v.1) (q : u.2 =[p] v.2) : u = v :=
   by induction u; induction v; exact (dpair_eq_dpair p q)
+
+  definition sigma_eq_right [unfold 6] (q : b₁ = b₂) : ⟨a, b₁⟩ = ⟨a, b₂⟩ :=
+  ap (dpair a) q
 
   definition eq_pr1 [unfold 5] (p : u = v) : u.1 = v.1 :=
   ap pr1 p

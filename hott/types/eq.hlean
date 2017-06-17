@@ -126,19 +126,19 @@ namespace eq
 
   definition eq_transport_l (p : a₁ = a₂) (q : a₁ = a₃)
     : transport (λx, x = a₃) p q = p⁻¹ ⬝ q :=
-  by induction p; induction q; reflexivity
+  by induction p; exact !idp_con⁻¹
 
   definition eq_transport_r (p : a₂ = a₃) (q : a₁ = a₂)
     : transport (λx, a₁ = x) p q = q ⬝ p :=
-  by induction p; induction q; reflexivity
+  by induction p; reflexivity
 
   definition eq_transport_lr (p : a₁ = a₂) (q : a₁ = a₁)
     : transport (λx, x = x) p q = p⁻¹ ⬝ q ⬝ p :=
-  by induction p; rewrite [▸*,idp_con]
+  by induction p; exact !idp_con⁻¹
 
-  definition eq_transport_Fl (p : a₁ = a₂) (q : f a₁ = b)
+  definition eq_transport_Fl [unfold 7] (p : a₁ = a₂) (q : f a₁ = b)
     : transport (λx, f x = b) p q = (ap f p)⁻¹ ⬝ q :=
-  by induction p; induction q; reflexivity
+  by induction p; exact !idp_con⁻¹
 
   definition eq_transport_Fr (p : a₁ = a₂) (q : b = f a₁)
     : transport (λx, b = f x) p q = q ⬝ (ap f p) :=
@@ -146,27 +146,26 @@ namespace eq
 
   definition eq_transport_FlFr (p : a₁ = a₂) (q : f a₁ = g a₁)
     : transport (λx, f x = g x) p q = (ap f p)⁻¹ ⬝ q ⬝ (ap g p) :=
-  by induction p; rewrite [▸*,idp_con]
+  by induction p; exact !idp_con⁻¹
 
   definition eq_transport_FlFr_D {B : A → Type} {f g : Πa, B a}
     (p : a₁ = a₂) (q : f a₁ = g a₁)
       : transport (λx, f x = g x) p q = (apdt f p)⁻¹ ⬝ ap (transport B p) q ⬝ (apdt g p) :=
-  by induction p; rewrite [▸*,idp_con,ap_id]
+  by induction p; exact !ap_id⁻¹ ⬝ !idp_con⁻¹
 
   definition eq_transport_FFlr (p : a₁ = a₂) (q : h (f a₁) = a₁)
     : transport (λx, h (f x) = x) p q = (ap h (ap f p))⁻¹ ⬝ q ⬝ p :=
-  by induction p; rewrite [▸*,idp_con]
+  by induction p; exact !idp_con⁻¹
 
   definition eq_transport_lFFr (p : a₁ = a₂) (q : a₁ = h (f a₁))
     : transport (λx, x = h (f x)) p q = p⁻¹ ⬝ q ⬝ (ap h (ap f p)) :=
-  by induction p; rewrite [▸*,idp_con]
+  by induction p; exact !idp_con⁻¹
 
   /- Pathovers -/
 
   -- In the comment we give the fibration of the pathover
 
   -- we should probably try to do everything just with pathover_eq (defined in cubical.square),
-  -- the following definitions may be removed in future.
 
   definition eq_pathover_l (p : a₁ = a₂) (q : a₁ = a₃) : q =[p] p⁻¹ ⬝ q := /-(λx, x = a₃)-/
   by induction p; induction q; exact idpo

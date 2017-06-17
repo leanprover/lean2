@@ -84,9 +84,12 @@ namespace pointed
 end pointed
 
 /- pointed maps -/
-structure ppi (A : Type*) (P : A → Type*) :=
+structure ppi_gen {A : Type*} (P : A → Type) (x₀ : P pt) :=
   (to_fun : Π a : A, P a)
-  (resp_pt : to_fun (Point A) = Point (P (Point A)))
+  (resp_pt : to_fun (Point A) = x₀)
+
+definition ppi {A : Type*} (P : A → Type*) : Type :=
+ppi_gen P pt
 
 -- We could try to define pmap as a special case of ppi
 -- definition pmap (A B : Type*) := @ppi A (λa, B)
@@ -95,11 +98,23 @@ structure pmap (A B : Type*) :=
   (resp_pt : to_fun (Point A) = Point B)
 
 namespace pointed
+  definition ppi.mk [constructor] [reducible] {A : Type*} {P : A → Type*} (f : Πa, P a)
+    (p : f pt = pt) : ppi P :=
+  ppi_gen.mk f p
+
+  definition ppi.to_fun [unfold 3] [coercion] [reducible] {A : Type*} {P : A → Type*} (f : ppi P)
+    (a : A) : P a :=
+  ppi_gen.to_fun f a
+
+  definition ppi.resp_pt [unfold 3] [reducible] {A : Type*} {P : A → Type*} (f : ppi P) :
+    f pt = pt :=
+  ppi_gen.resp_pt f
+
   abbreviation respect_pt [unfold 3] := @pmap.resp_pt
   notation `map₊` := pmap
   infix ` →* `:30 := pmap
-  attribute pmap.to_fun ppi.to_fun [coercion]
-  notation `Π*` binders `, ` r:(scoped P, ppi _ P) := r
+  attribute pmap.to_fun ppi_gen.to_fun [coercion]
+  -- notation `Π*` binders `, ` r:(scoped P, ppi _ P) := r
   -- definition pmap.mk [constructor] {A B : Type*} (f : A → B) (p : f pt = pt) : A →* B :=
   -- ppi.mk f p
   -- definition pmap.to_fun [coercion] [unfold 3] {A B : Type*} (f : A →* B) : A → B := f
@@ -107,16 +122,25 @@ namespace pointed
 end pointed open pointed
 
 /- pointed homotopies -/
-structure phomotopy {A B : Type*} (f g : A →* B) :=
-  (homotopy : f ~ g)
-  (homotopy_pt : homotopy pt ⬝ respect_pt g = respect_pt f)
+definition phomotopy {A B : Type*} (f g : A →* B) : Type :=
+ppi_gen (λa, f a = g a) (respect_pt f ⬝ (respect_pt g)⁻¹)
+
+-- structure phomotopy {A B : Type*} (f g : A →* B) : Type :=
+--   (homotopy : f ~ g)
+--   (homotopy_pt : homotopy pt ⬝ respect_pt g = respect_pt f)
 
 namespace pointed
   variables {A B : Type*} {f g : A →* B}
 
   infix ` ~* `:50 := phomotopy
-  abbreviation to_homotopy_pt [unfold 5] := @phomotopy.homotopy_pt
-  abbreviation to_homotopy [coercion] [unfold 5] (p : f ~* g) : Πa, f a = g a :=
-  phomotopy.homotopy p
+  definition phomotopy.mk [reducible] [constructor] (h : f ~ g)
+    (p : h pt ⬝ respect_pt g = respect_pt f) : f ~* g :=
+  ppi_gen.mk h (eq_con_inv_of_con_eq p)
+
+  definition to_homotopy [coercion] [unfold 5] [reducible] (p : f ~* g) : Πa, f a = g a := p
+  definition to_homotopy_pt [unfold 5] [reducible] (p : f ~* g) :
+    p pt ⬝ respect_pt g = respect_pt f :=
+  con_eq_of_eq_con_inv (ppi_gen.resp_pt p)
+
 
 end pointed

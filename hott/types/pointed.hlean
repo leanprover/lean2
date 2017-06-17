@@ -138,14 +138,14 @@ namespace pointed
 
   definition pid_pcompose [constructor] (f : A →* B) : pid B ∘* f ~* f :=
   begin
-    fconstructor,
+    fapply phomotopy.mk,
     { intro a, reflexivity},
     { reflexivity}
   end
 
   definition pcompose_pid [constructor] (f : A →* B) : f ∘* pid A ~* f :=
   begin
-    fconstructor,
+    fapply phomotopy.mk,
     { intro a, reflexivity},
     { reflexivity}
   end
@@ -310,7 +310,7 @@ namespace pointed
 
   protected definition phomotopy.refl [constructor] [refl] (f : A →* B) : f ~* f :=
   begin
-    fconstructor,
+    fapply phomotopy.mk,
     { intro a, exact idp},
     { apply idp_con}
   end
@@ -330,18 +330,29 @@ namespace pointed
 
   /- equalities and equivalences relating pointed homotopies -/
 
+  definition phomotopy.rec' [recursor] (P : f ~* g → Type)
+    (H : Π(h : f ~ g) (p : h pt ⬝ respect_pt g = respect_pt f), P (phomotopy.mk h p))
+    (h : f ~* g) : P h :=
+  begin
+    induction h with h p,
+    refine transport (λp, P (ppi_gen.mk h p)) _ (H h (con_eq_of_eq_con_inv p)),
+    apply to_left_inv !eq_con_inv_equiv_con_eq p
+  end
+
   definition phomotopy.sigma_char [constructor] {A B : Type*} (f g : A →* B)
     : (f ~* g) ≃ Σ(p : f ~ g), p pt ⬝ respect_pt g = respect_pt f :=
   begin
     fapply equiv.MK : intros h,
     { exact ⟨h , to_homotopy_pt h⟩ },
-    all_goals cases h with h p,
-    { exact phomotopy.mk h p },
-    all_goals reflexivity
+    { cases h with h p, exact phomotopy.mk h p },
+    { cases h with h p, exact ap (dpair h) (to_right_inv !eq_con_inv_equiv_con_eq p) },
+    { induction h using phomotopy.rec' with h p, esimp,
+      exact ap (phomotopy.mk h) (to_right_inv !eq_con_inv_equiv_con_eq p) },
   end
 
-  definition phomotopy.eta_expand [constructor] {A B : Type*} {f g : A →* B} (p : f ~* g) : f ~* g :=
-  phomotopy.mk p (phomotopy.homotopy_pt p)
+  definition phomotopy.eta_expand [constructor] {A B : Type*} {f g : A →* B} (p : f ~* g) :
+    f ~* g :=
+  phomotopy.mk p (to_homotopy_pt p)
 
   definition is_trunc_pmap [instance] (n : ℕ₋₂) (A B : Type*) [is_trunc n B] :
     is_trunc n (A →* B) :=
@@ -458,6 +469,7 @@ namespace pointed
     induction p using phomotopy_rec_on_eq,
     induction q, exact H
   end
+  attribute phomotopy.rec' [recursor]
 
   definition phomotopy_rec_on_eq_phomotopy_of_eq {A B : Type*} {f g: A →* B}
     {Q : (f ~* g) → Type} (p : f = g) (H : Π(q : f = g), Q (phomotopy_of_eq q)) :
