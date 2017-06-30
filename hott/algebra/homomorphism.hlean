@@ -103,7 +103,7 @@ section group_A_B
   have f (a⁻¹) * f a = 1, by rewrite [-respect_mul f, mul.left_inv, respect_one f],
   eq_inv_of_mul_eq_one this
 
-  definition is_embedding_of_is_mul_hom [group B] (f : A → B) [is_mul_hom f]
+  definition is_embedding_of_is_mul_hom (f : A → B) [is_mul_hom f]
       (H : ∀ x, f x = 1 → x = 1) :
     is_embedding f :=
   is_embedding_of_is_injective
@@ -113,7 +113,7 @@ section group_A_B
       have x₁ * x₂⁻¹ = 1, from H _ this,
       eq_of_mul_inv_eq_one this)
 
-  definition eq_one_of_is_mul_hom [add_group B] {f : A → B} [is_mul_hom f]
+  definition eq_one_of_is_mul_hom {f : A → B} [is_mul_hom f]
       [is_embedding f] {a : A} (fa1 : f a = 1) :
     a = 1 :=
   have f a = f 1, by rewrite [fa1, respect_one f],
