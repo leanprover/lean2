@@ -382,6 +382,16 @@ class normalize_fn {
         check_system("normalize");
         if (!m_pred(e))
             return e;
+        /* The following is an ugly hack to solve issue #7.
+            The problem was that the type of macros was not unfolded correctly,
+            and the type was used to figure out what the macro meant */
+        buffer<expr> args;
+        auto fn = get_app_args(e, args);
+        if (is_macro(fn)) {
+            if (auto fn2 = m_full_tc.expand_macro(fn)) {
+                e = mk_app(*fn2, args);
+            }
+        }
         auto w = m_tc.whnf(e);
         e = w.first;
         if (m_save_cnstrs)
