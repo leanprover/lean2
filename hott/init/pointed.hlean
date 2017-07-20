@@ -112,7 +112,7 @@ namespace pointed
 
   abbreviation respect_pt [unfold 3] := @pmap.resp_pt
   notation `map₊` := pmap
-  infix ` →* `:30 := pmap
+  infix ` →* `:28 := pmap
   attribute pmap.to_fun ppi_gen.to_fun [coercion]
   -- notation `Π*` binders `, ` r:(scoped P, ppi _ P) := r
   -- definition pmap.mk [constructor] {A B : Type*} (f : A → B) (p : f pt = pt) : A →* B :=

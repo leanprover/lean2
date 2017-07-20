@@ -141,17 +141,6 @@ definition add_comm_inf_semigroup_of_add_comm_inf_monoid [reducible] [trans_inst
   [H : add_comm_inf_monoid A] : add_comm_inf_semigroup A :=
 @comm_inf_monoid.to_comm_inf_semigroup A H
 
-section add_comm_inf_monoid
-  variables [s : add_comm_inf_monoid A]
-  include s
-
-  theorem add_comm_three  (a b c : A) : a + b + c = c + b + a :=
-    by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
-
-  theorem add.comm4 : Π (n m k l : A), n + m + (k + l) = n + k + (m + l) :=
-  comm4 add.comm add.assoc
-end add_comm_inf_monoid
-
 /- group -/
 
 structure inf_group [class] (A : Type) extends inf_monoid A, has_inv A :=
@@ -609,8 +598,16 @@ namespace norm_num
 
 definition add1 [s : has_add A] [s' : has_one A] (a : A) : A := add a one
 
-theorem add_comm_four [s : add_comm_inf_semigroup A] (a b : A) : a + a + (b + b) = (a + b) + (a + b) :=
-  by rewrite [-add.assoc at {1}, add.comm, {a + b}add.comm at {1}, *add.assoc]
+theorem add_comm_three [s : add_comm_inf_semigroup A] (a b c : A) : a + b + c = c + b + a :=
+  by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
+
+theorem add.comm4 [s : add_comm_inf_semigroup A] :
+  Π (n m k l : A), n + m + (k + l) = n + k + (m + l) :=
+comm4 add.comm add.assoc
+
+theorem add_comm_four [s : add_comm_inf_semigroup A] (a b : A) :
+  a + a + (b + b) = (a + b) + (a + b) :=
+!add.comm4
 
 theorem add_comm_middle [s : add_comm_inf_semigroup A] (a b c : A) : a + b + c = a + c + b :=
   by rewrite [add.assoc, add.comm b, -add.assoc]

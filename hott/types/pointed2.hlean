@@ -554,7 +554,7 @@ namespace pointed
   phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
 
   definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
-  phomotopy.mk (λa, rfl) (ap_constant _ _)⁻¹
+  phomotopy.mk (λa, rfl) !ap_constant⁻¹
 
   definition ppcompose_left [constructor] (g : B →* C) : ppmap A B →* ppmap A C :=
   pmap.mk (pcompose g) (eq_of_phomotopy (pcompose_pconst g))
@@ -562,7 +562,7 @@ namespace pointed
   definition ppcompose_right [constructor] (f : A →* B) : ppmap B C →* ppmap A C :=
   pmap.mk (λg, g ∘* f) (eq_of_phomotopy (pconst_pcompose f))
 
-  /- TODO: give construction using pequiv.MK, which computes better (see comment for a start of the proof) -/
+  /- TODO: give construction using pequiv.MK, which computes better (see comment for a start of the proof), rename to ppmap_pequiv_ppmap_right -/
   definition pequiv_ppcompose_left [constructor] (g : B ≃* C) : ppmap A B ≃* ppmap A C :=
   pequiv.MK' (ppcompose_left g) (ppcompose_left g⁻¹ᵉ*)
     begin intro f, apply eq_of_phomotopy, apply pinv_pcompose_cancel_left end

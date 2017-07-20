@@ -161,10 +161,13 @@ namespace nat
 
   attribute is_succ.mk [instance]
 
+  definition is_succ_1 [instance] : is_succ 1 := is_succ.mk 0
+
   definition is_succ_add_right [instance] [constructor] (n m : ℕ) [H : is_succ m] : is_succ (n+m) :=
   by induction H with m; constructor
 
-  definition is_succ_add_left [instance] [constructor] (n m : ℕ) [H : is_succ n] : is_succ (n+m) :=
+  definition is_succ_add_left [instance] [priority 900] [constructor] (n m : ℕ) [H : is_succ n] :
+    is_succ (n+m) :=
   by induction H with n; cases m with m: constructor
 
   definition is_succ_bit0 [constructor] (n : ℕ) [H : is_succ n] : is_succ (bit0 n) :=

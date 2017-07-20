@@ -313,10 +313,10 @@ theorem le_of_lt_add_one {a b : ℤ} (H : a < b + 1) : a ≤ b :=
 have H1 : a + 1 ≤ b + 1, from add_one_le_of_lt H,
 le_of_add_le_add_right H1
 
-theorem sub_one_le_of_lt {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
+theorem sub_one_lt_of_le {a b : ℤ} (H : a ≤ b) : a - 1 < b :=
 lt_of_add_one_le (begin rewrite sub_add_cancel, exact H end)
 
-theorem lt_of_sub_one_le {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
+theorem le_of_sub_one_lt {a b : ℤ} (H : a - 1 < b) : a ≤ b :=
 !sub_add_cancel ▸ add_one_le_of_lt H
 
 theorem le_sub_one_of_lt {a b : ℤ} (H : a < b) : a ≤ b - 1 :=
