@@ -9,10 +9,10 @@ import hit.pushout .connectedness types.unit
 
 open eq pushout pointed unit trunc_index
 
-definition wedge (A B : Type*) : Type := ppushout (pconst punit A) (pconst punit B)
-local attribute wedge [reducible]
-definition pwedge [constructor] (A B : Type*) : Type* := pointed.mk' (wedge A B)
-infixr ` ∨ ` := pwedge
+definition wedge' (A B : Type*) : Type := ppushout (pconst punit A) (pconst punit B)
+local attribute wedge' [reducible]
+definition wedge [constructor] (A B : Type*) : Type* := pointed.mk' (wedge' A B)
+infixr ` ∨ ` := wedge
 
 namespace wedge
 
@@ -21,11 +21,11 @@ namespace wedge
 
   protected definition rec {A B : Type*} {P : wedge A B → Type} (Pinl : Π(x : A), P (inl x))
     (Pinr : Π(x : B), P (inr x)) (Pglue : pathover P (Pinl pt) wedge.glue (Pinr pt))
-    (y : wedge A B) : P y :=
+    (y : wedge' A B) : P y :=
   by induction y; apply Pinl; apply Pinr; induction x; exact Pglue
 
   protected definition elim {A B : Type*} {P : Type} (Pinl : A → P)
-    (Pinr : B → P) (Pglue : Pinl pt = Pinr pt) (y : wedge A B) : P :=
+    (Pinr : B → P) (Pglue : Pinl pt = Pinr pt) (y : wedge' A B) : P :=
   by induction y with a b x; exact Pinl a; exact Pinr b; induction x; exact Pglue
 
   protected definition rec_glue {A B : Type*} {P : wedge A B → Type} (Pinl : Π(x : A), P (inl x))
@@ -33,10 +33,9 @@ namespace wedge
     apd (wedge.rec Pinl Pinr Pglue) wedge.glue = Pglue :=
   !pushout.rec_glue
 
-  protected definition elim_glue {A B : Type*} {P : Type} (Pinl : A → P)
-    (Pinr : B → P) (Pglue : Pinl pt = Pinr pt) : ap (wedge.elim Pinl Pinr Pglue) wedge.glue = Pglue :=
+  protected definition elim_glue {A B : Type*} {P : Type} (Pinl : A → P) (Pinr : B → P)
+    (Pglue : Pinl pt = Pinr pt) : ap (wedge.elim Pinl Pinr Pglue) wedge.glue = Pglue :=
   !pushout.elim_glue
-
 
 end wedge
 
@@ -45,7 +44,7 @@ attribute wedge.rec wedge.elim [recursor 7] [unfold 7]
 namespace wedge
 
   -- TODO maybe find a cleaner proof
-  protected definition unit (A : Type*) : A ≃* pwedge punit A :=
+  protected definition unit (A : Type*) : A ≃* wedge punit A :=
   begin
     fapply pequiv_of_pmap,
     { fapply pmap.mk, intro a, apply pinr a, apply respect_pt },

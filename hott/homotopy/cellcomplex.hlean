@@ -5,7 +5,7 @@ Authors: Ulrik Buchholtz
 -/
 import types.trunc homotopy.sphere hit.pushout
 
-open eq is_trunc is_equiv nat equiv trunc prod pushout sigma sphere_index unit
+open eq is_trunc is_equiv nat equiv trunc prod pushout sigma unit pointed
 
 -- where should this be?
 definition family : Type := ΣX, X → Type

@@ -38,15 +38,13 @@ namespace is_trunc
   end
 
   -- Corollary 8.3.3
-  section
-  open sphere sphere.ops sphere_index
-  theorem homotopy_group_sphere_le (n k : ℕ) (H : k < n) : is_contr (π[k] (S* n)) :=
+  open sphere sphere.ops
+  theorem homotopy_group_sphere_le (n k : ℕ) (H : k < n) : is_contr (π[k] (S n)) :=
   begin
     cases n with n,
     { exfalso, apply not_lt_zero, exact H},
     { have H2 : k ≤ n, from le_of_lt_succ H,
       apply @(trivial_homotopy_group_of_is_conn _ H2) }
-  end
   end
 
   theorem is_contr_HG_fiber_of_is_connected {A B : Type*} (k n : ℕ) (f : A →* B)

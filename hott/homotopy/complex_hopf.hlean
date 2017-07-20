@@ -10,6 +10,7 @@ The H-space structure on S¹ and the complex Hopf fibration
 import .hopf .circle types.fin
 
 open eq equiv is_equiv circle is_conn trunc is_trunc sphere susp pointed fiber sphere.ops function
+     join
 
 namespace hopf
 
@@ -25,29 +26,27 @@ namespace hopf
       { exact natural_square
           (λa : S¹, ap (λb : S¹, b * z) (circle_mul_base a))
           loop },
-      { apply is_prop.elimo, apply is_trunc_square } }
+      { apply is_prop.elimo, apply is_trunc_square }}
   end
 
-  open sphere_index
-
-  definition complex_hopf : S 3 → S 2 :=
+  definition complex_hopf' : S 3 → S 2 :=
   begin
     intro x, apply @sigma.pr1 (susp S¹) (hopf S¹),
-    apply inv (hopf.total S¹), apply inv (join.spheres 1 1), exact x
+    apply inv (hopf.total S¹), exact (join_sphere 1 1)⁻¹ᵉ x
   end
 
-  definition complex_phopf [constructor] : S* 3 →* S* 2 :=
-  proof pmap.mk complex_hopf idp qed
+  definition complex_hopf [constructor] : S 3 →* S 2 :=
+  proof pmap.mk complex_hopf' idp qed
 
-  definition pfiber_complex_phopf : pfiber complex_phopf ≃* S* 1 :=
+  definition pfiber_complex_hopf : pfiber complex_hopf ≃* S 1 :=
   begin
     fapply pequiv_of_equiv,
-    { esimp, unfold [complex_hopf],
+    { esimp, unfold [complex_hopf'],
       refine fiber.equiv_precompose (sigma.pr1 ∘ (hopf.total S¹)⁻¹ᵉ)
-        (join.spheres (of_nat 1) (of_nat 1))⁻¹ᵉ _ ⬝e _,
+        (join_sphere 1 1)⁻¹ᵉ _ ⬝e _,
       refine fiber.equiv_precompose _ (hopf.total S¹)⁻¹ᵉ _ ⬝e _,
-      apply fiber_pr1},
-    { reflexivity}
+      apply fiber_pr1 },
+    { reflexivity }
   end
 
 end hopf

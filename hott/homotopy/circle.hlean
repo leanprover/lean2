@@ -10,7 +10,7 @@ import .sphere
 import types.int.hott
 import algebra.homotopy_group .connectedness
 
-open eq susp bool sphere_index is_equiv equiv is_trunc is_conn pi algebra pointed
+open eq susp bool is_equiv equiv is_trunc is_conn pi algebra pointed
 
 definition circle : Type₀ := sphere 1
 
@@ -18,8 +18,8 @@ namespace circle
   notation `S¹` := circle
   definition base1 : S¹ := !north
   definition base2 : S¹ := !south
-  definition seg1 : base1 = base2 := merid !north
-  definition seg2 : base1 = base2 := merid !south
+  definition seg1 : base1 = base2 := merid ff
+  definition seg2 : base1 = base2 := merid tt
 
   definition base : S¹ := base1
   definition loop : base = base := seg2 ⬝ seg1⁻¹
@@ -28,12 +28,11 @@ namespace circle
     (Ps1 : Pb1 =[seg1] Pb2) (Ps2 : Pb1 =[seg2] Pb2) (x : S¹) : P x :=
   begin
     induction x with b,
-    { exact Pb1},
-    { exact Pb2},
+    { exact Pb1 },
+    { exact Pb2 },
     { esimp at *, induction b with y,
-      { exact Ps1},
-      { exact Ps2},
-      { cases y}},
+      { exact Ps1 },
+      { exact Ps2 }},
   end
 
   definition rec2_on [reducible] {P : S¹ → Type} (x : S¹) (Pb1 : P base1) (Pb2 : P base2)
@@ -335,7 +334,7 @@ namespace circle
   end
 
   proposition is_conn_circle [instance] : is_conn 0 S¹ :=
-  sphere.is_conn_sphere -1.+2
+  sphere.is_conn_sphere 1
 
   definition is_conn_pcircle [instance] : is_conn 0 S¹* := !is_conn_circle
   definition is_trunc_pcircle [instance] : is_trunc 1 S¹* := !is_trunc_circle

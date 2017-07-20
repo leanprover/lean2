@@ -17,12 +17,12 @@ namespace freudenthal section
   /-
     This proof is ported from Agda
     This is the 95% version of the Freudenthal Suspension Theorem, which means that we don't
-    prove that loop_psusp_unit : A →* Ω(psusp A) is 2n-connected (if A is n-connected),
+    prove that loop_susp_unit : A →* Ω(susp A) is 2n-connected (if A is n-connected),
     but instead we only prove that it induces an equivalence on the first 2n homotopy groups.
   -/
 
   private definition up (a : A) : north = north :> susp A :=
-  loop_psusp_unit A a
+  loop_susp_unit A a
 
   definition code_merid : A → ptrunc (n + n) A → ptrunc (n + n) A :=
   begin
@@ -127,7 +127,7 @@ namespace freudenthal section
 
   theorem decode_coh (a : A) : decode_north =[merid a] decode_south :=
   begin
-    apply arrow_pathover_left, intro c, esimp at *,
+    apply arrow_pathover_left, intro c,
     induction c with a',
     rewrite [↑code, elim_type_merid],
     refine @wedge_extension.ext _ _ n n _ _ (λ a a', tr (up a') =[merid a] decode_south
@@ -155,38 +155,38 @@ namespace freudenthal section
   end
 
   parameters (A n)
-  definition equiv' : trunc (n + n) A ≃ trunc (n + n) (Ω (psusp A)) :=
+  definition equiv' : trunc (n + n) A ≃ trunc (n + n) (Ω (susp A)) :=
   equiv.MK decode_north encode decode_encode encode_decode_north
 
-  definition pequiv' : ptrunc (n + n) A ≃* ptrunc (n + n) (Ω (psusp A)) :=
+  definition pequiv' : ptrunc (n + n) A ≃* ptrunc (n + n) (Ω (susp A)) :=
   pequiv_of_equiv equiv' decode_north_pt
 
   -- We don't prove this:
-  -- theorem freudenthal_suspension : is_conn_fun (n+n) (loop_psusp_unit A) := sorry
+  -- theorem freudenthal_suspension : is_conn_fun (n+n) (loop_susp_unit A) := sorry
 
 end end freudenthal
 
 open algebra group
 definition freudenthal_pequiv (A : Type*) {n k : ℕ} [is_conn n A] (H : k ≤ 2 * n)
-  : ptrunc k A ≃* ptrunc k (Ω (psusp A)) :=
+  : ptrunc k A ≃* ptrunc k (Ω (susp A)) :=
 have H' : k ≤[ℕ₋₂] n + n,
   by rewrite [mul.comm at H, -algebra.zero_add n at {1}]; exact of_nat_le_of_nat H,
 ptrunc_pequiv_ptrunc_of_le H' (freudenthal.pequiv' A n)
 
 definition freudenthal_equiv {A : Type*} {n k : ℕ} [is_conn n A] (H : k ≤ 2 * n)
-  : trunc k A ≃ trunc k (Ω (psusp A)) :=
+  : trunc k A ≃ trunc k (Ω (susp A)) :=
 freudenthal_pequiv A H
 
 definition freudenthal_homotopy_group_pequiv (A : Type*) {n k : ℕ} [is_conn n A] (H : k ≤ 2 * n)
-  : π[k + 1] (psusp A) ≃* π[k] A  :=
+  : π[k + 1] (susp A) ≃* π[k] A  :=
 calc
-  π[k + 1] (psusp A) ≃* π[k] (Ω (psusp A)) : homotopy_group_succ_in (psusp A) k
-    ... ≃* Ω[k] (ptrunc k (Ω (psusp A)))     : homotopy_group_pequiv_loop_ptrunc k (Ω (psusp A))
-    ... ≃* Ω[k] (ptrunc k A)                 : loopn_pequiv_loopn k (freudenthal_pequiv A H)
-    ... ≃* π[k] A                           : (homotopy_group_pequiv_loop_ptrunc k A)⁻¹ᵉ*
+  π[k + 1] (susp A) ≃* π[k] (Ω (susp A)) : homotopy_group_succ_in (susp A) k
+    ... ≃* Ω[k] (ptrunc k (Ω (susp A)))  : homotopy_group_pequiv_loop_ptrunc k (Ω (susp A))
+    ... ≃* Ω[k] (ptrunc k A)             : loopn_pequiv_loopn k (freudenthal_pequiv A H)
+    ... ≃* π[k] A                        : (homotopy_group_pequiv_loop_ptrunc k A)⁻¹ᵉ*
 
 definition freudenthal_homotopy_group_isomorphism (A : Type*) {n k : ℕ} [is_conn n A]
-  (H : k + 1 ≤ 2 * n) : πg[k+2] (psusp A) ≃g πg[k + 1] A :=
+  (H : k + 1 ≤ 2 * n) : πg[k+2] (susp A) ≃g πg[k + 1] A :=
 begin
   fapply isomorphism_of_equiv,
   { exact equiv_of_pequiv (freudenthal_homotopy_group_pequiv A H)},
@@ -199,7 +199,7 @@ begin
 end
 
   definition to_pmap_freudenthal_pequiv {A : Type*} (n k : ℕ) [is_conn n A] (H : k ≤ 2 * n)
-    : freudenthal_pequiv A H ~* ptrunc_functor k (loop_psusp_unit A) :=
+    : freudenthal_pequiv A H ~* ptrunc_functor k (loop_susp_unit A) :=
   begin
     fapply phomotopy.mk,
     { intro x, induction x with a, reflexivity },
@@ -208,24 +208,24 @@ end
 
   definition ptrunc_elim_freudenthal_pequiv {A B : Type*} (n k : ℕ) [is_conn n A] (H : k ≤ 2 * n)
     (f : A →* Ω B) [is_trunc (k.+1) (B)] :
-    ptrunc.elim k (Ω→ (psusp.elim f)) ∘* freudenthal_pequiv A H ~* ptrunc.elim k f :=
+    ptrunc.elim k (Ω→ (susp_elim f)) ∘* freudenthal_pequiv A H ~* ptrunc.elim k f :=
   begin
     refine pwhisker_left _ !to_pmap_freudenthal_pequiv ⬝* _,
     refine !ptrunc_elim_ptrunc_functor ⬝* _,
-    exact ptrunc_elim_phomotopy k !ap1_psusp_elim,
+    exact ptrunc_elim_phomotopy k !ap1_susp_elim,
   end
 
 namespace susp
 
-  definition iterate_psusp_stability_pequiv (A : Type*) {k n : ℕ} [is_conn 0 A]
-    (H : k ≤ 2 * n) : π[k + 1] (iterate_psusp (n + 1) A) ≃* π[k] (iterate_psusp n A) :=
-  have is_conn n (iterate_psusp n A), by rewrite [-zero_add n]; exact _,
-  freudenthal_homotopy_group_pequiv (iterate_psusp n A) H
+  definition iterate_susp_stability_pequiv_of_is_conn_0 (A : Type*) {k n : ℕ} [is_conn 0 A]
+    (H : k ≤ 2 * n) : π[k + 1] (iterate_susp (n + 1) A) ≃* π[k] (iterate_susp n A) :=
+  have is_conn n (iterate_susp n A), by rewrite [-zero_add n]; exact _,
+  freudenthal_homotopy_group_pequiv (iterate_susp n A) H
 
-  definition iterate_psusp_stability_isomorphism (A : Type*) {k n : ℕ} [is_conn 0 A]
-    (H : k + 1 ≤ 2 * n) : πg[k+2] (iterate_psusp (n + 1) A) ≃g πg[k+1] (iterate_psusp n A) :=
-  have is_conn n (iterate_psusp n A), by rewrite [-zero_add n]; exact _,
-  freudenthal_homotopy_group_isomorphism (iterate_psusp n A) H
+  definition iterate_susp_stability_isomorphism_of_is_conn_0 (A : Type*) {k n : ℕ} [is_conn 0 A]
+    (H : k + 1 ≤ 2 * n) : πg[k+2] (iterate_susp (n + 1) A) ≃g πg[k+1] (iterate_susp n A) :=
+  have is_conn n (iterate_susp n A), by rewrite [-zero_add n]; exact _,
+  freudenthal_homotopy_group_isomorphism (iterate_susp n A) H
 
   definition stability_helper1 {k n : ℕ} (H : k + 2 ≤ 2 * n) : k ≤ 2 * pred n :=
   begin
@@ -233,49 +233,43 @@ namespace susp
     apply pred_le_pred, apply pred_le_pred, exact H
   end
 
-  definition stability_helper2 (A : Type) {k n : ℕ} (H : k + 2 ≤ 2 * n) :
-    is_conn (pred n) (iterate_susp (n + 1) A) :=
-  have Π(n : ℕ), n = -2 + (succ n + 1),
+  definition stability_helper2 (A : Type*) {k n : ℕ} (H : k + 2 ≤ 2 * n) :
+    is_conn (pred n) (iterate_susp n A) :=
+  have Π(n : ℕ), n = -1 + (n + 1),
   begin intro n, induction n with n IH, reflexivity, exact ap succ IH end,
   begin
     cases n with n,
-    { exfalso, exact not_succ_le_zero _ H},
-    { esimp, rewrite [this n], apply is_conn_iterate_susp}
+    { exfalso, exact not_succ_le_zero _ H },
+    { esimp, rewrite [this n], exact is_conn_iterate_susp -1 _ A }
   end
 
-  definition iterate_susp_stability_pequiv (A : Type) {k n : ℕ}
-    (H : k + 2 ≤ 2 * n) : π[k + 1] (pointed.MK (iterate_susp (n + 2) A) !north) ≃*
-                          π[k    ] (pointed.MK (iterate_susp (n + 1) A) !north) :=
-  have is_conn (pred n) (carrier (pointed.MK (iterate_susp (n + 1) A) !north)), from
-    stability_helper2 A H,
-  freudenthal_homotopy_group_pequiv (pointed.MK (iterate_susp (n + 1) A) !north)
-                                    (stability_helper1 H)
+  definition iterate_susp_stability_pequiv (A : Type*) {k n : ℕ}
+    (H : k + 2 ≤ 2 * n) : π[k + 1] (iterate_susp (n + 1) A) ≃* π[k] (iterate_susp n A) :=
+  have is_conn (pred n) (iterate_susp n A), from stability_helper2 A H,
+  freudenthal_homotopy_group_pequiv (iterate_susp n A) (stability_helper1 H)
 
-  definition iterate_susp_stability_isomorphism (A : Type) {k n : ℕ}
-    (H : k + 3 ≤ 2 * n) : πg[k+1 +1] (pointed.MK (iterate_susp (n + 2) A) !north) ≃g
-                          πg[k+1]    (pointed.MK (iterate_susp (n + 1) A) !north) :=
-  have is_conn (pred n) (carrier (pointed.MK (iterate_susp (n + 1) A) !north)), from
-    @stability_helper2 A (k+1) n H,
-  freudenthal_homotopy_group_isomorphism (pointed.MK (iterate_susp (n + 1) A) !north)
-                                         (stability_helper1 H)
+  definition iterate_susp_stability_isomorphism (A : Type*) {k n : ℕ}
+    (H : k + 3 ≤ 2 * n) : πg[k+2] (iterate_susp (n + 1) A) ≃g πg[k+1] (iterate_susp n A) :=
+  have is_conn (pred n) (iterate_susp n A), from @stability_helper2 A (k+1) n H,
+  freudenthal_homotopy_group_isomorphism (iterate_susp n A) (stability_helper1 H)
 
   definition iterated_freudenthal_pequiv (A : Type*) {n k m : ℕ} [HA : is_conn n A] (H : k ≤ 2 * n)
-    : ptrunc k A ≃* ptrunc k (Ω[m] (iterate_psusp m A)) :=
+    : ptrunc k A ≃* ptrunc k (Ω[m] (iterate_susp m A)) :=
   begin
     revert A n k HA H, induction m with m IH: intro A n k HA H,
-    { reflexivity},
+    { reflexivity },
     { have H2 : succ k ≤ 2 * succ n,
       from calc
         succ k ≤ succ (2 * n) : succ_le_succ H
            ... ≤ 2 * succ n   : self_le_succ,
       exact calc
-        ptrunc k A ≃* ptrunc k (Ω (psusp A))   : freudenthal_pequiv A H
-          ... ≃* Ω (ptrunc (succ k) (psusp A)) : loop_ptrunc_pequiv
-          ... ≃* Ω (ptrunc (succ k) (Ω[m] (iterate_psusp m (psusp A)))) :
-                   loop_pequiv_loop (IH (psusp A) (succ n) (succ k) _ H2)
-          ... ≃* ptrunc k (Ω[succ m] (iterate_psusp m (psusp A))) : loop_ptrunc_pequiv
-          ... ≃* ptrunc k (Ω[succ m] (iterate_psusp (succ m) A)) :
-                   ptrunc_pequiv_ptrunc _ (loopn_pequiv_loopn _ !iterate_psusp_succ_in)}
+        ptrunc k A ≃* ptrunc k (Ω (susp A))   : freudenthal_pequiv A H
+          ... ≃* Ω (ptrunc (succ k) (susp A)) : loop_ptrunc_pequiv
+          ... ≃* Ω (ptrunc (succ k) (Ω[m] (iterate_susp m (susp A)))) :
+                   loop_pequiv_loop (IH (susp A) (succ n) (succ k) _ H2)
+          ... ≃* ptrunc k (Ω[succ m] (iterate_susp m (susp A))) : loop_ptrunc_pequiv
+          ... ≃* ptrunc k (Ω[succ m] (iterate_susp (succ m) A)) :
+                   ptrunc_pequiv_ptrunc _ (loopn_pequiv_loopn _ !iterate_susp_succ_in)}
   end
 
 end susp

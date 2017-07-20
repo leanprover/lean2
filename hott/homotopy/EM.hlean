@@ -226,10 +226,10 @@ namespace EM
   /- K(G, n+1) -/
   definition EMadd1 : ℕ → Type*
   | 0 := EM1 G
-  | (n+1) := ptrunc (n+2) (psusp (EMadd1 n))
+  | (n+1) := ptrunc (n+2) (susp (EMadd1 n))
 
   definition EMadd1_succ [unfold_full] (n : ℕ) :
-    EMadd1 G (succ n) = ptrunc (n.+2) (psusp (EMadd1 G n)) :=
+    EMadd1 G (succ n) = ptrunc (n.+2) (susp (EMadd1 G n)) :=
   idp
 
   definition loop_EM2 : Ω[1] (EMadd1 G 1) ≃* EM1 G :=
@@ -239,7 +239,7 @@ namespace EM
   begin
     induction n with n IH,
     { apply is_conn_EM1 },
-    { rewrite EMadd1_succ, esimp, exact _ }
+    { rewrite EMadd1_succ, exact _ }
   end
 
   definition is_trunc_EMadd1 [instance] (n : ℕ) : is_trunc (n+1) (EMadd1 G n) :=
@@ -304,12 +304,12 @@ namespace EM
     { exact EM1_pmap e⁻¹ᵉ* (equiv.inv_preserve_binary e concat mul r) },
     rewrite [EMadd1_succ],
     exact ptrunc.elim ((succ n).+1)
-            (psusp.elim (f _ (EM_up e) (is_homomorphism_EM_up e r) _ _)),
+            (susp_elim (f _ (EM_up e) (is_homomorphism_EM_up e r) _ _)),
   end
 
   definition EMadd1_pmap_succ {G : AbGroup} {X : Type*} (n : ℕ) (e : Ω[succ (succ n)] X ≃* G)
     r [H1 : is_conn (succ n) X] [H2 : is_trunc ((succ n).+1) X] : EMadd1_pmap (succ n) e r =
-    ptrunc.elim ((succ n).+1) (psusp.elim (EMadd1_pmap n (EM_up e) (is_homomorphism_EM_up e r))) :=
+    ptrunc.elim ((succ n).+1) (susp_elim (EMadd1_pmap n (EM_up e) (is_homomorphism_EM_up e r))) :=
   by reflexivity
 
   definition loop_EMadd1_pmap {G : AbGroup} {X : Type*} {n : ℕ} (e : Ω[succ (succ n)] X ≃* G)
@@ -454,7 +454,7 @@ namespace EM
   begin
     induction n with n ψ,
     { exact EM1_functor φ },
-    { apply ptrunc_functor, apply psusp_functor, exact ψ }
+    { apply ptrunc_functor, apply susp_functor, exact ψ }
   end
 
   definition EM_functor [unfold 4] {G H : AbGroup} (φ : G →g H) (n : ℕ) :

@@ -57,11 +57,11 @@ namespace join
 
   protected definition hsquare {a a' : A} {b b' : B} (p : a = a') (q : b = b') :
     square (ap inl p) (ap inr q) (glue a b) (glue a' b') :=
-  eq.rec_on p (eq.rec_on q hrfl)
+  by induction p; induction q; exact hrfl
 
   protected definition vsquare {a a' : A} {b b' : B} (p : a = a') (q : b = b') :
     square (glue a b) (glue a' b') (ap inl p) (ap inr q) :=
-  eq.rec_on p (eq.rec_on q vrfl)
+  by induction p; induction q; exact vrfl
 
 end
 
@@ -120,7 +120,7 @@ end join
 namespace join
 
   variables {A₁ A₂ B₁ B₂ : Type}
-  protected definition functor [reducible]
+  definition join_functor [reducible]
     (f : A₁ → A₂) (g : B₁ → B₂) : join A₁ B₁ → join A₂ B₂ :=
   begin
     intro x, induction x with a b a b,
@@ -132,12 +132,12 @@ namespace join
     : join.diamond a a' b b' → join.diamond (f a) (f a') (g b) (g b') :=
   begin
     unfold join.diamond, intro s,
-    note s' := aps (join.functor f g) s,
+    note s' := aps (join_functor f g) s,
     do 2 rewrite eq.ap_inv at s',
     do 4 rewrite join.elim_glue at s', exact s'
   end
 
-  protected definition equiv_closed
+  definition join_equiv_join
     : A₁ ≃ A₂ → B₁ ≃ B₂ → join A₁ B₁ ≃ join A₂ B₂ :=
   begin
     intros H K,
@@ -170,7 +170,7 @@ namespace join
     cases p, apply pathover_idp_of_eq, apply join.symm_diamond
   end
 
-  protected definition empty (A : Type) : join empty A ≃ A :=
+  definition join_empty (A : Type) : join empty A ≃ A :=
   begin
     fapply equiv.MK,
     { intro x, induction x with z a z a,
@@ -185,7 +185,7 @@ namespace join
       { induction z } }
   end
 
-  protected definition bool (A : Type) : join bool A ≃ susp A :=
+  definition join_bool (A : Type) : join bool A ≃ susp A :=
   begin
     fapply equiv.MK,
     { intro ba, induction ba with [b, a, b, a],
@@ -229,7 +229,7 @@ end join
 namespace join
   variables (A B C : Type)
 
-  protected definition is_contr [HA : is_contr A] :
+  definition is_contr_join [HA : is_contr A] :
     is_contr (join A B) :=
   begin
     fapply is_contr.mk, exact inl (center A),
@@ -239,24 +239,24 @@ namespace join
     generalize center_eq a, intro p, cases p, apply idp_con,
   end
 
-  protected definition swap : join A B → join B A :=
+  definition join_swap : join A B → join B A :=
   begin
     intro x, induction x with a b a b, exact inr a, exact inl b,
     apply !glue⁻¹
   end
 
-  protected definition swap_involutive (x : join A B) :
-    join.swap B A (join.swap A B x) = x :=
+  definition join_swap_involutive (x : join A B) :
+    join_swap B A (join_swap A B x) = x :=
   begin
     induction x with a b a b, do 2 reflexivity,
     apply eq_pathover, rewrite ap_id,
-    apply hdeg_square, esimp[join.swap],
+    apply hdeg_square,
     apply concat, apply ap_compose' (join.elim _ _ _),
     krewrite [join.elim_glue, ap_inv, join.elim_glue], apply inv_inv,
   end
 
-  protected definition symm : join A B ≃ join B A :=
-  by fapply equiv.MK; do 2 apply join.swap; do 2 apply join.swap_involutive
+  definition join_symm : join A B ≃ join B A :=
+  by fapply equiv.MK; do 2 apply join_swap; do 2 apply join_swap_involutive
 
 end join
 
@@ -482,49 +482,49 @@ section join_switch
 
 end join_switch
 
-  protected definition switch_equiv (A B C : Type) : join (join A B) C ≃ join (join C B) A :=
+  definition join_switch_equiv (A B C : Type) : join (join A B) C ≃ join (join C B) A :=
   by apply equiv.MK; do 2 apply join.switch_involutive
 
-  protected definition assoc (A B C : Type) : join (join A B) C ≃ join A (join B C) :=
-  calc join (join A B) C ≃ join (join C B) A : join.switch_equiv
-                     ... ≃ join A (join C B) : join.symm
-                     ... ≃ join A (join B C) : join.equiv_closed erfl (join.symm C B)
+  definition join_assoc (A B C : Type) : join (join A B) C ≃ join A (join B C) :=
+  calc join (join A B) C ≃ join (join C B) A : join_switch_equiv
+                     ... ≃ join A (join C B) : join_symm
+                     ... ≃ join A (join B C) : join_equiv_join erfl (join_symm C B)
 
-  protected definition ap_assoc_inv_glue_inl {A B : Type} (C : Type) (a : A) (b : B)
-    : ap (to_inv (join.assoc A B C)) (glue a (inl b)) = ap inl (glue a b) :=
+  definition ap_join_assoc_inv_glue_inl {A B : Type} (C : Type) (a : A) (b : B)
+    : ap (to_inv (join_assoc A B C)) (glue a (inl b)) = ap inl (glue a b) :=
   begin
-    unfold join.assoc, rewrite ap_compose, krewrite join.elim_glue,
+    unfold join_assoc, rewrite ap_compose, krewrite join.elim_glue,
     rewrite ap_compose, krewrite join.elim_glue, rewrite ap_inv, krewrite join.elim_glue,
-    unfold switch_coh, unfold join.symm, unfold join.swap, esimp, rewrite eq.inv_inv
+    unfold switch_coh, unfold join_symm, unfold join_swap, esimp, rewrite inv_inv
   end
 
   protected definition ap_assoc_inv_glue_inr {A C : Type} (B : Type) (a : A) (c : C)
-    : ap (to_inv (join.assoc A B C)) (glue a (inr c)) = glue (inl a) c :=
+    : ap (to_inv (join_assoc A B C)) (glue a (inr c)) = glue (inl a) c :=
   begin
-    unfold join.assoc, rewrite ap_compose, krewrite join.elim_glue,
+    unfold join_assoc, rewrite ap_compose, krewrite join.elim_glue,
     rewrite ap_compose, krewrite join.elim_glue, rewrite ap_inv, krewrite join.elim_glue,
-    unfold switch_coh, unfold join.symm, unfold join.swap, esimp, rewrite eq.inv_inv
+    unfold switch_coh, unfold join_symm, unfold join_swap, esimp, rewrite inv_inv
   end
 
 end join
 
 namespace join
 
-  open sphere sphere_index sphere.ops
-  protected definition spheres (n m : ℕ₋₁) : join (S n) (S m) ≃ S (n+1+m) :=
+  open sphere sphere.ops
+  definition join_sphere (n m : ℕ) : join (S n) (S m) ≃ S (n+m+1) :=
   begin
-    apply equiv.trans (join.symm (S n) (S m)),
+    refine join_symm (S n) (S m) ⬝e _,
     induction m with m IH,
-    { exact join.empty (S n) },
-    { calc join (S m.+1) (S n)
+    { exact join_bool (S n) },
+    { calc join (S (m+1)) (S n)
            ≃ join (join bool (S m)) (S n)
-           : join.equiv_closed (equiv.symm (join.bool (S m))) erfl
+           : join_equiv_join (join_bool (S m))⁻¹ᵉ erfl
        ... ≃ join bool (join (S m) (S n))
-           : join.assoc
-       ... ≃ join bool (S (n+1+m))
-           : join.equiv_closed erfl IH
-       ... ≃ sphere (n+1+m.+1)
-           : join.bool (S (n+1+m)) }
+           : join_assoc
+       ... ≃ join bool (S (n+m+1))
+           : join_equiv_join erfl IH
+       ... ≃ sphere (n+m+2)
+           : join_bool (S (n+m+1)) }
   end
 
 end join

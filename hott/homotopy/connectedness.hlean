@@ -269,6 +269,9 @@ namespace is_conn
   definition is_conn_minus_one (A : Type) (a : ∥ A ∥) : is_conn -1 A :=
   is_contr.mk a (is_prop.elim _)
 
+  definition is_conn_minus_one_pointed [instance] (A : Type*) : is_conn -1 A :=
+  is_conn_minus_one A (tr pt)
+
   definition is_conn_trunc [instance] (A : Type) (n k : ℕ₋₂) [H : is_conn n A]
     : is_conn n (trunc k A) :=
   begin

@@ -92,7 +92,7 @@ namespace cofiber
     { exact !con_inv_cancel_left⁻¹ ⬝ idp ◾ (!ap_inv⁻¹ ◾ idp) }
   end
 
-  definition pcofiber_punit (A : Type*) : pcofiber (pconst A punit) ≃* psusp A :=
+  definition pcofiber_punit (A : Type*) : pcofiber (pconst A punit) ≃* susp A :=
   begin
     fapply pequiv_of_pmap,
     { fconstructor, intro x, induction x, exact north, exact south, exact merid x,

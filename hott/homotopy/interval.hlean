@@ -7,7 +7,7 @@ Declaration of the interval
 -/
 
 import .susp types.eq types.prod cubical.square
-open eq susp unit equiv is_trunc nat prod
+open eq susp unit equiv is_trunc nat prod pointed
 
 definition interval : Type₀ := susp unit
 

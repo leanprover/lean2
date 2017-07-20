@@ -9,19 +9,18 @@ The H-space structure on S³ and the quaternionic Hopf fibration
 
 import .complex_hopf .imaginaroid
 
-open eq equiv is_equiv circle is_conn trunc is_trunc sphere_index sphere susp
-open imaginaroid
+open eq equiv is_equiv circle is_conn trunc is_trunc sphere susp imaginaroid pointed bool join
 
 namespace hopf
 
-  definition involutive_neg_empty [instance] : involutive_neg empty :=
-  ⦃ involutive_neg, neg := empty.elim, neg_neg := by intro a; induction a ⦄
+  definition involutive_neg_bool [instance] : involutive_neg bool :=
+  ⦃ involutive_neg, neg := bnot, neg_neg := by intro a; induction a: reflexivity ⦄
 
   definition involutive_neg_circle [instance] : involutive_neg circle :=
-  by change involutive_neg (susp (susp empty)); exact _
+  by change involutive_neg (susp bool); exact _
 
   definition has_star_circle [instance] : has_star circle :=
-  by change has_star (susp (susp empty)); exact _
+  by change has_star (susp bool); exact _
 
   -- this is the "natural" conjugation defined using the base-loop recursor
   definition circle_star [reducible] : S¹ → S¹ :=
@@ -52,7 +51,7 @@ namespace hopf
         (ap (λw, w ⬝ (tr_constant seg1 base)⁻¹) (con.right_inv seg2)⁻¹),
       apply con.assoc },
     { apply eq_pathover, krewrite elim_merid, rewrite elim_seg2,
-      apply square_of_eq, rewrite [↑loop,con_inv,inv_inv,idp_con],
+      apply square_of_eq, rewrite [↑circle.loop,con_inv,inv_inv,idp_con],
       apply con.assoc }
   end
 
@@ -85,10 +84,11 @@ namespace hopf
       { apply is_prop.elimo } }
   end
 
+  open sphere.ops
+
   definition imaginaroid_sphere_zero [instance]
-    : imaginaroid (sphere (-1.+1)) :=
-  ⦃ imaginaroid,
-    neg_neg := susp_neg_neg,
+    : imaginaroid (S 0) :=
+  ⦃ imaginaroid, involutive_neg_bool,
     mul := circle_mul,
     one_mul := circle_base_mul,
     mul_one := circle_mul_base,
@@ -96,12 +96,9 @@ namespace hopf
     norm := circle_norm,
     star_mul := circle_star_mul ⦄
 
-  local attribute sphere [reducible]
-  open sphere.ops
-
   definition sphere_three_h_space [instance] : h_space (S 3) :=
   @h_space_equiv_closed (join S¹ S¹)
-      (cd_h_space (S -1.+1) circle_assoc) (S 3) (join.spheres 1 1)
+      (cd_h_space (S 0) circle_assoc) (S 3) (join_sphere 1 1)
 
   definition is_conn_sphere_three : is_conn 0 (S 3) :=
   begin
@@ -115,10 +112,13 @@ namespace hopf
 
   local attribute is_conn_sphere_three [instance]
 
-  definition quaternionic_hopf : S 7 → S 4 :=
+  definition quaternionic_hopf' : S 7 → S 4 :=
   begin
     intro x, apply @sigma.pr1 (susp (S 3)) (hopf (S 3)),
-    apply inv (hopf.total (S 3)), apply inv (join.spheres 3 3), exact x
+    apply inv (hopf.total (S 3)), apply inv (join_sphere 3 3), exact x
   end
+
+  definition quaternionic_hopf [constructor] : S 7 →* S 4 :=
+  pmap.mk quaternionic_hopf' idp
 
 end hopf

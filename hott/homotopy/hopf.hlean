@@ -8,7 +8,7 @@ H-spaces and the Hopf construction
 
 import types.equiv .wedge .join
 
-open eq eq.ops equiv is_equiv is_conn is_trunc trunc susp join
+open eq eq.ops equiv is_equiv is_conn is_trunc trunc susp join pointed
 
 namespace hopf
 
@@ -186,15 +186,15 @@ section
   (equiv.MK decode' encode decode_encode encode_decode')⁻¹ᵉ
 
   definition main_lemma_point
-    : ptrunc 1 (Ω(psusp A)) ≃* pointed.MK A 1 :=
+    : ptrunc 1 (Ω(susp A)) ≃* pointed.MK A 1 :=
   pointed.pequiv_of_equiv main_lemma idp
 
-  protected definition delooping : Ω (ptrunc 2 (psusp A)) ≃* pointed.MK A 1 :=
-  loop_ptrunc_pequiv 1 (psusp A) ⬝e* main_lemma_point
+  protected definition delooping : Ω (ptrunc 2 (susp A)) ≃* pointed.MK A 1 :=
+  loop_ptrunc_pequiv 1 (susp A) ⬝e* main_lemma_point
 
   /- characterization of the underlying pointed maps -/
   definition to_pmap_main_lemma_point_pinv
-    : main_lemma_point⁻¹ᵉ* ~* !ptr ∘* loop_psusp_unit (pointed.MK A 1) :=
+    : main_lemma_point⁻¹ᵉ* ~* !ptr ∘* loop_susp_unit (pointed.MK A 1) :=
   begin
     fapply phomotopy.mk,
     { intro a, reflexivity },
@@ -202,7 +202,7 @@ section
   end
 
   definition to_pmap_delooping_pinv :
-    delooping⁻¹ᵉ* ~* Ω→ !ptr ∘* loop_psusp_unit (pointed.MK A 1) :=
+    delooping⁻¹ᵉ* ~* Ω→ !ptr ∘* loop_susp_unit (pointed.MK A 1) :=
   begin
     refine !trans_pinv ⬝* _,
     refine pwhisker_left _ !to_pmap_main_lemma_point_pinv ⬝* _,
@@ -211,12 +211,12 @@ section
   end
 
   definition hopf_delooping_elim {B : Type*} (f : pointed.MK A 1 →* Ω B) [H2 : is_trunc 2 B] :
-    Ω→(ptrunc.elim 2 (psusp.elim f)) ∘* (hopf.delooping A coh)⁻¹ᵉ* ~* f :=
+    Ω→(ptrunc.elim 2 (susp_elim f)) ∘* (hopf.delooping A coh)⁻¹ᵉ* ~* f :=
   begin
     refine pwhisker_left _ !to_pmap_delooping_pinv ⬝* _,
     refine !passoc⁻¹* ⬝* _,
     refine pwhisker_right _ (!ap1_pcompose⁻¹* ⬝* ap1_phomotopy !ptrunc_elim_ptr) ⬝* _,
-    apply ap1_psusp_elim
+    apply ap1_susp_elim
   end
 
 end

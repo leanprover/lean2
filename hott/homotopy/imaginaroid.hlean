@@ -8,7 +8,7 @@ Cayley-Dickson construction via imaginaroids
 
 import algebra.group cubical.square types.pi .hopf
 
-open eq eq.ops equiv susp hopf
+open eq eq.ops equiv susp hopf pointed
 open [notation] sum
 
 namespace imaginaroid
