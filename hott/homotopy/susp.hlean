@@ -8,7 +8,7 @@ Declaration of suspension
 
 import hit.pushout types.pointed2 cubical.square .connectedness
 
-open pushout unit eq equiv pointed
+open pushout unit eq equiv pointed is_equiv
 
 definition susp' (A : Type) : Type := pushout (λ(a : A), star) (λ(a : A), star)
 
@@ -204,7 +204,7 @@ end susp
 
 namespace susp
   open pointed is_trunc
-  variables {X Y Z : Type*}
+  variables {X X' Y Y' Z : Type*}
 
   definition susp_functor [constructor] (f : X →* Y) : susp X →* susp Y :=
   begin
@@ -394,24 +394,68 @@ namespace susp
     { intro f, apply eq_of_phomotopy, exact susp_adjoint_loop_left_inv f }
   end
 
-  definition susp_adjoint_loop_pconst (X Y : Type*) :
-    susp_adjoint_loop_unpointed X Y (pconst (susp X) Y) ~* pconst X (Ω Y) :=
+  definition susp_functor_pconst_homotopy [unfold 3] {X Y : Type*} (x : susp X) :
+    susp_functor (pconst X Y) x = pt :=
   begin
-    refine pwhisker_right _ !ap1_pconst ⬝* _,
-    apply pconst_pcompose
+    induction x,
+    { reflexivity },
+    { exact (merid pt)⁻¹ },
+    { apply eq_pathover, refine !elim_merid ⬝ph _ ⬝hp !ap_constant⁻¹, exact square_of_eq !con.right_inv⁻¹ }
+  end
+
+  definition susp_functor_pconst [constructor] (X Y : Type*) : susp_functor (pconst X Y) ~* pconst (susp X) (susp Y) :=
+  begin
+    fapply phomotopy.mk,
+    { exact susp_functor_pconst_homotopy },
+    { reflexivity }
+  end
+
+  definition susp_pfunctor [constructor] (X Y : Type*) : ppmap X Y →* ppmap (susp X) (susp Y) :=
+  pmap.mk susp_functor (eq_of_phomotopy !susp_functor_pconst)
+
+  definition susp_pelim [constructor] (X Y : Type*) : ppmap X (Ω Y) →* ppmap (susp X) Y :=
+  ppcompose_left (loop_susp_counit Y) ∘* susp_pfunctor X (Ω Y)
+
+  definition loop_susp_pintro [constructor] (X Y : Type*) : ppmap (susp X) Y →* ppmap X (Ω Y) :=
+  ppcompose_right (loop_susp_unit X) ∘* pap1 (susp X) Y
+
+  definition loop_susp_pintro_natural_left (f : X' →* X) :
+    psquare (loop_susp_pintro X Y) (loop_susp_pintro X' Y)
+            (ppcompose_right (susp_functor f)) (ppcompose_right f) :=
+  !pap1_natural_left ⬝h* ppcompose_right_psquare (loop_susp_unit_natural f)⁻¹*
+
+  definition loop_susp_pintro_natural_right (f : Y →* Y') :
+    psquare (loop_susp_pintro X Y) (loop_susp_pintro X Y')
+            (ppcompose_left f) (ppcompose_left (Ω→ f)) :=
+  !pap1_natural_right ⬝h* !ppcompose_left_ppcompose_right⁻¹*
+
+  definition is_equiv_loop_susp_pintro [constructor] (X Y : Type*) :
+    is_equiv (loop_susp_pintro X Y) :=
+  begin
+    fapply adjointify,
+    { exact susp_pelim X Y },
+    { intro g, apply eq_of_phomotopy, exact susp_adjoint_loop_right_inv g },
+    { intro f, apply eq_of_phomotopy, exact susp_adjoint_loop_left_inv f }
   end
 
   definition susp_adjoint_loop [constructor] (X Y : Type*) : ppmap (susp X) Y ≃* ppmap X (Ω Y) :=
-  begin
-    apply pequiv_of_equiv (susp_adjoint_loop_unpointed X Y),
-    apply eq_of_phomotopy,
-    apply susp_adjoint_loop_pconst
-  end
+  pequiv_of_pmap (loop_susp_pintro X Y) (is_equiv_loop_susp_pintro X Y)
+
+  definition susp_adjoint_loop_natural_right (f : Y →* Y') :
+    psquare (susp_adjoint_loop X Y) (susp_adjoint_loop X Y')
+            (ppcompose_left f) (ppcompose_left (Ω→ f)) :=
+  loop_susp_pintro_natural_right f
+
+  definition susp_adjoint_loop_natural_left (f : X' →* X) :
+    psquare (susp_adjoint_loop X Y) (susp_adjoint_loop X' Y)
+            (ppcompose_right (susp_functor f)) (ppcompose_right f) :=
+  loop_susp_pintro_natural_left f
 
   definition ap1_susp_elim {A : Type*} {X : Type*} (p : A →* Ω X) :
     Ω→(susp_elim p) ∘* loop_susp_unit A ~* p :=
   susp_adjoint_loop_right_inv p
 
+  /- the underlying homotopies of susp_adjoint_loop_natural_* -/
   definition susp_adjoint_loop_nat_right (f : susp X →* Y) (g : Y →* Z)
     : susp_adjoint_loop X Z (g ∘* f) ~* ap1 g ∘* susp_adjoint_loop X Y f :=
   begin

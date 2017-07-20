@@ -511,20 +511,26 @@ end join
 namespace join
 
   open sphere sphere.ops
+
+  definition join_susp (A B : Type) : join (susp A) B ≃ susp (join A B) :=
+  calc join (susp A) B
+           ≃ join (join bool A) B
+           : join_equiv_join (join_bool A)⁻¹ᵉ erfl
+       ... ≃ join bool (join A B)
+           : join_assoc
+       ... ≃ susp (join A B)
+           : join_bool (join A B)
+
   definition join_sphere (n m : ℕ) : join (S n) (S m) ≃ S (n+m+1) :=
   begin
     refine join_symm (S n) (S m) ⬝e _,
     induction m with m IH,
     { exact join_bool (S n) },
     { calc join (S (m+1)) (S n)
-           ≃ join (join bool (S m)) (S n)
-           : join_equiv_join (join_bool (S m))⁻¹ᵉ erfl
-       ... ≃ join bool (join (S m) (S n))
-           : join_assoc
-       ... ≃ join bool (S (n+m+1))
-           : join_equiv_join erfl IH
+           ≃ susp (join (S m) (S n))
+           : join_susp (S m) (S n)
        ... ≃ sphere (n+m+2)
-           : join_bool (S (n+m+1)) }
+           : susp.equiv IH }
   end
 
 end join

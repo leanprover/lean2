@@ -594,16 +594,14 @@ definition inf_group_of_add_inf_group (A : Type) [G : add_inf_group A] : inf_gro
   inv             := has_neg.neg,
   mul_left_inv    := add.left_inv ⦄
 
-namespace norm_num
+theorem add.comm4 [s : add_comm_inf_semigroup A] :
+  Π (n m k l : A), n + m + (k + l) = n + k + (m + l) :=
+comm4 add.comm add.assoc
 
 definition add1 [s : has_add A] [s' : has_one A] (a : A) : A := add a one
 
 theorem add_comm_three [s : add_comm_inf_semigroup A] (a b c : A) : a + b + c = c + b + a :=
   by rewrite [{a + _}add.comm, {_ + c}add.comm, -*add.assoc]
-
-theorem add.comm4 [s : add_comm_inf_semigroup A] :
-  Π (n m k l : A), n + m + (k + l) = n + k + (m + l) :=
-comm4 add.comm add.assoc
 
 theorem add_comm_four [s : add_comm_inf_semigroup A] (a b : A) :
   a + a + (b + b) = (a + b) + (a + b) :=
@@ -706,20 +704,5 @@ theorem subst_into_sum [s : has_add A] (l r tl tr t : A) (prl : l = tl) (prr : r
 theorem neg_zero_helper [s : add_inf_group A] (a : A) (H : a = 0) : - a = 0 :=
   by rewrite [H, neg_zero]
 
-end norm_num
 
 end algebra
-open algebra
-
-attribute [simp]
-  zero_add add_zero one_mul mul_one
-  at simplifier.unit
-
-attribute [simp]
-  neg_neg sub_eq_add_neg
-  at simplifier.neg
-
-attribute [simp]
-  add.assoc add.comm add.left_comm
-  mul.left_comm mul.comm mul.assoc
-  at simplifier.ac
