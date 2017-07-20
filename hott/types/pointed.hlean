@@ -335,7 +335,7 @@ namespace pointed
     (h : f ~* g) : P h :=
   begin
     induction h with h p,
-    refine transport (λp, P (ppi_gen.mk h p)) _ (H h (con_eq_of_eq_con_inv p)),
+    refine transport (λp, P (ppi.mk h p)) _ (H h (con_eq_of_eq_con_inv p)),
     apply to_left_inv !eq_con_inv_equiv_con_eq p
   end
 

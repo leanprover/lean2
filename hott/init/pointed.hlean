@@ -84,12 +84,20 @@ namespace pointed
 end pointed
 
 /- pointed maps -/
-structure ppi_gen {A : Type*} (P : A → Type) (x₀ : P pt) :=
+structure ppi {A : Type*} (P : A → Type) (x₀ : P pt) :=
   (to_fun : Π a : A, P a)
   (resp_pt : to_fun (Point A) = x₀)
 
-definition ppi {A : Type*} (P : A → Type*) : Type :=
-ppi_gen P pt
+definition ppi_const [constructor] {A : Type*} (P : A → Type*) : ppi P pt :=
+ppi.mk (λa, pt) idp
+
+definition pppi' [reducible] {A : Type*} (P : A → Type*) : Type :=
+ppi P pt
+
+definition pppi [constructor] [reducible] {A : Type*} (P : A → Type*) : Type* :=
+pointed.MK (pppi' P) (ppi_const P)
+
+notation `Π*` binders `, ` r:(scoped P, pppi P) := r
 
 -- We could try to define pmap as a special case of ppi
 -- definition pmap (A B : Type*) := @ppi A (λa, B)
@@ -98,24 +106,24 @@ structure pmap (A B : Type*) :=
   (resp_pt : to_fun (Point A) = Point B)
 
 namespace pointed
-  definition ppi.mk [constructor] [reducible] {A : Type*} {P : A → Type*} (f : Πa, P a)
-    (p : f pt = pt) : ppi P :=
-  ppi_gen.mk f p
+  definition pppi.mk [constructor] [reducible] {A : Type*} {P : A → Type*} (f : Πa, P a)
+    (p : f pt = pt) : pppi P :=
+  ppi.mk f p
 
-  definition ppi.to_fun [unfold 3] [coercion] [reducible] {A : Type*} {P : A → Type*} (f : ppi P)
+  definition pppi.to_fun [unfold 3] [coercion] [reducible] {A : Type*} {P : A → Type*} (f : pppi' P)
     (a : A) : P a :=
-  ppi_gen.to_fun f a
+  ppi.to_fun f a
 
-  definition ppi.resp_pt [unfold 3] [reducible] {A : Type*} {P : A → Type*} (f : ppi P) :
+  definition pppi.resp_pt [unfold 3] [reducible] {A : Type*} {P : A → Type*} (f : pppi P) :
     f pt = pt :=
-  ppi_gen.resp_pt f
+  ppi.resp_pt f
 
   abbreviation respect_pt [unfold 3] := @pmap.resp_pt
   notation `map₊` := pmap
   infix ` →* `:28 := pmap
-  attribute pmap.to_fun ppi_gen.to_fun [coercion]
+  attribute pmap.to_fun ppi.to_fun [coercion]
   -- notation `Π*` binders `, ` r:(scoped P, ppi _ P) := r
-  -- definition pmap.mk [constructor] {A B : Type*} (f : A → B) (p : f pt = pt) : A →* B :=
+  -- definition pmxap.mk [constructor] {A B : Type*} (f : A → B) (p : f pt = pt) : A →* B :=
   -- ppi.mk f p
   -- definition pmap.to_fun [coercion] [unfold 3] {A B : Type*} (f : A →* B) : A → B := f
 
@@ -123,7 +131,7 @@ end pointed open pointed
 
 /- pointed homotopies -/
 definition phomotopy {A B : Type*} (f g : A →* B) : Type :=
-ppi_gen (λa, f a = g a) (respect_pt f ⬝ (respect_pt g)⁻¹)
+ppi (λa, f a = g a) (respect_pt f ⬝ (respect_pt g)⁻¹)
 
 -- structure phomotopy {A B : Type*} (f g : A →* B) : Type :=
 --   (homotopy : f ~ g)
@@ -135,12 +143,12 @@ namespace pointed
   infix ` ~* `:50 := phomotopy
   definition phomotopy.mk [reducible] [constructor] (h : f ~ g)
     (p : h pt ⬝ respect_pt g = respect_pt f) : f ~* g :=
-  ppi_gen.mk h (eq_con_inv_of_con_eq p)
+  ppi.mk h (eq_con_inv_of_con_eq p)
 
   definition to_homotopy [coercion] [unfold 5] [reducible] (p : f ~* g) : Πa, f a = g a := p
   definition to_homotopy_pt [unfold 5] [reducible] (p : f ~* g) :
     p pt ⬝ respect_pt g = respect_pt f :=
-  con_eq_of_eq_con_inv (ppi_gen.resp_pt p)
+  con_eq_of_eq_con_inv (ppi.resp_pt p)
 
 
 end pointed

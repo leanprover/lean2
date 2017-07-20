@@ -16,7 +16,7 @@ ppi.mk (λa, pt) idp
 definition my_pconst [constructor] (A B : Type*) : ppi (λ(a : A), B) :=
 !my_ppi_const
 
-example {A : Type*} (P : A → Type*) (a : A) : ppi_gen.to_fun (my_ppi_const P) a = pt :=
+example {A : Type*} (P : A → Type*) (a : A) : ppi.to_fun (my_ppi_const P) a = pt :=
 begin esimp, end
 
 example {A B : Type*} (a : A) : my_pconst A B a = pt :=
