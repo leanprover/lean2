@@ -111,86 +111,34 @@ namespace chain_complex
   definition fiber_sequence : type_chain_complex.{0 u} +ℕ :=
   begin
     fconstructor,
-    { exact fiber_sequence_carrier},
-    { exact fiber_sequence_fun},
+    { exact fiber_sequence_carrier },
+    { exact fiber_sequence_fun },
     { intro n x, cases n with n,
-      { exact point_eq x},
-      { exact point_eq x}}
+      { exact point_eq x },
+      { exact point_eq x }}
   end
 
   definition is_exact_fiber_sequence : is_exact_t fiber_sequence :=
   λn x p, fiber.mk (fiber.mk x p) rfl
 
   /- (generalization of) Lemma 8.4.4(i)(ii) -/
-  definition fiber_sequence_carrier_equiv (n : ℕ)
-    : fiber_sequence_carrier (n+3) ≃ Ω(fiber_sequence_carrier n) :=
-  calc
-    fiber_sequence_carrier (n+3) ≃ fiber (fiber_sequence_fun (n+1)) pt : erfl
-    ... ≃ Σ(x : fiber_sequence_carrier _), fiber_sequence_fun (n+1) x = pt
-      : fiber.sigma_char
-    ... ≃ Σ(x : fiber (fiber_sequence_fun n) pt), fiber_sequence_fun _ x = pt
-      : erfl
-    ... ≃ Σ(v : Σ(x : fiber_sequence_carrier _), fiber_sequence_fun _ x = pt),
-            fiber_sequence_fun _ (fiber.mk v.1 v.2) = pt
-      : by exact sigma_equiv_sigma !fiber.sigma_char (λa, erfl)
-    ... ≃ Σ(v : Σ(x : fiber_sequence_carrier _), fiber_sequence_fun _ x = pt),
-            v.1 = pt
-      : erfl
-    ... ≃ Σ(v : Σ(x : fiber_sequence_carrier _), x = pt),
-            fiber_sequence_fun _ v.1 = pt
-      : sigma_assoc_comm_equiv
-    ... ≃ fiber_sequence_fun _ !center.1 = pt
-      : @(sigma_equiv_of_is_contr_left _) !is_contr_sigma_eq'
-    ... ≃ fiber_sequence_fun _ pt = pt
-      : erfl
-    ... ≃ pt = pt
-      : by exact !equiv_eq_closed_left !respect_pt
-    ... ≃ Ω(fiber_sequence_carrier n) : erfl
-
-  /- computation rule -/
-  definition fiber_sequence_carrier_equiv_eq (n : ℕ)
-    (x : fiber_sequence_carrier (n+1)) (p : fiber_sequence_fun n x = pt)
-    (q : fiber_sequence_fun (n+1) (fiber.mk x p) = pt)
-    : fiber_sequence_carrier_equiv n (fiber.mk (fiber.mk x p) q)
-      = !respect_pt⁻¹ ⬝ ap (fiber_sequence_fun n) q⁻¹ ⬝ p :=
-  begin
-    refine _ ⬝ !con.assoc⁻¹,
-    apply whisker_left,
-    refine eq_transport_Fl _ _ ⬝ _,
-    apply whisker_right,
-    refine inverse2 !ap_inv ⬝ !inv_inv ⬝ _,
-    refine ap_compose (fiber_sequence_fun n) pr₁ _ ⬝
-           ap02 (fiber_sequence_fun n) !ap_pr1_center_eq_sigma_eq',
-  end
-
-  definition fiber_sequence_carrier_equiv_inv_eq (n : ℕ)
-    (p : Ω(fiber_sequence_carrier n)) : (fiber_sequence_carrier_equiv n)⁻¹ᵉ p =
-      fiber.mk (fiber.mk pt (respect_pt (fiber_sequence_fun n) ⬝ p)) idp :=
-  begin
-    apply inv_eq_of_eq,
-    refine _ ⬝ !fiber_sequence_carrier_equiv_eq⁻¹, esimp,
-    exact !inv_con_cancel_left⁻¹
-  end
-
   definition fiber_sequence_carrier_pequiv (n : ℕ)
     : fiber_sequence_carrier (n+3) ≃* Ω(fiber_sequence_carrier n) :=
-  pequiv_of_equiv (fiber_sequence_carrier_equiv n)
-    begin
-      esimp,
-      apply con.left_inv
-    end
+  pfiber_ppoint_pequiv (fiber_sequence_fun n)
 
   definition fiber_sequence_carrier_pequiv_eq (n : ℕ)
     (x : fiber_sequence_carrier (n+1)) (p : fiber_sequence_fun n x = pt)
     (q : fiber_sequence_fun (n+1) (fiber.mk x p) = pt)
     : fiber_sequence_carrier_pequiv n (fiber.mk (fiber.mk x p) q)
       = !respect_pt⁻¹ ⬝ ap (fiber_sequence_fun n) q⁻¹ ⬝ p :=
-  fiber_sequence_carrier_equiv_eq n x p q
+  fiber_ppoint_equiv_eq p q
 
   definition fiber_sequence_carrier_pequiv_inv_eq (n : ℕ)
     (p : Ω(fiber_sequence_carrier n)) : (fiber_sequence_carrier_pequiv n)⁻¹ᵉ* p =
       fiber.mk (fiber.mk pt (respect_pt (fiber_sequence_fun n) ⬝ p)) idp :=
-  by rexact fiber_sequence_carrier_equiv_inv_eq n p
+  fiber_ppoint_equiv_inv_eq (fiber_sequence_fun n) p
+
+  /- TODO: prove naturality of pfiber_ppoint_pequiv in general -/
 
   /- Lemma 8.4.4(iii) -/
   definition fiber_sequence_fun_eq_helper (n : ℕ)
@@ -198,7 +146,7 @@ namespace chain_complex
     fiber_sequence_carrier_pequiv n
       (fiber_sequence_fun (n + 3)
         ((fiber_sequence_carrier_pequiv (n + 1))⁻¹ᵉ* p)) =
-          ap1 (fiber_sequence_fun n) p⁻¹ :=
+          Ω→ (fiber_sequence_fun n) p⁻¹ :=
   begin
     refine ap (λx, fiber_sequence_carrier_pequiv n (fiber_sequence_fun (n + 3) x))
               (fiber_sequence_carrier_pequiv_inv_eq (n+1) p) ⬝ _,
@@ -233,7 +181,7 @@ namespace chain_complex
     (fiber_sequence_carrier_pequiv n ∘*
       fiber_sequence_fun (n + 3)) ∘*
         (fiber_sequence_carrier_pequiv (n + 1))⁻¹ᵉ* ~*
-          ap1 (fiber_sequence_fun n) ∘* pinverse :=
+          Ω→ (fiber_sequence_fun n) ∘* pinverse :=
   begin
     fapply phomotopy.mk,
     { exact chain_complex.fiber_sequence_fun_eq_helper f n},
@@ -245,7 +193,7 @@ namespace chain_complex
 
   theorem fiber_sequence_fun_eq (n : ℕ) : Π(x : fiber_sequence_carrier (n + 4)),
     fiber_sequence_carrier_pequiv n (fiber_sequence_fun (n + 3) x) =
-      ap1 (fiber_sequence_fun n) (fiber_sequence_carrier_pequiv (n + 1) x)⁻¹ :=
+      Ω→ (fiber_sequence_fun n) (fiber_sequence_carrier_pequiv (n + 1) x)⁻¹ :=
   begin
     refine @(homotopy_of_inv_homotopy_pre (fiber_sequence_carrier_pequiv (n + 1)))
              !pequiv.to_is_equiv _ _ _,
@@ -255,7 +203,7 @@ namespace chain_complex
   theorem fiber_sequence_fun_phomotopy (n : ℕ) :
     fiber_sequence_carrier_pequiv n ∘*
       fiber_sequence_fun (n + 3) ~*
-          (ap1 (fiber_sequence_fun n) ∘* pinverse) ∘* fiber_sequence_carrier_pequiv (n + 1) :=
+          (Ω→ (fiber_sequence_fun n) ∘* pinverse) ∘* fiber_sequence_carrier_pequiv (n + 1) :=
   begin
     apply phomotopy_of_pinv_right_phomotopy,
     apply fiber_sequence_fun_phomotopy_helper
@@ -268,7 +216,7 @@ namespace chain_complex
     PART 2
  --------------/
 
-  /- Now we are ready to define the long exact sequence of homotopy groups.
+  /- Now we are ready to define the long exact sequence of loop spaces.
      First we define its carrier -/
   definition loop_spaces : ℕ → Type*
   | 0     := Y
@@ -277,16 +225,15 @@ namespace chain_complex
   | (k+3) := Ω (loop_spaces k)
 
   /- The maps between the homotopy groups -/
-  definition loop_spaces_fun
-    : Π(n : ℕ), loop_spaces (n+1) →* loop_spaces n
+  definition loop_spaces_fun : Π(n : ℕ), loop_spaces (n+1) →* loop_spaces n
   | 0     := proof f qed
   | 1     := proof ppoint f qed
   | 2     := proof boundary_map qed
-  | (k+3) := proof ap1 (loop_spaces_fun k) qed
+  | (k+3) := proof Ω→ (loop_spaces_fun k) qed
 
   definition loop_spaces_fun_add3 [unfold_full] (n : ℕ) :
-    loop_spaces_fun (n + 3) = ap1 (loop_spaces_fun n) :=
-  proof idp qed
+    loop_spaces_fun (n + 3) = Ω→ (loop_spaces_fun n) :=
+  idp
 
   definition fiber_sequence_pequiv_loop_spaces :
     Πn, fiber_sequence_carrier n ≃* loop_spaces n
@@ -302,11 +249,11 @@ namespace chain_complex
 
   definition fiber_sequence_pequiv_loop_spaces_add3 (n : ℕ)
     : fiber_sequence_pequiv_loop_spaces (n + 3) =
-      ap1 (fiber_sequence_pequiv_loop_spaces n) ∘* fiber_sequence_carrier_pequiv n :=
+      Ω→ (fiber_sequence_pequiv_loop_spaces n) ∘* fiber_sequence_carrier_pequiv n :=
   by reflexivity
 
   definition fiber_sequence_pequiv_loop_spaces_3_phomotopy
-    : fiber_sequence_pequiv_loop_spaces 3 ~* proof fiber_sequence_carrier_pequiv nat.zero qed :=
+    : fiber_sequence_pequiv_loop_spaces 3 ~* fiber_sequence_carrier_pequiv 0 :=
   begin
     refine pwhisker_right _ ap1_pid ⬝* _,
     apply pid_pcompose
@@ -323,31 +270,9 @@ namespace chain_complex
     : pid_or_pinverse (n + 4) = !pequiv_pinverse ⬝e* loop_pequiv_loop (pid_or_pinverse (n + 1)) :=
   by reflexivity
 
-  definition pid_or_pinverse_add4_rev : Π(n : ℕ),
-    pid_or_pinverse (n + 4) ~* pinverse ∘* Ω→(pid_or_pinverse (n + 1))
-  | 0     := begin rewrite [pid_or_pinverse_add4, + to_pmap_pequiv_trans],
-                   replace pid_or_pinverse (0 + 1) with pequiv.refl X,
-                   refine pwhisker_right _ !loop_pequiv_loop_rfl ⬝* _, refine !pid_pcompose ⬝* _,
-                   exact !pcompose_pid⁻¹* ⬝* pwhisker_left _ !ap1_pid⁻¹* end
-  | 1     := begin rewrite [pid_or_pinverse_add4, + to_pmap_pequiv_trans],
-                   replace pid_or_pinverse (1 + 1) with pequiv.refl (pfiber f),
-                   refine pwhisker_right _ !loop_pequiv_loop_rfl ⬝* _, refine !pid_pcompose ⬝* _,
-                   exact !pcompose_pid⁻¹* ⬝* pwhisker_left _ !ap1_pid⁻¹* end
-  | 2     := begin rewrite [pid_or_pinverse_add4, + to_pmap_pequiv_trans],
-                   replace pid_or_pinverse (2 + 1) with pequiv.refl (Ω Y),
-                   refine pwhisker_right _ !loop_pequiv_loop_rfl ⬝* _, refine !pid_pcompose ⬝* _,
-                   exact !pcompose_pid⁻¹* ⬝* pwhisker_left _ !ap1_pid⁻¹* end
-  | (k+3) :=
-    begin
-      replace (k + 3 + 1) with (k + 4),
-      rewrite [+ pid_or_pinverse_add4, + to_pmap_pequiv_trans],
-      refine _ ⬝* pwhisker_left _ !ap1_pcompose⁻¹*,
-      refine _ ⬝* !passoc,
-      apply pconcat2,
-      { refine ap1_phomotopy (pid_or_pinverse_add4_rev k) ⬝* _,
-        refine !ap1_pcompose ⬝* _, apply pwhisker_right, apply ap1_pinverse},
-      { refine !ap1_pinverse⁻¹*}
-    end
+  definition pid_or_pinverse_add4_rev (n : ℕ) :
+    pid_or_pinverse (n + 4) ~* pinverse ∘* Ω→(pid_or_pinverse (n + 1)) :=
+  !ap1_pcompose_pinverse
 
   theorem fiber_sequence_phomotopy_loop_spaces : Π(n : ℕ),
     fiber_sequence_pequiv_loop_spaces n ∘* fiber_sequence_fun n ~*
@@ -360,7 +285,7 @@ namespace chain_complex
       replace loop_spaces_fun 2 with boundary_map,
       refine _ ⬝* pwhisker_left _ fiber_sequence_pequiv_loop_spaces_3_phomotopy⁻¹*,
       apply phomotopy_of_pinv_right_phomotopy,
-      exact !pid_pcompose⁻¹*
+      exact !pcompose_pid⁻¹*
     end
   | (k+3) :=
     begin
@@ -435,7 +360,7 @@ namespace chain_complex
   | (k+4) :=
     begin
       replace (k + 4 + 1) with (k + 5),
-      rewrite [pid_or_pinverse_left_add5, pid_or_pinverse_add4, to_pmap_pequiv_trans],
+      rewrite [pid_or_pinverse_left_add5, pid_or_pinverse_add4],
       replace (k + 4) with (k + 1 + 3),
       rewrite [loop_spaces_fun_add3],
       refine !passoc⁻¹* ⬝* _ ⬝* !passoc⁻¹*,

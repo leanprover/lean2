@@ -173,10 +173,9 @@ namespace eq
 
   definition is_equiv_homotopy_group_functor_ap1 (n : ℕ) {A B : Type*} (f : A →* B)
     [is_equiv (π→[n + 1] f)] : is_equiv (π→[n] (Ω→ f)) :=
-  have is_equiv (homotopy_group_succ_in B n ∘* π→[n + 1] f),
-  from is_equiv_compose _ (π→[n + 1] f),
   have is_equiv (π→[n] (Ω→ f) ∘ homotopy_group_succ_in A n),
-  from is_equiv.homotopy_closed _ (homotopy_group_functor_succ_phomotopy_in n f),
+  from is_equiv_of_equiv_of_homotopy (equiv.mk (π→[n+1] f) _ ⬝e homotopy_group_succ_in B n)
+                                     (homotopy_group_functor_succ_phomotopy_in n f),
   is_equiv.cancel_right (homotopy_group_succ_in A n) _
 
   definition tinverse [constructor] {X : Type*} : π[1] X →* π[1] X :=

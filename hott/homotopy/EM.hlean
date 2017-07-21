@@ -170,7 +170,7 @@ namespace EM
       { apply is_equiv_trunc_functor, esimp,
         apply is_equiv.homotopy_closed, rotate 1,
         { symmetry, exact phomotopy_pinv_right_of_phomotopy (loop_EM1_pmap _ _) },
-        apply is_equiv_compose e },
+        apply is_equiv_compose e, apply pequiv.to_is_equiv },
       { apply @is_equiv_of_is_contr,
         do 2 exact trivial_homotopy_group_of_is_trunc _ (succ_lt_succ !zero_lt_succ)}}
   end
@@ -360,7 +360,7 @@ namespace EM
     { cases H, esimp, apply is_equiv_trunc_functor, esimp,
       apply is_equiv.homotopy_closed, rotate 1,
       { symmetry, exact phomotopy_pinv_right_of_phomotopy (loopn_EMadd1_pmap' _ _) },
-      apply is_equiv_compose (e⁻¹ᵉ*)},
+      apply is_equiv_compose (e⁻¹ᵉ*), apply pequiv.to_is_equiv },
     { apply @is_equiv_of_is_contr,
       do 2 exact trivial_homotopy_group_of_is_trunc _ H}
   end
@@ -441,7 +441,7 @@ namespace EM
 
   definition EM1_functor [constructor] {G H : Group} (φ : G →g H) : EM1 G →* EM1 H :=
   begin
-    fconstructor,
+    fapply pmap.mk,
     { intro g, induction g,
       { exact base },
       { exact pth (φ g) },

@@ -95,7 +95,7 @@ namespace cofiber
   definition pcofiber_punit (A : Type*) : pcofiber (pconst A punit) ≃* susp A :=
   begin
     fapply pequiv_of_pmap,
-    { fconstructor, intro x, induction x, exact north, exact south, exact merid x,
+    { fapply pmap.mk, intro x, induction x, exact north, exact south, exact merid x,
       exact (merid pt)⁻¹ },
     { esimp, fapply adjointify,
       { intro s, induction s, exact inl ⋆, exact inr ⋆, apply glue a },

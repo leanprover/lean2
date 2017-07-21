@@ -20,7 +20,7 @@ namespace sphere
   /- Corollaries of the complex hopf fibration combined with the LES of homotopy groups -/
   open sphere sphere.ops int circle hopf
 
-  definition π2S2 : πg[1+1] (S 2) ≃g gℤ :=
+  definition π2S2 : πg[2] (S 2) ≃g gℤ :=
   begin
     refine _ ⬝g fundamental_group_of_circle,
     refine _ ⬝g homotopy_group_isomorphism_of_pequiv _ pfiber_complex_hopf,
@@ -37,7 +37,7 @@ namespace sphere
   end
 
   open circle
-  definition πnS3_eq_πnS2 (n : ℕ) : πg[n+2 +1] (S 3) ≃g πg[n+2 +1] (S 2) :=
+  definition πnS3_eq_πnS2 (n : ℕ) : πg[n+3] (S 3) ≃g πg[n+3] (S 2) :=
   begin
     fapply isomorphism_of_equiv,
     { fapply equiv.mk,
@@ -63,8 +63,9 @@ namespace sphere
   iterate_susp_stability_isomorphism pbool H
 
   open int circle hopf
-  definition πnSn (n : ℕ) : πg[n+1] (S (n+1)) ≃g gℤ :=
+  definition πnSn (n : ℕ) [H : is_succ n] : πg[n] (S (n)) ≃g gℤ :=
   begin
+    induction H with n,
     cases n with n IH,
     { exact fundamental_group_of_circle },
     { induction n with n IH,
@@ -77,13 +78,15 @@ namespace sphere
   begin
     intro H,
     note H2 := trivial_ghomotopy_group_of_is_trunc (S (n+1)) n n !le.refl,
-    have H3 : is_contr ℤ, from is_trunc_equiv_closed _ (equiv_of_isomorphism (πnSn n)),
+    have H3 : is_contr ℤ, from is_trunc_equiv_closed _ (equiv_of_isomorphism (πnSn (n+1))),
     have H4 : (0 : ℤ) ≠ (1 : ℤ), from dec_star,
     apply H4,
     apply is_prop.elim,
   end
 
-  definition π3S2 : πg[2+1] (S 2) ≃g gℤ :=
-  (πnS3_eq_πnS2 0)⁻¹ᵍ ⬝g πnSn 2
+  definition π3S2 : πg[3] (S 2) ≃g gℤ :=
+  begin
+    refine _ ⬝g πnSn 3, symmetry, rexact πnS3_eq_πnS2 0
+  end
 
 end sphere

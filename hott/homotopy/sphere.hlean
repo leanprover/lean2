@@ -104,7 +104,7 @@ namespace is_trunc
     apply is_trunc_equiv_closed, exact !sphere_pmap_pequiv,
     fapply is_contr.mk,
     { exact pmap.mk (λx, a) idp},
-    { intro f, fapply pmap_eq,
+    { intro f, apply eq_of_phomotopy, fapply phomotopy.mk,
       { intro x, esimp, refine !respect_pt⁻¹ ⬝ (!H ⬝ !H⁻¹)},
       { rewrite [▸*,con.right_inv,▸*,con.left_inv]}}
   end
@@ -120,10 +120,10 @@ namespace is_trunc
     (a : A) (f : S n →* pointed.Mk a) (x : S n) : f x = f pt :=
   begin
     let H' := iff.elim_left (is_trunc_iff_is_contr_loop n A) H a,
-    note H'' := @is_trunc_equiv_closed_rev _ _ _ !sphere_pmap_pequiv H',
-    esimp at H'',
+    have H'' : is_contr (S n →* pointed.Mk a), from
+      @is_trunc_equiv_closed_rev _ _ _ !sphere_pmap_pequiv H',
     have p : f = pmap.mk (λx, f pt) (respect_pt f),
-      by apply is_prop.elim,
+      from !is_prop.elim,
     exact ap10 (ap pmap.to_fun p) x
   end
 

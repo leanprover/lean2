@@ -184,13 +184,13 @@ namespace pointed
   definition eq_of_phomotopy_trans {X Y : Type*} {f g h : X →* Y} (p : f ~* g) (q : g ~* h) :
     eq_of_phomotopy (p ⬝* q) = eq_of_phomotopy p ⬝ eq_of_phomotopy q :=
   begin
-    induction p using phomotopy_rec_on_idp, induction q using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp, induction q using phomotopy_rec_idp,
     exact ap eq_of_phomotopy !trans_refl ⬝ whisker_left _ !eq_of_phomotopy_refl⁻¹
   end
 
   definition refl_trans {A B : Type*} {f g : A →* B} (p : f ~* g) : phomotopy.refl f ⬝* p = p :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     induction A with A a₀, induction B with B b₀,
     induction f with f f₀, esimp at *, induction f₀,
     reflexivity
@@ -199,9 +199,9 @@ namespace pointed
   definition trans_assoc {A B : Type*} {f g h i : A →* B} (p : f ~* g) (q : g ~* h)
     (r : h ~* i) : p ⬝* q ⬝* r = p ⬝* (q ⬝* r) :=
   begin
-    induction r using phomotopy_rec_on_idp,
-    induction q using phomotopy_rec_on_idp,
-    induction p using phomotopy_rec_on_idp,
+    induction r using phomotopy_rec_idp,
+    induction q using phomotopy_rec_idp,
+    induction p using phomotopy_rec_idp,
     induction B with B b₀,
     induction f with f f₀, esimp at *, induction f₀,
     reflexivity
@@ -217,18 +217,18 @@ namespace pointed
   definition symm_symm {A B : Type*} {f g : A →* B} (p : f ~* g) : p⁻¹*⁻¹* = p :=
   phomotopy_eq (λa, !inv_inv)
     begin
-      induction p using phomotopy_rec_on_idp, induction f with f f₀, induction B with B b₀,
+      induction p using phomotopy_rec_idp, induction f with f f₀, induction B with B b₀,
       esimp at *, induction f₀, reflexivity
     end
 
   definition trans_right_inv {A B : Type*} {f g : A →* B} (p : f ~* g) : p ⬝* p⁻¹* = phomotopy.rfl :=
   begin
-    induction p using phomotopy_rec_on_idp, exact !refl_trans ⬝ !refl_symm
+    induction p using phomotopy_rec_idp, exact !refl_trans ⬝ !refl_symm
   end
 
   definition trans_left_inv {A B : Type*} {f g : A →* B} (p : f ~* g) : p⁻¹* ⬝* p = phomotopy.rfl :=
   begin
-    induction p using phomotopy_rec_on_idp, exact !trans_refl ⬝ !refl_symm
+    induction p using phomotopy_rec_idp, exact !trans_refl ⬝ !refl_symm
   end
 
   definition trans2 {A B : Type*} {f g h : A →* B} {p p' : f ~* g} {q q' : g ~* h}
@@ -249,7 +249,7 @@ namespace pointed
   definition trans_symm {A B : Type*} {f g h : A →* B} (p : f ~* g) (q : g ~* h) :
     (p ⬝* q)⁻¹* = q⁻¹* ⬝* p⁻¹* :=
   begin
-    induction p using phomotopy_rec_on_idp, induction q using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp, induction q using phomotopy_rec_idp,
     exact !trans_refl⁻²** ⬝ !trans_refl⁻¹ ⬝ idp ◾** !refl_symm⁻¹
   end
 
@@ -293,8 +293,8 @@ namespace pointed
     (p : f₁ ~* f₂) (q : f₂ ~* f₃) :
     pwhisker_left g (p ⬝* q) = pwhisker_left g p ⬝* pwhisker_left g q :=
   begin
-    induction p using phomotopy_rec_on_idp,
-    induction q using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
+    induction q using phomotopy_rec_idp,
     refine _ ⬝ !pwhisker_left_refl⁻¹ ◾** !pwhisker_left_refl⁻¹,
     refine ap (pwhisker_left g) !trans_refl ⬝ !pwhisker_left_refl ⬝ !trans_refl⁻¹
   end
@@ -303,8 +303,8 @@ namespace pointed
     (p : g₁ ~* g₂) (q : g₂ ~* g₃) :
     pwhisker_right f (p ⬝* q) = pwhisker_right f p ⬝* pwhisker_right f q :=
   begin
-    induction p using phomotopy_rec_on_idp,
-    induction q using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
+    induction q using phomotopy_rec_idp,
     refine _ ⬝ !pwhisker_right_refl⁻¹ ◾** !pwhisker_right_refl⁻¹,
     refine ap (pwhisker_right f) !trans_refl ⬝ !pwhisker_right_refl ⬝ !trans_refl⁻¹
   end
@@ -312,7 +312,7 @@ namespace pointed
   definition pwhisker_left_symm {A B C : Type*} (g : B →* C) {f₁ f₂ : A →* B} (p : f₁ ~* f₂) :
     pwhisker_left g p⁻¹* = (pwhisker_left g p)⁻¹* :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     refine _ ⬝ ap phomotopy.symm !pwhisker_left_refl⁻¹,
     refine ap (pwhisker_left g) !refl_symm ⬝ !pwhisker_left_refl ⬝ !refl_symm⁻¹
   end
@@ -320,7 +320,7 @@ namespace pointed
   definition pwhisker_right_symm {A B C : Type*} (f : A →* B) {g₁ g₂ : B →* C} (p : g₁ ~* g₂) :
     pwhisker_right f p⁻¹* = (pwhisker_right f p)⁻¹* :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     refine _ ⬝ ap phomotopy.symm !pwhisker_right_refl⁻¹,
     refine ap (pwhisker_right f) !refl_symm ⬝ !pwhisker_right_refl ⬝ !refl_symm⁻¹
   end
@@ -469,7 +469,7 @@ namespace pointed
     (p : f ~* f') : phsquare (passoc h g f) (passoc h g f')
       (pwhisker_left (h ∘* g) p) (pwhisker_left h (pwhisker_left g p)) :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     refine idp ◾** (ap (pwhisker_left h) !pwhisker_left_refl ⬝ !pwhisker_left_refl) ⬝ _ ⬝
           !pwhisker_left_refl⁻¹ ◾** idp,
     exact !trans_refl ⬝ !refl_trans⁻¹
@@ -479,7 +479,7 @@ namespace pointed
     (p : g ~* g') : phsquare (passoc h g f) (passoc h g' f)
       (pwhisker_right f (pwhisker_left h p)) (pwhisker_left h (pwhisker_right f p)) :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     rewrite [pwhisker_right_refl, pwhisker_left_refl],
     rewrite [pwhisker_right_refl, pwhisker_left_refl],
     exact phvrfl
@@ -489,8 +489,8 @@ namespace pointed
     (p : g ~* g') (q : f ~* f') :
     phsquare (pwhisker_right f p) (pwhisker_right f' p) (pwhisker_left g q) (pwhisker_left g' q) :=
   begin
-    induction p using phomotopy_rec_on_idp,
-    induction q using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
+    induction q using phomotopy_rec_idp,
     exact !pwhisker_right_refl ◾** !pwhisker_left_refl ⬝
           !pwhisker_left_refl⁻¹ ◾** !pwhisker_right_refl⁻¹
   end
@@ -514,7 +514,7 @@ namespace pointed
   definition pcompose_left_eq_of_phomotopy {A B C : Type*} (g : B →* C) {f f' : A →* B}
     (H : f ~* f') : ap (λf, g ∘* f) (eq_of_phomotopy H) = eq_of_phomotopy (pwhisker_left g H) :=
   begin
-    induction H using phomotopy_rec_on_idp,
+    induction H using phomotopy_rec_idp,
     refine ap02 _ !eq_of_phomotopy_refl ⬝ !eq_of_phomotopy_refl⁻¹ ⬝ ap eq_of_phomotopy _,
     exact !pwhisker_left_refl⁻¹
   end
@@ -522,7 +522,7 @@ namespace pointed
   definition pcompose_right_eq_of_phomotopy {A B C : Type*} {g g' : B →* C} (f : A →* B)
     (H : g ~* g') : ap (λg, g ∘* f) (eq_of_phomotopy H) = eq_of_phomotopy (pwhisker_right f H) :=
   begin
-    induction H using phomotopy_rec_on_idp,
+    induction H using phomotopy_rec_idp,
     refine ap02 _ !eq_of_phomotopy_refl ⬝ !eq_of_phomotopy_refl⁻¹ ⬝ ap eq_of_phomotopy _,
     exact !pwhisker_right_refl⁻¹
   end
@@ -606,9 +606,9 @@ namespace pointed
     fapply pequiv.MK',
     { exact papply B tt },
     { exact pbool_pmap },
-    { intro f, fapply pmap_eq,
+    { intro f, fapply eq_of_phomotopy, fapply phomotopy.mk,
       { intro b, cases b, exact !respect_pt⁻¹, reflexivity },
-      { exact !con.left_inv⁻¹ }},
+      { exact !con.left_inv }},
     { intro b, reflexivity },
   end
 
@@ -628,7 +628,7 @@ namespace pointed
   begin
     assert H : Π(p : pconst A B ~* f),
       pconst_pcompose f = pwhisker_left (pconst B C) p⁻¹* ⬝* pcompose_pconst (pconst B C),
-    { intro p, induction p using phomotopy_rec_on_idp, reflexivity },
+    { intro p, induction p using phomotopy_rec_idp, reflexivity },
     refine H p⁻¹* ⬝ ap (pwhisker_left _) !symm_symm ◾** idp,
   end
 
@@ -702,7 +702,7 @@ namespace pointed
   begin
     fapply phomotopy_eq,
     { intro a, exact to_homotopy_pt p },
-    { induction p using phomotopy_rec_on_idp, induction C with C c₀, induction f with f f₀,
+    { induction p using phomotopy_rec_idp, induction C with C c₀, induction f with f f₀,
       esimp at *, induction f₀, reflexivity }
   end
 
@@ -731,13 +731,13 @@ namespace pointed
   definition ppcompose_left_phomotopy [constructor] {A B C : Type*} {g g' : B →* C} (p : g ~* g') :
     @ppcompose_left A _ _ g ~* ppcompose_left g' :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     reflexivity
   end
 
   definition ppcompose_left_phomotopy_refl {A B C : Type*} (g : B →* C) :
     ppcompose_left_phomotopy (phomotopy.refl g) = phomotopy.refl (@ppcompose_left A _ _ g) :=
-  !phomotopy_rec_on_idp_refl
+  !phomotopy_rec_idp_refl
 
     /- a more explicit proof of ppcompose_left_phomotopy, which might be useful if we need to prove properties about it
     -/
@@ -749,7 +749,7 @@ namespace pointed
   definition ppcompose_right_phomotopy [constructor] {A B C : Type*} {f f' : A →* B} (p : f ~* f') :
     @ppcompose_right _ _ C f ~* ppcompose_right f' :=
   begin
-    induction p using phomotopy_rec_on_idp,
+    induction p using phomotopy_rec_idp,
     reflexivity
   end
 
@@ -791,12 +791,12 @@ namespace pointed
   theorem pwhisker_left_phomotopy_hconcat {f₀₁'} (r : f₀₁' ~* f₀₁)
     (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : psquare f₁₂ f₁₄ f₀₃ f₂₃) :
     pwhisker_left f₀₃ r ⬝ph* (p ⬝v* q) = (r ⬝ph* p) ⬝v* q :=
-  by induction r using phomotopy_rec_on_idp; rewrite [pwhisker_left_refl, +refl_phomotopy_hconcat]
+  by induction r using phomotopy_rec_idp; rewrite [pwhisker_left_refl, +refl_phomotopy_hconcat]
 
   theorem pvcompose_pwhisker_left {f₀₁'} (r : f₀₁ ~* f₀₁')
     (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : psquare f₁₂ f₁₄ f₀₃ f₂₃) :
     (p ⬝v* q) ⬝* (pwhisker_left f₁₄ (pwhisker_left f₀₃ r)) = (p ⬝* pwhisker_left f₁₂ r) ⬝v* q :=
-  by induction r using phomotopy_rec_on_idp; rewrite [+pwhisker_left_refl, + trans_refl]
+  by induction r using phomotopy_rec_idp; rewrite [+pwhisker_left_refl, + trans_refl]
 
   definition phconcat2 {p p' : psquare f₁₀ f₁₂ f₀₁ f₂₁} {q q' : psquare f₃₀ f₃₂ f₂₁ f₄₁}
     (r : p = p') (s : q = q') : p ⬝h* q = p' ⬝h* q' :=

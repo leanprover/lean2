@@ -100,12 +100,20 @@ pointed.MK (pppi' P) (ppi_const P)
 notation `Π*` binders `, ` r:(scoped P, pppi P) := r
 
 -- We could try to define pmap as a special case of ppi
--- definition pmap (A B : Type*) := @ppi A (λa, B)
-structure pmap (A B : Type*) :=
-  (to_fun : A → B)
-  (resp_pt : to_fun (Point A) = Point B)
+-- definition pmap' (A B : Type*) : Type := @pppi' A (λa, B)
+-- todo: make this already pointed?
+definition pmap [reducible] (A B : Type*) : Type := @pppi A (λa, B)
+-- structure pmap (A B : Type*) :=
+--   (to_fun : A → B)
+--   (resp_pt : to_fun (Point A) = Point B)
 
 namespace pointed
+
+  attribute ppi.to_fun [coercion]
+
+  notation `map₊` := pmap
+  infix ` →* `:28 := pmap
+
   definition pppi.mk [constructor] [reducible] {A : Type*} {P : A → Type*} (f : Πa, P a)
     (p : f pt = pt) : pppi P :=
   ppi.mk f p
@@ -114,14 +122,17 @@ namespace pointed
     (a : A) : P a :=
   ppi.to_fun f a
 
-  definition pppi.resp_pt [unfold 3] [reducible] {A : Type*} {P : A → Type*} (f : pppi P) :
-    f pt = pt :=
+	definition pmap.mk [constructor] [reducible] {A B : Type*} (f : A → B)
+    (p : f (Point A) = Point B) : A →* B :=
+	pppi.mk f p
+
+  definition pmap.to_fun [unfold 3] [reducible] {A B : Type*} (f : A →* B) : A → B :=
+  pppi.to_fun f
+
+  definition respect_pt [unfold 4] [reducible] {A : Type*} {P : A → Type} {p₀ : P pt}
+    (f : ppi P p₀) : f pt = p₀ :=
   ppi.resp_pt f
 
-  abbreviation respect_pt [unfold 3] := @pmap.resp_pt
-  notation `map₊` := pmap
-  infix ` →* `:28 := pmap
-  attribute pmap.to_fun ppi.to_fun [coercion]
   -- notation `Π*` binders `, ` r:(scoped P, ppi _ P) := r
   -- definition pmxap.mk [constructor] {A B : Type*} (f : A → B) (p : f pt = pt) : A →* B :=
   -- ppi.mk f p
@@ -130,7 +141,7 @@ namespace pointed
 end pointed open pointed
 
 /- pointed homotopies -/
-definition phomotopy {A B : Type*} (f g : A →* B) : Type :=
+definition phomotopy {A : Type*} {P : A → Type} {p₀ : P pt} (f g : ppi P p₀) : Type :=
 ppi (λa, f a = g a) (respect_pt f ⬝ (respect_pt g)⁻¹)
 
 -- structure phomotopy {A B : Type*} (f g : A →* B) : Type :=
@@ -138,7 +149,7 @@ ppi (λa, f a = g a) (respect_pt f ⬝ (respect_pt g)⁻¹)
 --   (homotopy_pt : homotopy pt ⬝ respect_pt g = respect_pt f)
 
 namespace pointed
-  variables {A B : Type*} {f g : A →* B}
+  variables {A : Type*} {P : A → Type} {p₀ : P pt} {f g : ppi P p₀}
 
   infix ` ~* `:50 := phomotopy
   definition phomotopy.mk [reducible] [constructor] (h : f ~ g)
@@ -148,7 +159,7 @@ namespace pointed
   definition to_homotopy [coercion] [unfold 5] [reducible] (p : f ~* g) : Πa, f a = g a := p
   definition to_homotopy_pt [unfold 5] [reducible] (p : f ~* g) :
     p pt ⬝ respect_pt g = respect_pt f :=
-  con_eq_of_eq_con_inv (ppi.resp_pt p)
+  con_eq_of_eq_con_inv (respect_pt p)
 
 
 end pointed

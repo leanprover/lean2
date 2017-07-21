@@ -217,17 +217,17 @@ namespace chain_complex
     (p : Π{m} (x : X (S (f m))), e (tcc_to_fn X (f m) x) = g (e (cast (ap (λx, X x) (c m)) x)))
     : type_chain_complex M :=
   type_chain_complex.mk Y @g
-    begin
+    abstract begin
       intro m,
       apply equiv_rect (equiv_of_pequiv e),
       apply equiv_rect (equiv_of_eq (ap (λx, X x) (c (S m)))), esimp,
       apply equiv_rect (equiv_of_eq (ap (λx, X (S x)) (c m))), esimp,
       intro x, refine ap g (p _)⁻¹ ⬝ _,
-      refine ap g (ap e (fn_cast_eq_cast_fn (c m) (tcc_to_fn X) x)) ⬝ _,
+      refine ap g (ap e (fn_cast_eq_cast_fn (c m) (λn, pmap.to_fun (tcc_to_fn X n)) x)) ⬝ _,
       refine (p _)⁻¹ ⬝ _,
       refine ap e (tcc_is_chain_complex X (f m) _) ⬝ _,
       apply respect_pt
-    end
+    end end
 
   definition is_exact_at_t_transfer2 {X : type_chain_complex N} {M : succ_str} {Y : M → Type*}
     (f : M ≃ N) (c : Π(m : M), S (f m) = f (S m))
@@ -246,11 +246,11 @@ namespace chain_complex
     induction (H _ H2) with x r,
     refine fiber.mk (e (cast (ap (λx, X x) (c (S m))) (cast (ap (λx, X (S x)) (c m)) x))) _,
     refine (p _)⁻¹ ⬝ _,
-    refine ap e (fn_cast_eq_cast_fn (c m) (tcc_to_fn X) x) ⬝ _,
+    refine ap e (fn_cast_eq_cast_fn (c m) (λn, pmap.to_fun (tcc_to_fn X n)) x) ⬝ _,
     refine ap (λx, e (cast _ x)) r ⬝ _,
     esimp [equiv.symm], rewrite [-ap_inv],
     refine ap e !cast_cast_inv ⬝ _,
-    apply right_inv
+    apply to_right_inv
   end
 
   end
@@ -355,7 +355,7 @@ namespace chain_complex
 
   definition transfer_chain_complex2 [constructor] {M : succ_str} {Y : M → Set*}
     (f : N ≃ M) (c : Π(n : N), f (S n) = S (f n))
-    (g : Π{m : M}, Y (S m) →* Y m) (e : Π{n}, X n ≃* Y (f n))
+    (g : Π{m : M}, pmap (Y (S m)) (Y m)) (e : Π{n}, X n ≃* Y (f n))
     (p : Π{n} (x : X (S n)), e (cc_to_fn X n x) = g (c n ▸ e x)) : chain_complex M :=
   chain_complex.mk Y @g
     begin
@@ -371,7 +371,8 @@ namespace chain_complex
       refine pi.pi_functor _ _ H,
       { intro x, exact (c (S n))⁻¹ ▸ (c n)⁻¹ ▸ x}, -- with implicit arguments, this is:
       -- transport (λx, Y x) (c (S n))⁻¹ (transport (λx, Y (S x)) (c n)⁻¹ x)
-      { intro x, intro p, refine _ ⬝ p, rewrite [tr_inv_tr, fn_tr_eq_tr_fn (c n)⁻¹ @g, tr_inv_tr]}
+      { intro x, intro p, refine _ ⬝ p,
+        rewrite [tr_inv_tr, fn_tr_eq_tr_fn (c n)⁻¹ᵖ (λn, ppi.to_fun g), tr_inv_tr]}
     end
 
   definition is_exact_at_transfer2 {X : chain_complex N} {M : succ_str} {Y : M → Set*}
@@ -389,7 +390,7 @@ namespace chain_complex
     end,
     induction (H _ H2) with x r,
     refine image.mk (c n ▸ c (S n) ▸ e x) _,
-    rewrite [fn_tr_eq_tr_fn (c n) @g],
+    rewrite [fn_tr_eq_tr_fn (c n) (λn, ppi.to_fun g)],
     refine ap (λx, c n ▸ x) (p x)⁻¹ ⬝ _,
     refine ap (λx, c n ▸ e x) r ⬝ _,
     refine ap (λx, c n ▸ x) !right_inv ⬝ _,

@@ -288,7 +288,7 @@ namespace susp
 
   definition loop_susp_counit [constructor] (X : Type*) : susp (Ω X) →* X :=
   begin
-    fconstructor,
+    fapply pmap.mk,
     { intro x, induction x, exact pt, exact pt, exact a },
     { reflexivity },
   end
