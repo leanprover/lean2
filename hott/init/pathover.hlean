@@ -82,6 +82,9 @@ namespace eq
   definition change_path [unfold 9] (q : p = p') (r : b =[p] b₂) : b =[p'] b₂ :=
   q ▸ r
 
+  definition change_path_idp [unfold_full] (r : b =[p] b₂) : change_path idp r = r :=
+  by reflexivity
+
   -- infix ` ⬝ ` := concato
   infix ` ⬝o `:72 := concato
   infix ` ⬝op `:73 := concato_eq
@@ -103,25 +106,25 @@ namespace eq
 
   /- Some of the theorems analogous to theorems for = in init.path -/
 
-  definition cono_idpo (r : b =[p] b₂) : r ⬝o idpo =[con_idp p] r :=
-  pathover.rec_on r idpo
+  definition cono_idpo (r : b =[p] b₂) : r ⬝o idpo = r :=
+  by reflexivity
 
   definition idpo_cono (r : b =[p] b₂) : idpo ⬝o r =[idp_con p] r :=
-  pathover.rec_on r idpo
+  by induction r; constructor
 
   definition cono.assoc' (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) (r₃ : b₃ =[p₃] b₄) :
     r ⬝o (r₂ ⬝o r₃) =[!con.assoc'] (r ⬝o r₂) ⬝o r₃ :=
-  pathover.rec_on r₃ (pathover.rec_on r₂ (pathover.rec_on r idpo))
+  by induction r₃; constructor
 
   definition cono.assoc (r : b =[p] b₂) (r₂ : b₂ =[p₂] b₃) (r₃ : b₃ =[p₃] b₄) :
     (r ⬝o r₂) ⬝o r₃ =[!con.assoc] r ⬝o (r₂ ⬝o r₃) :=
-  pathover.rec_on r₃ (pathover.rec_on r₂ (pathover.rec_on r idpo))
+  by induction r₃; constructor
 
   definition cono.right_inv (r : b =[p] b₂) : r ⬝o r⁻¹ᵒ =[!con.right_inv] idpo :=
-  pathover.rec_on r idpo
+  by induction r; constructor
 
   definition cono.left_inv (r : b =[p] b₂) : r⁻¹ᵒ ⬝o r =[!con.left_inv] idpo :=
-  pathover.rec_on r idpo
+  by induction r; constructor
 
   definition eq_of_pathover {a' a₂' : A'} (q : a' =[p] a₂') : a' = a₂' :=
   by cases q;reflexivity
@@ -158,6 +161,11 @@ namespace eq
   definition eq_of_pathover_idp_pathover_of_eq {A X : Type} (x : X) {a a' : A} (p : a = a') :
     eq_of_pathover_idp (pathover_of_eq (idpath x) p) = p :=
   by induction p; reflexivity
+
+  variable (B)
+  definition idpo_concato_eq (r : b = b') : eq_of_pathover_idp (@idpo A B a b ⬝op r) = r :=
+  by induction r; reflexivity
+  variable {B}
 
   -- definition pathover_idp (b : B a) (b' : B a) : b =[idpath a] b' ≃ b = b' :=
   -- pathover_equiv_tr_eq idp b b'
@@ -244,6 +252,9 @@ namespace eq
   /- various variants of ap for pathovers -/
   definition apd [unfold 6] (f : Πa, B a) (p : a = a₂) : f a =[p] f a₂ :=
   by induction p; constructor
+
+  definition apd_idp [unfold_full] (f : Πa, B a) : apd f idp = @idpo A B a (f a) :=
+  by reflexivity
 
   definition apo [unfold 12] {f : A → A'} (g : Πa, B a → B'' (f a)) (q : b =[p] b₂) :
     g a b =[p] g a₂ b₂ :=
@@ -388,19 +399,19 @@ namespace eq
 
   definition cono.right_inv_eq (q : b = b') :
     pathover_idp_of_eq q ⬝op q⁻¹ = (idpo : b =[refl a] b) :=
-  by induction q;constructor
+  by induction q; constructor
 
   definition cono.right_inv_eq' (q : b = b') :
     q ⬝po (pathover_idp_of_eq q⁻¹) = (idpo : b =[refl a] b) :=
-  by induction q;constructor
+  by induction q; constructor
 
   definition cono.left_inv_eq (q : b = b') :
     pathover_idp_of_eq q⁻¹ ⬝op q = (idpo : b' =[refl a] b') :=
-  by induction q;constructor
+  by induction q; constructor
 
   definition cono.left_inv_eq' (q : b = b') :
     q⁻¹ ⬝po pathover_idp_of_eq q = (idpo : b' =[refl a] b') :=
-  by induction q;constructor
+  by induction q; constructor
 
   definition pathover_of_fn_pathover_fn (f : Π{a}, B a ≃ B' a) (r : f b =[p] f b₂) : b =[p] b₂ :=
   (left_inv f b)⁻¹ ⬝po apo (λa, f⁻¹ᵉ) r ⬝op left_inv f b₂

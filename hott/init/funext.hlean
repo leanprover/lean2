@@ -285,6 +285,25 @@ namespace eq
     induction p using homotopy.rec_on, induction q, exact H
   end
 
+  definition homotopy.rec_idp [recursor] {A : Type} {P : A → Type} {f : Πa, P a}
+    (Q : Π{g}, (f ~ g) → Type) (H : Q (homotopy.refl f)) {g : Π x, P x} (p : f ~ g) : Q p :=
+  homotopy.rec_on_idp p H
+
+  definition homotopy_rec_on_apd10 {A : Type} {P : A → Type} {f g : Πa, P a}
+    (Q : f ~ g → Type) (H : Π(q : f = g), Q (apd10 q)) (p : f = g) :
+    homotopy.rec_on (apd10 p) H = H p :=
+  begin
+    unfold [homotopy.rec_on],
+    refine ap (λp, p ▸ _) !adj ⬝ _,
+    refine !tr_compose⁻¹ ⬝ _,
+    apply apdt
+  end
+
+  definition homotopy_rec_idp_refl {A : Type} {P : A → Type} {f : Πa, P a}
+    (Q : Π{g}, f ~ g → Type) (H : Q homotopy.rfl) :
+    homotopy.rec_idp @Q H homotopy.rfl = H :=
+  !homotopy_rec_on_apd10
+
   definition eq_of_homotopy_inv {f g : Π x, P x} (H : f ~ g)
     : eq_of_homotopy (λx, (H x)⁻¹) = (eq_of_homotopy H)⁻¹ :=
   begin

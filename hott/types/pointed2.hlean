@@ -18,7 +18,7 @@ import algebra.homotopy_group eq2
 open pointed eq unit is_trunc trunc nat group is_equiv equiv sigma function bool
 
 namespace pointed
-  variables {A B C : Type*}
+  variables {A B C : Type*} {P : A → Type} {p₀ : P pt} {k k' l m n : ppi P p₀}
 
   section psquare
   /-
@@ -134,14 +134,35 @@ namespace pointed
 
   definition punit_pmap_phomotopy [constructor] {A : Type*} (f : punit →* A) :
     f ~* pconst punit A :=
+  !phomotopy_of_is_contr_dom
+
+  definition punit_ppi [constructor] (P : punit → Type*) (p₀ : P ⋆) : ppi P p₀ :=
   begin
-    fapply phomotopy.mk,
-    { intro u, induction u, exact respect_pt f },
-    { reflexivity }
+    fapply ppi.mk, intro u, induction u, exact p₀,
+    reflexivity
   end
 
+  definition punit_ppi_phomotopy [constructor] {P : punit → Type*} {p₀ : P ⋆} (f : ppi P p₀) :
+    f ~* punit_ppi P p₀ :=
+  !phomotopy_of_is_contr_dom
+
+  definition is_contr_punit_ppi (P : punit → Type*) (p₀ : P ⋆) : is_contr (ppi P p₀) :=
+  is_contr.mk (punit_ppi P p₀) (λf, eq_of_phomotopy (punit_ppi_phomotopy f)⁻¹*)
+
   definition is_contr_punit_pmap (A : Type*) : is_contr (punit →* A) :=
-  is_contr.mk (pconst punit A) (λf, eq_of_phomotopy (punit_pmap_phomotopy f)⁻¹*)
+  !is_contr_punit_ppi
+
+  -- definition phomotopy_eq_equiv (h₁ h₂ : k ~* l) :
+  --   (h₁ = h₂) ≃ Σ(p : to_homotopy h₁ ~ to_homotopy h₂),
+  --     whisker_right (respect_pt l) (p pt) ⬝ to_homotopy_pt h₂ = to_homotopy_pt h₁ :=
+  -- begin
+  --   refine !ppi_eq_equiv ⬝e !phomotopy.sigma_char ⬝e sigma_equiv_sigma_right _,
+  --   intro p,
+  -- end
+
+  /- Short term TODO: generalize to dependent maps (use ppi_eq_equiv?)
+     Long term TODO: use homotopies between pointed homotopies, not equalities
+  -/
 
   definition phomotopy_eq_equiv {A B : Type*} {f g : A →* B} (h k : f ~* g) :
     (h = k) ≃ Σ(p : to_homotopy h ~ to_homotopy k),
@@ -173,12 +194,11 @@ namespace pointed
     (q : square (to_homotopy_pt h) (to_homotopy_pt k) (whisker_right (respect_pt g) (p pt)) idp) : h = k :=
   phomotopy_eq p (eq_of_square q)⁻¹
 
-  definition trans_refl {A B : Type*} {f g : A →* B} (p : f ~* g) : p ⬝* phomotopy.refl g = p :=
+  definition trans_refl (p : k ~* l) : p ⬝* phomotopy.rfl = p :=
   begin
-    induction A with A a₀, induction B with B b₀,
-    induction f with f f₀, induction g with g g₀, induction p with p p₀,
-    esimp at *, induction g₀, induction p₀,
-    reflexivity
+    induction A with A a₀,
+    induction k with k k₀, induction l with l l₀, induction p with p p₀', esimp at * ⊢,
+    induction l₀, induction p₀', reflexivity,
   end
 
   definition eq_of_phomotopy_trans {X Y : Type*} {f g h : X →* Y} (p : f ~* g) (q : g ~* h) :
@@ -188,77 +208,66 @@ namespace pointed
     exact ap eq_of_phomotopy !trans_refl ⬝ whisker_left _ !eq_of_phomotopy_refl⁻¹
   end
 
-  definition refl_trans {A B : Type*} {f g : A →* B} (p : f ~* g) : phomotopy.refl f ⬝* p = p :=
+  definition refl_trans (p : k ~* l) : phomotopy.rfl ⬝* p = p :=
   begin
     induction p using phomotopy_rec_idp,
-    induction A with A a₀, induction B with B b₀,
-    induction f with f f₀, esimp at *, induction f₀,
-    reflexivity
+    apply trans_refl
   end
 
-  definition trans_assoc {A B : Type*} {f g h i : A →* B} (p : f ~* g) (q : g ~* h)
-    (r : h ~* i) : p ⬝* q ⬝* r = p ⬝* (q ⬝* r) :=
+  definition trans_assoc (p : k ~* l) (q : l ~* m) (r : m ~* n) : p ⬝* q ⬝* r = p ⬝* (q ⬝* r) :=
   begin
     induction r using phomotopy_rec_idp,
     induction q using phomotopy_rec_idp,
     induction p using phomotopy_rec_idp,
-    induction B with B b₀,
-    induction f with f f₀, esimp at *, induction f₀,
+    induction k with k k₀, induction k₀,
     reflexivity
   end
 
-  definition refl_symm {A B : Type*} (f : A →* B) : phomotopy.rfl⁻¹* = phomotopy.refl f :=
+  definition refl_symm : phomotopy.rfl⁻¹* = phomotopy.refl k :=
   begin
-    induction B with B b₀,
-    induction f with f f₀, esimp at *, induction f₀,
+    induction k with k k₀, induction k₀,
     reflexivity
   end
 
-  definition symm_symm {A B : Type*} {f g : A →* B} (p : f ~* g) : p⁻¹*⁻¹* = p :=
-  phomotopy_eq (λa, !inv_inv)
-    begin
-      induction p using phomotopy_rec_idp, induction f with f f₀, induction B with B b₀,
-      esimp at *, induction f₀, reflexivity
-    end
+  definition symm_symm (p : k ~* l) : p⁻¹*⁻¹* = p :=
+  begin
+    induction p using phomotopy_rec_idp, induction k with k k₀, induction k₀, reflexivity
+  end
 
-  definition trans_right_inv {A B : Type*} {f g : A →* B} (p : f ~* g) : p ⬝* p⁻¹* = phomotopy.rfl :=
+  definition trans_right_inv (p : k ~* l) : p ⬝* p⁻¹* = phomotopy.rfl :=
   begin
     induction p using phomotopy_rec_idp, exact !refl_trans ⬝ !refl_symm
   end
 
-  definition trans_left_inv {A B : Type*} {f g : A →* B} (p : f ~* g) : p⁻¹* ⬝* p = phomotopy.rfl :=
+  definition trans_left_inv (p : k ~* l) : p⁻¹* ⬝* p = phomotopy.rfl :=
   begin
     induction p using phomotopy_rec_idp, exact !trans_refl ⬝ !refl_symm
   end
 
-  definition trans2 {A B : Type*} {f g h : A →* B} {p p' : f ~* g} {q q' : g ~* h}
-    (r : p = p') (s : q = q') : p ⬝* q = p' ⬝* q' :=
+  definition trans2 {p p' : k ~* l} {q q' : l ~* m} (r : p = p') (s : q = q') : p ⬝* q = p' ⬝* q' :=
   ap011 phomotopy.trans r s
 
   definition pcompose3 {A B C : Type*} {g g' : B →* C} {f f' : A →* B}
   {p p' : g ~* g'} {q q' : f ~* f'} (r : p = p') (s : q = q') : p ◾* q = p' ◾* q' :=
   ap011 pcompose2 r s
 
-  definition symm2 {A B : Type*} {f g : A →* B} {p p' : f ~* g} (r : p = p') : p⁻¹* = p'⁻¹* :=
+  definition symm2 {p p' : k ~* l} (r : p = p') : p⁻¹* = p'⁻¹* :=
   ap phomotopy.symm r
 
   infixl ` ◾** `:80 := pointed.trans2
   infixl ` ◽* `:81 := pointed.pcompose3
   postfix `⁻²**`:(max+1) := pointed.symm2
 
-  definition trans_symm {A B : Type*} {f g h : A →* B} (p : f ~* g) (q : g ~* h) :
-    (p ⬝* q)⁻¹* = q⁻¹* ⬝* p⁻¹* :=
+  definition trans_symm (p : k ~* l) (q : l ~* m) : (p ⬝* q)⁻¹* = q⁻¹* ⬝* p⁻¹* :=
   begin
     induction p using phomotopy_rec_idp, induction q using phomotopy_rec_idp,
     exact !trans_refl⁻²** ⬝ !trans_refl⁻¹ ⬝ idp ◾** !refl_symm⁻¹
   end
 
-  definition phwhisker_left {A B : Type*} {f g h : A →* B} (p : f ~* g) {q q' : g ~* h}
-    (s : q = q') : p ⬝* q = p ⬝* q' :=
+  definition phwhisker_left (p : k ~* l) {q q' : l ~* m} (s : q = q') : p ⬝* q = p ⬝* q' :=
   idp ◾** s
 
-  definition phwhisker_right {A B : Type*} {f g h : A →* B} {p p' : f ~* g} (q : g ~* h)
-    (r : p = p') : p ⬝* q = p' ⬝* q :=
+  definition phwhisker_right {p p' : k ~* l} (q : l ~* m) (r : p = p') : p ⬝* q = p' ⬝* q :=
   r ◾** idp
 
   definition pwhisker_left_refl {A B C : Type*} (g : B →* C) (f : A →* B) :
@@ -325,36 +334,36 @@ namespace pointed
     refine ap (pwhisker_right f) !refl_symm ⬝ !pwhisker_right_refl ⬝ !refl_symm⁻¹
   end
 
-  definition trans_eq_of_eq_symm_trans {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : q = p⁻¹* ⬝* r) : p ⬝* q = r :=
+  definition trans_eq_of_eq_symm_trans {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : q = p⁻¹* ⬝* r) :
+    p ⬝* q = r :=
   idp ◾** s ⬝ !trans_assoc⁻¹ ⬝ trans_right_inv p ◾** idp ⬝ !refl_trans
 
-  definition eq_symm_trans_of_trans_eq {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : p ⬝* q = r) : q = p⁻¹* ⬝* r :=
+  definition eq_symm_trans_of_trans_eq {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : p ⬝* q = r) :
+    q = p⁻¹* ⬝* r :=
   !refl_trans⁻¹ ⬝ !trans_left_inv⁻¹ ◾** idp ⬝ !trans_assoc ⬝ idp ◾** s
 
-  definition trans_eq_of_eq_trans_symm {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : p = r ⬝* q⁻¹*) : p ⬝* q = r :=
+  definition trans_eq_of_eq_trans_symm {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : p = r ⬝* q⁻¹*) :
+    p ⬝* q = r :=
   s ◾** idp ⬝ !trans_assoc ⬝ idp ◾** trans_left_inv q ⬝ !trans_refl
 
-  definition eq_trans_symm_of_trans_eq {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : p ⬝* q = r) : p = r ⬝* q⁻¹* :=
+  definition eq_trans_symm_of_trans_eq {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : p ⬝* q = r) :
+    p = r ⬝* q⁻¹* :=
   !trans_refl⁻¹ ⬝ idp ◾** !trans_right_inv⁻¹ ⬝ !trans_assoc⁻¹ ⬝ s ◾** idp
 
-  definition eq_trans_of_symm_trans_eq {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : p⁻¹* ⬝* r = q) : r = p ⬝* q :=
+  definition eq_trans_of_symm_trans_eq {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : p⁻¹* ⬝* r = q) :
+    r = p ⬝* q :=
   !refl_trans⁻¹ ⬝ !trans_right_inv⁻¹ ◾** idp ⬝ !trans_assoc ⬝ idp ◾** s
 
-  definition symm_trans_eq_of_eq_trans {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : r = p ⬝* q) : p⁻¹* ⬝* r = q :=
+  definition symm_trans_eq_of_eq_trans {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : r = p ⬝* q) :
+    p⁻¹* ⬝* r = q :=
   idp ◾** s ⬝ !trans_assoc⁻¹ ⬝ trans_left_inv p ◾** idp ⬝ !refl_trans
 
-  definition eq_trans_of_trans_symm_eq {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : r ⬝* q⁻¹* = p) : r = p ⬝* q :=
+  definition eq_trans_of_trans_symm_eq {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : r ⬝* q⁻¹* = p) :
+    r = p ⬝* q :=
   !trans_refl⁻¹ ⬝ idp ◾** !trans_left_inv⁻¹ ⬝ !trans_assoc⁻¹ ⬝ s ◾** idp
 
-  definition trans_symm_eq_of_eq_trans {A B : Type*} {f g h : A →* B} {p : f ~* g} {q : g ~* h}
-    {r : f ~* h} (s : r = p ⬝* q) : r ⬝* q⁻¹* = p :=
+  definition trans_symm_eq_of_eq_trans {p : k ~* l} {q : l ~* m} {r : k ~* m} (s : r = p ⬝* q) :
+    r ⬝* q⁻¹* = p :=
   s ◾** idp ⬝ !trans_assoc ⬝ idp ◾** trans_right_inv q ⬝ !trans_refl
 
   section phsquare
@@ -362,7 +371,7 @@ namespace pointed
     Squares of pointed homotopies
   -/
 
-  variables {f f' f₀₀ f₂₀ f₄₀ f₀₂ f₂₂ f₄₂ f₀₄ f₂₄ f₄₄ : A →* B}
+  variables {f f' f₀₀ f₂₀ f₄₀ f₀₂ f₂₂ f₄₂ f₀₄ f₂₄ f₄₄ : ppi P p₀}
             {p₁₀ : f₀₀ ~* f₂₀} {p₃₀ : f₂₀ ~* f₄₀}
             {p₀₁ : f₀₀ ~* f₀₂} {p₂₁ : f₂₀ ~* f₂₂} {p₄₁ : f₄₀ ~* f₄₂}
             {p₁₂ : f₀₂ ~* f₂₂} {p₃₂ : f₂₂ ~* f₄₂}
@@ -495,6 +504,13 @@ namespace pointed
           !pwhisker_left_refl⁻¹ ◾** !pwhisker_right_refl⁻¹
   end
 
+  end phsquare
+
+  section nondep_phsquare
+
+  variables {f f' f₀₀ f₂₀ f₀₂ f₂₂ : A →* B}
+            {p₁₀ : f₀₀ ~* f₂₀} {p₀₁ : f₀₀ ~* f₀₂} {p₂₁ : f₂₀ ~* f₂₂} {p₁₂ : f₀₂ ~* f₂₂}
+
   definition pwhisker_left_phsquare (f : B →* C) (p : phsquare p₁₀ p₁₂ p₀₁ p₂₁) :
     phsquare (pwhisker_left f p₁₀) (pwhisker_left f p₁₂)
              (pwhisker_left f p₀₁) (pwhisker_left f p₂₁) :=
@@ -505,9 +521,9 @@ namespace pointed
              (pwhisker_right f p₀₁) (pwhisker_right f p₂₁) :=
   !pwhisker_right_trans⁻¹ ⬝ ap (pwhisker_right f) p ⬝ !pwhisker_right_trans
 
-  end phsquare
+  end nondep_phsquare
 
-  definition phomotopy_of_eq_con {A B : Type*} {f g h : A →* B} (p : f = g) (q : g = h) :
+  definition phomotopy_of_eq_con (p : k = l) (q : l = m) :
     phomotopy_of_eq (p ⬝ q) = phomotopy_of_eq p ⬝* phomotopy_of_eq q :=
   begin induction q, induction p, exact !trans_refl⁻¹ end
 

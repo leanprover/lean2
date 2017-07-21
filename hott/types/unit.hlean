@@ -32,6 +32,9 @@ namespace unit
 
   notation `unit*` := punit
 
+  definition is_contr_punit [instance] : is_contr punit :=
+  is_contr_unit
+
   definition unit_arrow_eq {X : Type} (f : unit → X) : (λx, f ⋆) = f :=
   by apply eq_of_homotopy; intro u; induction u; reflexivity
 

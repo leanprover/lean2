@@ -88,31 +88,26 @@ structure ppi {A : Type*} (P : A → Type) (x₀ : P pt) :=
   (to_fun : Π a : A, P a)
   (resp_pt : to_fun (Point A) = x₀)
 
-definition ppi_const [constructor] {A : Type*} (P : A → Type*) : ppi P pt :=
-ppi.mk (λa, pt) idp
-
 definition pppi' [reducible] {A : Type*} (P : A → Type*) : Type :=
 ppi P pt
+
+definition ppi_const [constructor] {A : Type*} (P : A → Type*) : pppi' P :=
+ppi.mk (λa, pt) idp
 
 definition pppi [constructor] [reducible] {A : Type*} (P : A → Type*) : Type* :=
 pointed.MK (pppi' P) (ppi_const P)
 
+-- do we want to make this already pointed?
+definition pmap [reducible] (A B : Type*) : Type := @pppi A (λa, B)
+
+attribute ppi.to_fun [coercion]
+
+infix ` →* `:28 := pmap
 notation `Π*` binders `, ` r:(scoped P, pppi P) := r
 
--- We could try to define pmap as a special case of ppi
--- definition pmap' (A B : Type*) : Type := @pppi' A (λa, B)
--- todo: make this already pointed?
-definition pmap [reducible] (A B : Type*) : Type := @pppi A (λa, B)
--- structure pmap (A B : Type*) :=
---   (to_fun : A → B)
---   (resp_pt : to_fun (Point A) = Point B)
 
 namespace pointed
 
-  attribute ppi.to_fun [coercion]
-
-  notation `map₊` := pmap
-  infix ` →* `:28 := pmap
 
   definition pppi.mk [constructor] [reducible] {A : Type*} {P : A → Type*} (f : Πa, P a)
     (p : f pt = pt) : pppi P :=
@@ -126,7 +121,7 @@ namespace pointed
     (p : f (Point A) = Point B) : A →* B :=
 	pppi.mk f p
 
-  definition pmap.to_fun [unfold 3] [reducible] {A B : Type*} (f : A →* B) : A → B :=
+  abbreviation pmap.to_fun [unfold 3] [reducible] [coercion] {A B : Type*} (f : A →* B) : A → B :=
   pppi.to_fun f
 
   definition respect_pt [unfold 4] [reducible] {A : Type*} {P : A → Type} {p₀ : P pt}

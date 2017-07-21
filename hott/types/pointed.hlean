@@ -116,10 +116,10 @@ namespace pointed
 
   /- categorical properties of pointed maps -/
 
-  definition pid [constructor] (A : Type*) : A →* A :=
+  definition pid [constructor] [refl] (A : Type*) : A →* A :=
   pmap.mk id idp
 
-  definition pcompose [constructor] {A B C : Type*} (g : B →* C) (f : A →* B) : A →* C :=
+  definition pcompose [constructor] [trans] {A B C : Type*} (g : B →* C) (f : A →* B) : A →* C :=
   pmap.mk (λa, g (f a)) (ap g (respect_pt f) ⬝ respect_pt g)
 
   infixr ` ∘* `:60 := pcompose
@@ -323,7 +323,7 @@ namespace pointed
   protected definition phomotopy.refl [constructor] : k ~* k :=
   phomotopy.mk homotopy.rfl !idp_con
   variable {k}
-  protected definition phomotopy.rfl [constructor] [refl] : k ~* k :=
+  protected definition phomotopy.rfl [reducible] [constructor] [refl] : k ~* k :=
   phomotopy.refl k
 
   protected definition phomotopy.symm [constructor] [symm] (p : k ~* l) : l ~* k :=
@@ -447,8 +447,7 @@ namespace pointed
   definition eq_of_phomotopy (p : k ~* l) : k = l :=
   to_inv (ppi_eq_equiv k l) p
 
-  definition eq_of_phomotopy_refl {X Y : Type*} (f : X →* Y) :
-    eq_of_phomotopy (phomotopy.refl f) = idpath f :=
+  definition eq_of_phomotopy_refl (k : ppi P p₀) : eq_of_phomotopy (phomotopy.refl k) = idpath k :=
   begin
     apply to_inv_eq_of_eq, reflexivity
   end
@@ -480,11 +479,17 @@ namespace pointed
     induction t, exact phomotopy_of_eq_idp k ▸ q,
   end
 
+  definition phomotopy_rec_idp' (Q : Π ⦃k' : ppi P p₀⦄, (k ~* k') → (k = k') → Type)
+    (q : Q phomotopy.rfl idp) ⦃k' : ppi P p₀⦄ (H : k ~* k') : Q H (eq_of_phomotopy H) :=
+  begin
+    induction H using phomotopy_rec_idp,
+    exact transport (Q phomotopy.rfl) !eq_of_phomotopy_refl⁻¹ q
+  end
+
   attribute phomotopy.rec' [recursor]
 
-  definition phomotopy_rec_eq_phomotopy_of_eq {A B : Type*} {f g: A →* B}
-    {Q : (f ~* g) → Type} (p : f = g) (H : Π(q : f = g), Q (phomotopy_of_eq q)) :
-    phomotopy_rec_eq (phomotopy_of_eq p) H = H p :=
+  definition phomotopy_rec_eq_phomotopy_of_eq {Q : (k ~* l) → Type} (p : k = l)
+    (H : Π(q : k = l), Q (phomotopy_of_eq q)) : phomotopy_rec_eq (phomotopy_of_eq p) H = H p :=
   begin
     unfold phomotopy_rec_eq,
     refine ap (λp, p ▸ _) !adj ⬝ _,
@@ -492,10 +497,32 @@ namespace pointed
     apply apdt
   end
 
-  definition phomotopy_rec_idp_refl {A B : Type*} (f : A →* B)
-    {Q : Π{g}, (f ~* g) → Type} (H : Q (phomotopy.refl f)) :
+  definition phomotopy_rec_idp_refl {Q : Π{l}, (k ~* l) → Type} (H : Q (phomotopy.refl k)) :
     phomotopy_rec_idp phomotopy.rfl H = H :=
   !phomotopy_rec_eq_phomotopy_of_eq
+
+  definition phomotopy_rec_idp'_refl (Q : Π ⦃k' : ppi P p₀⦄, (k ~* k') → (k = k') → Type)
+    (q : Q phomotopy.rfl idp) :
+    phomotopy_rec_idp' Q q phomotopy.rfl = transport (Q phomotopy.rfl) !eq_of_phomotopy_refl⁻¹ q :=
+  !phomotopy_rec_idp_refl
+
+  /- maps out of or into contractible types -/
+  definition phomotopy_of_is_contr_cod [constructor] (k l : ppi P p₀) [Πa, is_contr (P a)] :
+    k ~* l :=
+  phomotopy.mk (λa, !eq_of_is_contr) !eq_of_is_contr
+
+  definition phomotopy_of_is_contr_cod_pmap [constructor] (f g : A →* B) [is_contr B] : f ~* g :=
+  phomotopy_of_is_contr_cod f g
+
+  definition phomotopy_of_is_contr_dom [constructor] (k l : ppi P p₀) [is_contr A] : k ~* l :=
+  begin
+    fapply phomotopy.mk,
+    { intro a, exact eq_of_pathover_idp (change_path !is_prop.elim
+      (apd k !is_prop.elim ⬝op respect_pt k ⬝ (respect_pt l)⁻¹ ⬝o apd l !is_prop.elim)) },
+    rewrite [▸*, +is_prop_elim_self, +apd_idp, cono_idpo],
+    refine ap (λx, eq_of_pathover_idp (change_path x _)) !is_prop_elim_self ◾ idp ⬝ _,
+    xrewrite [change_path_idp, idpo_concato_eq, inv_con_cancel_right],
+  end
 
   /- adjunction between (-)₊ : Type → Type* and pType.carrier : Type* → Type  -/
   definition pmap_equiv_left (A : Type) (B : Type*) : A₊ →* B ≃ (A → B) :=
