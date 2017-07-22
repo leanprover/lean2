@@ -710,7 +710,7 @@ namespace chain_complex
   end
 
   definition LES_isomorphism_of_trivial_dom (n : ℕ) [H : is_succ n]
-    (HX1 : is_contr (πg[n] X)) (HX2 : is_contr (πg[n+1] X)) : πg[n+1] (Y) ≃g πg[n] (pfiber f) :=
+    (HX1 : is_contr (πg[n] X)) (HX2 : is_contr (πg[n+1] X)) : πg[n+1] Y ≃g πg[n] (pfiber f) :=
   begin
     induction H with n,
     refine isomorphism.mk (homomorphism_LES_of_homotopy_groups_fun (n, 2)) _,

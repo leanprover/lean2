@@ -152,7 +152,6 @@ namespace is_trunc
   begin
     apply whitehead_principle n, rexact H 0,
     intro a k, revert a, apply is_conn.elim -1,
-    { intro a, apply is_prop_is_equiv },
     have is_equiv (π→[k + 1] (pointed_eta_pequiv B ⬝e* (pequiv_of_eq_pt (respect_pt f))⁻¹ᵉ*)
            ∘* π→[k + 1] f ∘* π→[k + 1] (pointed_eta_pequiv A)⁻¹ᵉ*),
     begin
