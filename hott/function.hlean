@@ -67,6 +67,17 @@ definition image_pathover {f : A → B} {x y : B} (p : x = y) (u : image f x) (v
   u =[p] v :=
 !is_prop.elimo
 
+definition total_image.rec [unfold 7]
+  {A B : Type} {f : A → B} {C : total_image f → Type} [H : Πx, is_prop (C x)]
+  (g : Πa, C ⟨f a, image.mk a idp⟩)
+  (x : total_image f) : C x :=
+begin
+  induction x with b v,
+  refine @image.rec _ _ _ _ _ (λv, H ⟨b, v⟩) _ v,
+  intro a p,
+  induction p, exact g a
+end
+
 /- total_image.elim_set is in hit.prop_trunc to avoid dependency cycle -/
 
 end image

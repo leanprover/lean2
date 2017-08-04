@@ -238,7 +238,7 @@ namespace eq
 
   definition hvconcat (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) (q : hsquare f₁₂ f₁₄ f₀₃ f₂₃) :
     hsquare f₁₀ f₁₄ (f₀₃ ∘ f₀₁) (f₂₃ ∘ f₂₁) :=
-  (hhconcat p⁻¹ʰᵗʸ q⁻¹ʰᵗʸ)⁻¹ʰᵗʸ
+  hwhisker_left f₂₃ p ⬝hty hwhisker_right f₀₁ q
 
   definition hhinverse {f₁₀ : A₀₀ ≃ A₂₀} {f₁₂ : A₀₂ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
     hsquare f₁₀⁻¹ᵉ f₁₂⁻¹ᵉ f₂₁ f₀₁ :=
@@ -246,7 +246,7 @@ namespace eq
 
   definition hvinverse {f₀₁ : A₀₀ ≃ A₀₂} {f₂₁ : A₂₀ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
     hsquare f₁₂ f₁₀ f₀₁⁻¹ᵉ f₂₁⁻¹ᵉ :=
-  (hhinverse p⁻¹ʰᵗʸ)⁻¹ʰᵗʸ
+  λa, inv_eq_of_eq (p (f₀₁⁻¹ᵉ a) ⬝ ap f₁₂ (to_right_inv f₀₁ a))⁻¹
 
   infix ` ⬝htyh `:73 := hhconcat
   infix ` ⬝htyv `:73 := hvconcat

@@ -240,7 +240,7 @@ namespace eq
   end
 
   variable (C)
-  definition transporto (r : b =[p] b₂) (c : C b) : C b₂ :=
+  definition transporto [unfold 9] (r : b =[p] b₂) (c : C b) : C b₂ :=
   by induction r;exact c
   infix ` ▸o `:75 := transporto _
 
@@ -444,7 +444,7 @@ namespace eq
     (s : r = r') (s₂ : r₂ = r₂') : r ⬝o r₂ = r' ⬝o r₂' :=
   by induction s; induction s₂; reflexivity
 
-  infixl ` ◾o `:75 := concato2
+  infixl ` ◾o `:79 := concato2
   postfix [parsing_only] `⁻²ᵒ`:(max+10) := inverseo2 --this notation is abusive, should we use it?
 
   -- find a better name for this

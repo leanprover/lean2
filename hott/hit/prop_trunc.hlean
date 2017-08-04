@@ -437,15 +437,4 @@ namespace is_trunc
     { induction x with a p, induction x' with a' p', induction p', exact h _ _ p }
   end
 
-  definition total_image.rec [unfold 7]
-    {A B : Type} {f : A → B} {C : total_image f → Type} [H : Πx, is_prop (C x)]
-    (g : Πa, C ⟨f a, image.mk a idp⟩)
-    (x : total_image f) : C x :=
-  begin
-    induction x with b v,
-    refine @image.rec _ _ _ _ _ (λv, H ⟨b, v⟩) _ v,
-    intro a p,
-    induction p, exact g a
-  end
-
 end is_trunc

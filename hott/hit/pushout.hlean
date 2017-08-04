@@ -244,7 +244,7 @@ namespace pushout
               (fh : bl ∘ f ~ f' ∘ tl) (gh : tr ∘ g ~ g' ∘ tl)
     include fh gh
 
-    protected definition functor [reducible] [unfold 16] : pushout f g → pushout f' g' :=
+    protected definition functor [unfold 16] : pushout f g → pushout f' g' :=
     begin
       intro x, induction x with a b z,
       { exact inl (bl a) },

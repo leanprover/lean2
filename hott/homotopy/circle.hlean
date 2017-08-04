@@ -104,9 +104,6 @@ namespace circle
     pathover_tr_of_pathover q ⬝o !pathover_tr⁻¹ᵒ = q :=
   by cases p'; cases q; exact idp
 
-  definition con_refl {A : Type} {x y : A} (p : x = y) : p ⬝ refl _ = p :=
-  eq.rec_on p idp
-
   theorem rec_loop {P : S¹ → Type} (Pbase : P base) (Ploop : Pbase =[loop] Pbase) :
     apd (circle.rec Pbase Ploop) loop = Ploop :=
   begin
