@@ -69,7 +69,32 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) := sorry
+section nat_code
+  parameter (n : ℕ)
+  definition nat_code   (m : ℕ) (p : succ n = m)      : Type₀         := nat.rec empty (λ k l, n=k) m
+  definition nat_encode (m : ℕ) (p : succ n = m)      : nat_code  m p := @eq.rec ℕ (succ n) nat_code (refl n) m p
+  definition succ_neq_zero      (p : succ n = 0)      : empty         := nat_encode 0 p
+  definition succ_inj   (m : ℕ) (p : succ n = succ m) : n = m         := nat_encode (succ m) p
+end nat_code
+
+  protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) :=
+  begin
+intro x y, 
+induction x, 
+
+induction y, 
+constructor, 
+reflexivity, 
+apply decidable.inr, intro, apply succ_neq_zero,
+symmetry, assumption,
+clear v_0,
+induction y,  
+apply decidable.inr, intro, apply succ_neq_zero,
+assumption,
+induction v_0,  
+ apply decidable.inl,
+ intro,
+  end
   -- | has_decidable_eq zero     zero     := inl rfl
   -- | has_decidable_eq (succ x) zero     := inr (by contradiction)
   -- | has_decidable_eq zero     (succ y) := inr (by contradiction)
