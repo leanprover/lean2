@@ -103,6 +103,3 @@ set_option inductive.cases_on false
 inductive nat : Type₀ :=
 | zero : nat
 | succ : nat → nat
-
-set_option pp.universes true
-print prod
