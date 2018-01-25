@@ -498,8 +498,7 @@ definition decidable_ne [instance] {A : Type} [H : decidable_eq A] (a b : A) : d
 decidable_implies
 
 namespace bool
-  theorem ff_ne_tt : ff = tt → empty :=
-  sorry
+  theorem ff_ne_tt : ff = tt → empty := @eq.rec bool ff (λ b p, bool.rec unit empty b) unit.star tt
 end bool
 
 open bool

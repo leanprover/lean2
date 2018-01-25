@@ -69,15 +69,27 @@ namespace nat
   protected definition is_inhabited [instance] : inhabited nat :=
   inhabited.mk zero
 
-  protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) := sorry
-  -- | has_decidable_eq zero     zero     := inl rfl
-  -- | has_decidable_eq (succ x) zero     := inr (by contradiction)
-  -- | has_decidable_eq zero     (succ y) := inr (by contradiction)
-  -- | has_decidable_eq (succ x) (succ y) :=
-  --     match has_decidable_eq x y with
-  --     | inl xeqy := inl (by rewrite xeqy)
-  --     | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
-  --     end
+section nat_code
+  parameter (n : ℕ)
+  definition nat_code   (m : ℕ) (p : succ n = m)      : Type₀         := nat.rec empty (λ k l, n=k) m
+  definition nat_encode (m : ℕ) (p : succ n = m)      : nat_code  m p := @eq.rec ℕ (succ n) nat_code (refl n) m p
+  definition succ_neq_zero      (p : succ n = 0)      : empty         := nat_encode 0 p
+  definition succ_inj   (m : ℕ) (p : succ n = succ m) : n = m         := nat_encode (succ m) p
+end nat_code
+
+protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) :=
+begin
+intro x, 
+induction x with a s : intro y,
+induction y, 
+exact decidable.inl rfl,
+exact decidable.inr (λp, succ_neq_zero _ p⁻¹),
+induction y with b t,
+exact decidable.inr (λp, succ_neq_zero _ p),
+induction s b with p q,
+exact decidable.inl (ap succ p),
+exact decidable.inr (λp, q (succ_inj _ _ p)),
+end
 
   /- properties of inequality -/
 
