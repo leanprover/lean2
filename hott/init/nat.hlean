@@ -77,40 +77,18 @@ section nat_code
   definition succ_inj   (m : ℕ) (p : succ n = succ m) : n = m         := nat_encode (succ m) p
 end nat_code
 
-lemma succ_n_neq_n (n:ℕ) : succ n ≠ n := 
-begin
-induction n, 
-exact succ_neq_zero 0, 
-exact λ p, v_0 (succ_inj (succ a) a p)
-end
-
 protected definition has_decidable_eq [instance] [priority nat.prio] : Π x y : nat, decidable (x = y) :=
-  -- | has_decidable_eq zero     zero     := inl rfl
-  -- | has_decidable_eq (succ x) zero     := inr (by contradiction)
-  -- | has_decidable_eq zero     (succ y) := inr (by contradiction)
-  -- | has_decidable_eq (succ x) (succ y) :=
-  --     match has_decidable_eq x y with
-  --     | inl xeqy := inl (by rewrite xeqy)
-  --     | inr xney := inr (λ h : succ x = succ y, by injection h with xeqy; exact absurd xeqy xney)
-  --     end
 begin
 intro x, 
-induction x with a s,
+induction x with a s : intro y,
 induction y, 
-constructor, 
-reflexivity, 
-apply decidable.inr, 
-intro, apply succ_neq_zero,
-symmetry, assumption,
---clear v_0,
+exact decidable.inl rfl,
+exact decidable.inr (λp, succ_neq_zero _ p⁻¹),
 induction y with b t,
-apply decidable.inr, 
-intro, 
-apply succ_neq_zero,
-assumption,
-induction s,
-exact decidable.inr (λp, succ_n_neq_n a_1 (p⁻¹⬝a_2)),
-
+exact decidable.inr (λp, succ_neq_zero _ p),
+induction s b with p q,
+exact decidable.inl (ap succ p),
+exact decidable.inr (λp, q (succ_inj _ _ p)),
 end
 
   /- properties of inequality -/
