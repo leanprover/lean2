@@ -137,6 +137,46 @@ namespace nat
     { exact H2 k}
   end
 
+  protected definition rec_down (P : ℕ → Type) (s : ℕ) (H0 : P s) (Hs : Πn, P (n+1) → P n) : P 0 :=
+  begin
+    induction s with s IH,
+    { exact H0 },
+    { exact IH (Hs s H0) }
+  end
+
+  definition rec_down_le (P : ℕ → Type) (s : ℕ) (H0 : Πn, s ≤ n → P n) (Hs : Πn, P (n+1) → P n)
+    : Πn, P n :=
+  begin
+    induction s with s IH: intro n,
+    { exact H0 n (zero_le n) },
+    { apply IH, intro n' H, induction H with n' H IH2, apply Hs, exact H0 _ !le.refl,
+      exact H0 _ (succ_le_succ H) }
+  end
+
+  definition rec_down_le_univ {P : ℕ → Type} {s : ℕ} {H0 : Π⦃n⦄, s ≤ n → P n}
+    {Hs : Π⦃n⦄, P (n+1) → P n} (Q : Π⦃n⦄, P n → P (n + 1) → Type)
+    (HQ0 : Πn (H : s ≤ n), Q (H0 H) (H0 (le.step H))) (HQs : Πn (p : P (n+1)), Q (Hs p) p) :
+    Πn, Q (rec_down_le P s H0 Hs n) (rec_down_le P s H0 Hs (n + 1)) :=
+  begin
+    induction s with s IH: intro n,
+    { apply HQ0 },
+    { apply IH, intro n' H, induction H with n' H IH2,
+      { esimp, apply HQs },
+      { apply HQ0 }}
+  end
+
+  definition rec_down_le_beta_ge (P : ℕ → Type) (s : ℕ) (H0 : Πn, s ≤ n → P n)
+    (Hs : Πn, P (n+1) → P n) (n : ℕ) (Hn : s ≤ n) : rec_down_le P s H0 Hs n = H0 n Hn :=
+  begin
+    revert n Hn, induction s with s IH: intro n Hn,
+    { exact ap (H0 n) !is_prop.elim },
+    { have Hn' : s ≤ n, from le.trans !self_le_succ Hn,
+      refine IH _ _ Hn' ⬝ _,
+      induction Hn' with n Hn' IH',
+      { exfalso, exact not_succ_le_self Hn },
+      { exact ap (H0 (succ n)) !is_prop.elim }}
+  end
+
   /- this inequality comes up a couple of times when using the freudenthal suspension theorem -/
   definition add_mul_le_mul_add (n m k : ℕ) : n + (succ m) * k ≤ (succ m) * (n + k) :=
   calc
@@ -213,13 +253,25 @@ namespace nat
       refine ap (f^[n]) _ ⬝ !iterate_succ⁻¹, exact !to_right_inv⁻¹ }
   end
 
+  definition iterate_hsquare {A B : Type} {f : A → A} {g : B → B}
+    (h : A → B) (p : hsquare f g h h) (n : ℕ) : hsquare (f^[n]) (g^[n]) h h :=
+  begin
+    induction n with n q,
+      exact homotopy.rfl,
+      exact q ⬝htyh p
+  end
+
   definition iterate_commute {A : Type} {f g : A → A} (n : ℕ) (h : f ∘ g ~ g ∘ f) :
-    iterate f n ∘ g ~ g ∘ iterate f n :=
-  by induction n with n IH; reflexivity; exact λx, ap f (IH x) ⬝ !h
+    f^[n] ∘ g ~ g ∘ f^[n] :=
+  (iterate_hsquare g h⁻¹ʰᵗʸ n)⁻¹ʰᵗʸ
 
   definition iterate_equiv {A : Type} (f : A ≃ A) (n : ℕ) : A ≃ A :=
   equiv.mk (iterate f n)
            (by induction n with n IH; apply is_equiv_id; exact is_equiv_compose f (iterate f n))
+
+  definition iterate_equiv2 {A : Type} {C : A → Type} (f : A → A) (h : Πa, C a ≃ C (f a))
+    (k : ℕ) (a : A) : C a ≃ C (f^[k] a) :=
+  begin induction k with k IH, reflexivity, exact IH ⬝e h (f^[k] a) end
 
   definition iterate_inv {A : Type} (f : A ≃ A) (n : ℕ) :
     (iterate_equiv f n)⁻¹ ~ iterate f⁻¹ n :=
@@ -234,6 +286,10 @@ namespace nat
 
   definition iterate_right_inv {A : Type} (f : A ≃ A) (n : ℕ) (a : A) : f^[n] (f⁻¹ᵉ^[n] a) = a :=
   ap (f^[n]) (iterate_inv f n a)⁻¹ ⬝ to_right_inv (iterate_equiv f n) a
+
+  /- the same theorem add_le_add_left but with a proof by structural induction -/
+  definition nat.add_le_add_left2 {n m : ℕ} (H : n ≤ m) (k : ℕ) : k + n ≤ k + m :=
+  by induction H with m H H₂; reflexivity; exact le.step H₂
 
 
 

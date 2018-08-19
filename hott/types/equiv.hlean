@@ -228,6 +228,14 @@ namespace equiv
   definition equiv_eq {f f' : A ≃ B} (p : to_fun f ~ to_fun f') : f = f' :=
   by apply equiv_eq'; apply eq_of_homotopy p
 
+  definition ap_equiv_eq {X Y : Type} {e e' : X ≃ Y} (p : e ~ e') (x : X) :
+    ap (λ(e : X ≃ Y), e x) (equiv_eq p) = p x :=
+  begin
+    cases e with e He, cases e' with e' He', esimp at *, esimp [equiv_eq],
+    refine homotopy.rec_on' p _, intro q, induction q, esimp [equiv_eq', equiv_mk_eq],
+    assert H : He = He', apply is_prop.elim, induction H, rewrite [is_prop_elimo_self]
+  end
+
   definition trans_symm (f : A ≃ B) (g : B ≃ C) : (f ⬝e g)⁻¹ᵉ = g⁻¹ᵉ ⬝e f⁻¹ᵉ :> (C ≃ A) :=
   equiv_eq' idp
 
@@ -264,13 +272,30 @@ namespace equiv
 
   definition equiv_pathover {A : Type} {a a' : A} (p : a = a')
     {B : A → Type} {C : A → Type} (f : B a ≃ C a) (g : B a' ≃ C a')
-    (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[p] g b') : f =[p] g :=
+    (r : to_fun f =[p] to_fun g) : f =[p] g :=
   begin
     fapply pathover_of_fn_pathover_fn,
-    { intro a, apply equiv.sigma_char},
-    { fapply sigma_pathover,
-        esimp, apply arrow_pathover, exact r,
-        apply is_prop.elimo}
+    { intro a, apply equiv.sigma_char },
+    { apply sigma_pathover _ _ _ r, apply is_prop.elimo }
+  end
+
+  definition equiv_pathover2 {A : Type} {a a' : A} (p : a = a')
+    {B : A → Type} {C : A → Type} (f : B a ≃ C a) (g : B a' ≃ C a')
+    (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[p] g b') : f =[p] g :=
+  begin
+    apply equiv_pathover, apply arrow_pathover, exact r
+  end
+
+  definition equiv_pathover_inv {A : Type} {a a' : A} (p : a = a')
+    {B : A → Type} {C : A → Type} (f : B a ≃ C a) (g : B a' ≃ C a')
+    (r : to_inv f =[p] to_inv g) : f =[p] g :=
+  begin
+    /- this proof is a bit weird, but it works -/
+    apply equiv_pathover,
+    change f⁻¹ᶠ⁻¹ᶠ =[p] g⁻¹ᶠ⁻¹ᶠ,
+    apply apo (λ(a: A) (h : C a ≃ B a), h⁻¹ᶠ),
+    apply equiv_pathover,
+    exact r
   end
 
   definition is_contr_equiv (A B : Type) [HA : is_contr A] [HB : is_contr B] : is_contr (A ≃ B) :=

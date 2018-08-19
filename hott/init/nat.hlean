@@ -102,9 +102,10 @@ namespace nat
   protected definition le_trans {n m k : ℕ} (H1 : n ≤ m) : m ≤ k → n ≤ k :=
   le.rec H1 (λp H2, le.step)
 
-  definition le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := nat.le_trans H !le_succ
+  definition le_succ_of_le {n m : ℕ} (H : n ≤ m) : n ≤ succ m := le.step H
 
-  definition le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m := nat.le_trans !le_succ H
+  definition le_of_succ_le {n m : ℕ} (H : succ n ≤ m) : n ≤ m :=
+  by induction H with H m H'; exact le_succ n; exact le.step H'
 
   protected definition le_of_lt {n m : ℕ} (H : n < m) : n ≤ m := le_of_succ_le H
 

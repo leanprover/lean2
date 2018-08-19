@@ -11,7 +11,6 @@ import .trunc_group types.trunc .group_theory types.nat.hott
 open nat eq pointed trunc is_trunc algebra group function equiv unit is_equiv nat
 
 -- TODO: consistently make n an argument before A
--- TODO: rename cghomotopy_group to aghomotopy_group
 -- TODO: rename homotopy_group_functor_compose to homotopy_group_functor_pcompose
 namespace eq
 
@@ -60,14 +59,14 @@ namespace eq
   definition ghomotopy_group [constructor] (n : ℕ) [is_succ n] (A : Type*) : Group :=
   Group.mk (π[n] A) _
 
-  definition cghomotopy_group [constructor] (n : ℕ) [is_at_least_two n] (A : Type*) : AbGroup :=
+  definition aghomotopy_group [constructor] (n : ℕ) [is_at_least_two n] (A : Type*) : AbGroup :=
   AbGroup.mk (π[n] A) _
 
   definition fundamental_group [constructor] (A : Type*) : Group :=
   ghomotopy_group 1 A
 
   notation `πg[`:95  n:0 `]`:0 := ghomotopy_group n
-  notation `πag[`:95 n:0 `]`:0 := cghomotopy_group n
+  notation `πag[`:95 n:0 `]`:0 := aghomotopy_group n
 
   notation `π₁` := fundamental_group -- should this be notation for the group or pointed type?
 
@@ -163,7 +162,7 @@ namespace eq
     [is_equiv f] : is_equiv (π→[n] f) :=
   @(is_equiv_trunc_functor 0 _) !is_equiv_apn
 
-  definition homotopy_group_functor_succ_phomotopy_in (n : ℕ) {A B : Type*} (f : A →* B) :
+  definition homotopy_group_succ_in_natural (n : ℕ) {A B : Type*} (f : A →* B) :
     homotopy_group_succ_in B n ∘* π→[n + 1] f ~*
     π→[n] (Ω→ f) ∘* homotopy_group_succ_in A n :=
   begin
@@ -171,11 +170,15 @@ namespace eq
     exact ptrunc_functor_phomotopy 0 (apn_succ_phomotopy_in n f)
   end
 
+  definition homotopy_group_succ_in_natural_unpointed (n : ℕ) {A B : Type*} (f : A →* B) :
+    hsquare (homotopy_group_succ_in A n) (homotopy_group_succ_in B n) (π→[n+1] f) (π→[n] (Ω→ f)) :=
+  (homotopy_group_succ_in_natural n f)⁻¹*
+
   definition is_equiv_homotopy_group_functor_ap1 (n : ℕ) {A B : Type*} (f : A →* B)
     [is_equiv (π→[n + 1] f)] : is_equiv (π→[n] (Ω→ f)) :=
   have is_equiv (π→[n] (Ω→ f) ∘ homotopy_group_succ_in A n),
   from is_equiv_of_equiv_of_homotopy (equiv.mk (π→[n+1] f) _ ⬝e homotopy_group_succ_in B n)
-                                     (homotopy_group_functor_succ_phomotopy_in n f),
+                                     (homotopy_group_succ_in_natural n f),
   is_equiv.cancel_right (homotopy_group_succ_in A n) _
 
   definition tinverse [constructor] {X : Type*} : π[1] X →* π[1] X :=
@@ -275,9 +278,38 @@ namespace eq
       apply homotopy_group_pequiv_loop_ptrunc_con}
   end
 
+  lemma ghomotopy_group_isomorphism_of_ptrunc_pequiv {A B : Type*}
+    (n k : ℕ) (H : n+1 ≤[ℕ] k) (f : ptrunc k A ≃* ptrunc k B) : πg[n+1] A ≃g πg[n+1] B :=
+  (ghomotopy_group_ptrunc_of_le H A)⁻¹ᵍ ⬝g
+  homotopy_group_isomorphism_of_pequiv n f ⬝g
+  ghomotopy_group_ptrunc_of_le H B
+
+  definition fundamental_group_isomorphism {X : Type*} {G : Group}
+    (e : Ω X ≃ G) (hom_e : Πp q, e (p ⬝ q) = e p * e q) : π₁ X ≃g G :=
+  isomorphism_of_equiv (trunc_equiv_trunc 0 e ⬝e (trunc_equiv 0 G))
+    begin intro p q, induction p with p, induction q with q, exact hom_e p q end
+
   definition ghomotopy_group_ptrunc [constructor] (k : ℕ) [is_succ k] (A : Type*) :
     πg[k] (ptrunc k A) ≃g πg[k] A :=
   ghomotopy_group_ptrunc_of_le (le.refl k) A
+
+  section psquare
+  variables {A₀₀ A₂₀ A₀₂ A₂₂ : Type*}
+            {f₁₀ : A₀₀ →* A₂₀} {f₁₂ : A₀₂ →* A₂₂}
+            {f₀₁ : A₀₀ →* A₀₂} {f₂₁ : A₂₀ →* A₂₂}
+
+  definition homotopy_group_functor_psquare (n : ℕ) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+        psquare (π→[n] f₁₀) (π→[n] f₁₂) (π→[n] f₀₁) (π→[n] f₂₁) :=
+  !homotopy_group_functor_compose⁻¹* ⬝* homotopy_group_functor_phomotopy n p ⬝*
+  !homotopy_group_functor_compose
+
+  definition homotopy_group_homomorphism_psquare (n : ℕ) [H : is_succ n]
+    (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : hsquare (π→g[n] f₁₀) (π→g[n] f₁₂) (π→g[n] f₀₁) (π→g[n] f₂₁) :=
+  begin
+    induction H with n, exact to_homotopy (ptrunc_functor_psquare 0 (apn_psquare (succ n) p))
+  end
+
+  end psquare
 
   /- some homomorphisms -/
 

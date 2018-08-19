@@ -35,6 +35,7 @@ namespace eq
             {s₁₁ : square p₁₀ p₁₂ p₀₁ p₂₁} {s₃₁ : square p₃₀ p₃₂ p₂₁ p₄₁}
             {s₁₃ : square p₁₂ p₁₄ p₀₃ p₂₃} {s₃₃ : square p₃₂ p₃₄ p₂₃ p₄₃}
 
+            {b : B a}
             {b₀₀ : B a₀₀} {b₂₀ : B a₂₀} {b₄₀ : B a₄₀}
             {b₀₂ : B a₀₂} {b₂₂ : B a₂₂} {b₄₂ : B a₄₂}
             {b₀₄ : B a₀₄} {b₂₄ : B a₂₄} {b₄₄ : B a₄₄}
@@ -117,9 +118,9 @@ namespace eq
     squareover B (sp ⬝ph s₁₁) q₁₀ q₁₂ q q₂₁ :=
   by induction sp; induction r; exact t₁₁
 
-  definition hconcato_pathover {p : a₂₀ = a₂₂} {sp : p₂₁ = p} {q : b₂₀ =[p] b₂₂}
-    (t₁₁ : squareover B s₁₁ q₁₀ q₁₂ q₀₁ q₂₁) (r : change_path sp q₂₁ = q) :
-    squareover B (s₁₁ ⬝hp sp) q₁₀ q₁₂ q₀₁ q :=
+  definition hconcato_pathover {p : a₂₀ = a₂₂} {sp : p = p₂₁} {s : square p₁₀ p₁₂ p₀₁ p}
+    {q : b₂₀ =[p] b₂₂} (t₁₁ : squareover B (s ⬝hp sp) q₁₀ q₁₂ q₀₁ q₂₁)
+    (r : change_path sp q = q₂₁) : squareover B s q₁₀ q₁₂ q₀₁ q :=
   by induction sp; induction r; exact t₁₁
 
   infix ` ⬝ho `:69 := hconcato --type using \tr
@@ -302,6 +303,39 @@ namespace eq
     induction v₀₀, induction v₂₀, induction v₀₂, induction v₂₂,
     rewrite [▸* at *, -sigma_eq_eta p₁₀, -sigma_eq_eta p₁₂, -sigma_eq_eta p₀₁, -sigma_eq_eta p₂₁],
     exact square_dpair_eq_dpair s₁₁ t₁₁
+  end
+
+  definition move_right_of_top_over {p : a₀₀ = a} {p' : a = a₂₀}
+    {s : square p p₁₂ p₀₁ (p' ⬝ p₂₁)} {q : b₀₀ =[p] b} {q' : b =[p'] b₂₀}
+    (t : squareover B (move_top_of_right s) (q ⬝o q') q₁₂ q₀₁ q₂₁) :
+    squareover B s q q₁₂ q₀₁ (q' ⬝o q₂₁) :=
+  begin induction q', induction q, induction q₂₁, exact t end
+
+  /- TODO: replace the version in the library by this -/
+
+  variables (s₁₁ q₀₁ q₁₀ q₂₁ q₁₂)
+  definition squareover_fill_t : Σ (q : b₀₀ =[p₁₀] b₂₀), squareover B s₁₁ q q₁₂ q₀₁ q₂₁ :=
+  begin
+    induction s₁₁, induction q₀₁ using idp_rec_on, induction q₂₁ using idp_rec_on,
+    induction q₁₂ using idp_rec_on, exact ⟨idpo, idso⟩
+  end
+
+  definition squareover_fill_b : Σ (q : b₀₂ =[p₁₂] b₂₂), squareover B s₁₁ q₁₀ q q₀₁ q₂₁ :=
+  begin
+    induction s₁₁, induction q₀₁ using idp_rec_on, induction q₂₁ using idp_rec_on,
+    induction q₁₀ using idp_rec_on, exact ⟨idpo, idso⟩
+  end
+
+  definition squareover_fill_l : Σ (q : b₀₀ =[p₀₁] b₀₂), squareover B s₁₁ q₁₀ q₁₂ q q₂₁ :=
+  begin
+    induction s₁₁, induction q₁₀ using idp_rec_on, induction q₂₁ using idp_rec_on,
+    induction q₁₂ using idp_rec_on, exact ⟨idpo, idso⟩
+  end
+
+  definition squareover_fill_r : Σ (q : b₂₀ =[p₂₁] b₂₂) , squareover B s₁₁ q₁₀ q₁₂ q₀₁ q :=
+  begin
+    induction s₁₁, induction q₀₁ using idp_rec_on, induction q₁₀ using idp_rec_on,
+    induction q₁₂ using idp_rec_on, exact ⟨idpo, idso⟩
   end
 
 end eq

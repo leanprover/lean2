@@ -51,6 +51,22 @@ namespace eq
   infix ` ~2 `:50 := homotopy2
   infix ` ~3 `:50 := homotopy3
 
+  definition homotopy2.refl {A} {B : A → Type} {C : Π⦃a⦄, B a → Type} (f : Πa (b : B a), C b) :
+    f ~2 f :=
+  λa b, idp
+
+  definition homotopy2.rfl [refl] {A} {B : A → Type} {C : Π⦃a⦄, B a → Type}
+    {f : Πa (b : B a), C b} : f ~2 f :=
+  λa b, idp
+
+  definition homotopy3.refl {A} {B : A → Type} {C : Πa, B a → Type}
+    {D : Π⦃a⦄ ⦃b : B a⦄, C a b → Type} (f : Πa b (c : C a b), D c) : f ~3 f :=
+  λa b c, idp
+
+  definition homotopy3.rfl {A} {B : A → Type} {C : Πa, B a → Type}
+    {D : Π⦃a⦄ ⦃b : B a⦄, C a b → Type} {f : Πa b (c : C a b), D c} : f ~3 f :=
+  λa b c, idp
+
   definition ap0111 (f : U → V → W → X) (Hu : u = u') (Hv : v = v') (Hw : w = w')
       : f u v w = f u' v' w' :=
   by cases Hu; congruence; repeat assumption
@@ -70,13 +86,13 @@ namespace eq
       : f u v w x y z = f u' v' w' x' y' z' :=
   by cases Hu; congruence; repeat assumption
 
-  definition ap010 (f : X → Πa, B a) (Hx : x = x') : f x ~ f x' :=
+  definition ap010 [unfold 7] (f : X → Πa, B a) (Hx : x = x') : f x ~ f x' :=
   by intros; cases Hx; reflexivity
 
-  definition ap0100 (f : X → Πa b, C a b) (Hx : x = x') : f x ~2 f x' :=
+  definition ap0100 [unfold 8] (f : X → Πa b, C a b) (Hx : x = x') : f x ~2 f x' :=
   by intros; cases Hx; reflexivity
 
-  definition ap01000 (f : X → Πa b c, D a b c) (Hx : x = x') : f x ~3 f x' :=
+  definition ap01000 [unfold 9] (f : X → Πa b c, D a b c) (Hx : x = x') : f x ~3 f x' :=
   by intros; cases Hx; reflexivity
 
   definition apdt011 (f : Πa, B a → Z) (Ha : a = a') (Hb : transport B Ha b = b')
@@ -188,6 +204,13 @@ namespace eq
   definition eq_of_homotopy3_con {f g h : Πa b c, D a b c} (H1 : f ~3 g) (H2 : g ~3 h)
     : eq_of_homotopy3 (λa b c, H1 a b c ⬝ H2 a b c) = eq_of_homotopy3 H1 ⬝ eq_of_homotopy3 H2 :=
   ap eq_of_homotopy (eq_of_homotopy (λa, !eq_of_homotopy2_con)) ⬝ !eq_of_homotopy_con
+
+  definition ap_apd0111 {A₁ A₂ A₃ : Type} {B : A₁ → Type} {C : Π⦃a⦄, B a → Type} {a a₂ : A₁}
+    {b : B a} {b₂ : B a₂} {c : C b} {c₂ : C b₂}
+    (g : A₂ → A₃) (f : Πa b, C b → A₂) (Ha : a = a₂) (Hb : b =[Ha] b₂)
+      (Hc : c =[apd011 C Ha Hb] c₂) :
+    ap g (apd0111 f Ha Hb Hc) = apd0111 (λa b c, (g (f a b c))) Ha Hb Hc :=
+  by induction Hb; induction Hc using idp_rec_on; reflexivity
 
 end eq
 

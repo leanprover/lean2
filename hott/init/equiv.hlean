@@ -462,3 +462,69 @@ end is_equiv
 
 export [unfold] equiv
 export [unfold] is_equiv
+
+/- properties about squares of functions -/
+namespace eq
+
+  section hsquare
+  variables {A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type}
+            {f₁₀ : A₀₀ → A₂₀} {f₃₀ : A₂₀ → A₄₀}
+            {f₀₁ : A₀₀ → A₀₂} {f₂₁ : A₂₀ → A₂₂} {f₄₁ : A₄₀ → A₄₂}
+            {f₁₂ : A₀₂ → A₂₂} {f₃₂ : A₂₂ → A₄₂}
+            {f₀₃ : A₀₂ → A₀₄} {f₂₃ : A₂₂ → A₂₄} {f₄₃ : A₄₂ → A₄₄}
+            {f₁₄ : A₀₄ → A₂₄} {f₃₄ : A₂₄ → A₄₄}
+
+  definition hsquare [reducible] (f₁₀ : A₀₀ → A₂₀) (f₁₂ : A₀₂ → A₂₂)
+                                 (f₀₁ : A₀₀ → A₀₂) (f₂₁ : A₂₀ → A₂₂) : Type :=
+  f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁
+
+  definition hsquare_of_homotopy (p : f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁) : hsquare f₁₀ f₁₂ f₀₁ f₂₁ :=
+  p
+
+  definition homotopy_of_hsquare (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) : f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁ :=
+  p
+
+  definition homotopy_top_of_hsquare {f₂₁ : A₂₀ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    f₁₀ ~ f₂₁⁻¹ ∘ f₁₂ ∘ f₀₁ :=
+  homotopy_inv_of_homotopy_post _ _ _ p
+
+  definition homotopy_top_of_hsquare' [is_equiv f₂₁] (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    f₁₀ ~ f₂₁⁻¹ ∘ f₁₂ ∘ f₀₁ :=
+  homotopy_inv_of_homotopy_post _ _ _ p
+
+  definition hhconcat [unfold_full] (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) :
+    hsquare (f₃₀ ∘ f₁₀) (f₃₂ ∘ f₁₂) f₀₁ f₄₁ :=
+  hwhisker_right f₁₀ q ⬝hty hwhisker_left f₃₂ p
+
+  definition hvconcat [unfold_full] (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) (q : hsquare f₁₂ f₁₄ f₀₃ f₂₃) :
+    hsquare f₁₀ f₁₄ (f₀₃ ∘ f₀₁) (f₂₃ ∘ f₂₁) :=
+  hwhisker_left f₂₃ p ⬝hty hwhisker_right f₀₁ q
+
+  definition hhinverse {f₁₀ : A₀₀ ≃ A₂₀} {f₁₂ : A₀₂ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    hsquare f₁₀⁻¹ᵉ f₁₂⁻¹ᵉ f₂₁ f₀₁ :=
+  λb, eq_inv_of_eq ((p (f₁₀⁻¹ᵉ b))⁻¹ ⬝ ap f₂₁ (to_right_inv f₁₀ b))
+
+  definition hvinverse {f₀₁ : A₀₀ ≃ A₀₂} {f₂₁ : A₂₀ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    hsquare f₁₂ f₁₀ f₀₁⁻¹ᵉ f₂₁⁻¹ᵉ :=
+  λa, inv_eq_of_eq (p (f₀₁⁻¹ᵉ a) ⬝ ap f₁₂ (to_right_inv f₀₁ a))⁻¹
+
+  infix ` ⬝htyh `:73 := hhconcat
+  infix ` ⬝htyv `:73 := hvconcat
+  postfix `⁻¹ʰᵗʸʰ`:(max+1) := hhinverse
+  postfix `⁻¹ʰᵗʸᵛ`:(max+1) := hvinverse
+
+  definition rfl_hhconcat (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) : homotopy.rfl ⬝htyh q ~ q :=
+  homotopy.rfl
+
+  definition hhconcat_rfl (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) : q ⬝htyh homotopy.rfl ~ q :=
+  λx, !idp_con ⬝ ap_id (q x)
+
+  definition rfl_hvconcat (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) : homotopy.rfl ⬝htyv q ~ q :=
+  λx, !idp_con
+
+  definition hvconcat_rfl (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) : q ⬝htyv homotopy.rfl ~ q :=
+  λx, !ap_id
+
+  end hsquare
+
+end eq

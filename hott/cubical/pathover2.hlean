@@ -30,7 +30,7 @@ namespace eq
       = change_path (ap_compose g f p) (pathover_ap B (g ∘ f) q) :=
   by induction q; reflexivity
 
-  definition pathover_of_tr_eq_idp (r : b = b') : pathover_of_tr_eq r = pathover_idp_of_eq r :=
+  definition pathover_idp_of_eq_def (r : b = b') : pathover_of_tr_eq r = pathover_idp_of_eq r :=
   idp
 
   definition pathover_of_tr_eq_eq_concato (r : p ▸ b = b₂)
@@ -133,5 +133,37 @@ namespace eq
     {b : B a} {b' b'' : B a'} (q : b =[p] b') (r : b' = b'') :
     tr_eq_of_pathover (q ⬝op r) = tr_eq_of_pathover q ⬝ r :=
   by induction r; reflexivity
+
+  definition pathover_tr_pathover_idp_of_eq {A : Type} {B : A → Type} {a a' : A} {b : B a} {b' : B a'} {p : a = a'}
+    (q : b =[p] b') :
+    pathover_tr p b ⬝o pathover_idp_of_eq (tr_eq_of_pathover q) = q :=
+  begin induction q; reflexivity end
+
+  definition pathover_of_tr_eq_idp' {A : Type} {B : A → Type} {a a₂ : A} (p : a = a₂) (b : B a) :
+    pathover_of_tr_eq idp = pathover_tr p b :=
+  by induction p; constructor
+
+  definition eq_of_pathover_apo {A C : Type} {B : A → Type} {a a' : A} {b : B a} {b' : B a'}
+    {p : a = a'} (g : Πa, B a → C) (q : b =[p] b') :
+    eq_of_pathover (apo g q) = apd011 g p q :=
+  by induction q; reflexivity
+
+  definition pathover_ap_cono {A A' : Type} {a₁ a₂ a₃ : A}
+    {p₁ : a₁ = a₂} {p₂ : a₂ = a₃} (B' : A' → Type) (f : A → A')
+    {b₁ : B' (f a₁)} {b₂ : B' (f a₂)} {b₃ : B' (f a₃)}
+    (q₁ : b₁ =[p₁] b₂) (q₂ : b₂ =[p₂] b₃) :
+    pathover_ap B' f (q₁ ⬝o q₂) =
+    change_path !ap_con⁻¹ (pathover_ap B' f q₁ ⬝o pathover_ap B' f q₂) :=
+  by induction q₁; induction q₂; reflexivity
+
+  definition concato_eq_eq {A : Type} {B : A → Type} {a₁ a₂ : A} {p₁ : a₁ = a₂}
+    {b₁ : B a₁} {b₂ b₂' : B a₂} (r : b₁ =[p₁] b₂) (q : b₂ = b₂') :
+    r ⬝op q = r ⬝o pathover_idp_of_eq q :=
+  by induction q; reflexivity
+
+  definition eq_tr_of_pathover_con_tr_eq_of_pathover {A : Type} {B : A → Type}
+    {a₁ a₂ : A} (p : a₁ = a₂) {b₁ : B a₁} {b₂ : B a₂} (q : b₁ =[p] b₂) :
+    eq_tr_of_pathover q ⬝ tr_eq_of_pathover q⁻¹ᵒ = idp :=
+  by induction q; reflexivity
 
 end eq

@@ -138,13 +138,26 @@ namespace lift
       apply ua_refl}
   end
 
+  definition fiber_lift_functor {A B : Type} (f : A → B) (b : B) :
+    fiber (lift_functor f) (up b) ≃ fiber f b :=
+  begin
+    fapply equiv.MK: intro v; cases v with a p,
+    { cases a with a, exact fiber.mk a (eq_of_fn_eq_fn' up p) },
+    { exact fiber.mk (up a) (ap up p) },
+    { apply ap (fiber.mk a), apply eq_of_fn_eq_fn'_ap },
+    { cases a with a, esimp, apply ap (fiber.mk (up a)), apply ap_eq_of_fn_eq_fn' }
+  end
+
+  definition lift_functor2 {A B C : Type} (f : A → B → C) (x : lift A) (y : lift B) : lift C :=
+  up (f (down x) (down y))
+
+  -- is_trunc_lift is defined in init.trunc
+
   definition plift [constructor] (A : pType.{u}) : pType.{max u v} :=
   pointed.MK (lift A) (up pt)
 
   definition plift_functor [constructor] {A B : Type*} (f : A →* B) : plift A →* plift B :=
   pmap.mk (lift_functor f) (ap up (respect_pt f))
-
-  -- is_trunc_lift is defined in init.trunc
 
   definition pup [constructor] {A : Type*} : A →* plift A :=
   pmap.mk up idp
@@ -164,15 +177,8 @@ namespace lift
   definition pequiv_plift [constructor] (A : Type*) : A ≃* plift A :=
   pequiv_of_equiv (equiv_lift A) idp
 
-  definition fiber_lift_functor {A B : Type} (f : A → B) (b : B) :
-    fiber (lift_functor f) (up b) ≃ fiber f b :=
-  begin
-    fapply equiv.MK: intro v; cases v with a p,
-    { cases a with a, exact fiber.mk a (eq_of_fn_eq_fn' up p) },
-    { exact fiber.mk (up a) (ap up p) },
-    { apply ap (fiber.mk a), apply eq_of_fn_eq_fn'_ap },
-    { cases a with a, esimp, apply ap (fiber.mk (up a)), apply ap_eq_of_fn_eq_fn' }
-  end
-
+  definition is_trunc_plift [instance] [priority 1450] (A : Type*) (n : ℕ₋₂)
+    [H : is_trunc n A] : is_trunc n (plift A) :=
+  is_trunc_lift A n
 
 end lift

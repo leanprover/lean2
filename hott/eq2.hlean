@@ -7,7 +7,7 @@ Theorems about 2-dimensional paths
 -/
 
 import .cubical.square .function
-open function is_equiv equiv
+open function is_equiv equiv sigma trunc
 
 namespace eq
   variables {A B C : Type} {f : A → B} {a a' a₁ a₂ a₃ a₄ : A} {b b' : B}
@@ -141,6 +141,10 @@ namespace eq
     : whisker_left p q⁻² ⬝ q = con.right_inv p :=
   by cases q; reflexivity
 
+  definition whisker_left_idp_square {A : Type} {a a' : A} {p q : a = a'} (r : p = q) :
+    square (whisker_left idp r) r (idp_con p) (idp_con q) :=
+  begin induction r, exact hrfl end
+
   definition cast_fn_cast_square {A : Type} {B C : A → Type} (f : Π⦃a⦄, B a → C a) {a₁ a₂ : A}
     (p : a₁ = a₂) (q : a₂ = a₁) (r : p ⬝ q = idp) (b : B a₁) :
     cast (ap C q) (f (cast (ap B p) b)) = f b :=
@@ -206,53 +210,94 @@ namespace eq
     (q : p = p') : square (ap_constant p b) (ap_constant p' b) (ap02 (λx, b) q) idp :=
   by induction q; exact vrfl
 
-  section hsquare
-  variables {A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type}
-            {f₁₀ : A₀₀ → A₂₀} {f₃₀ : A₂₀ → A₄₀}
-            {f₀₁ : A₀₀ → A₀₂} {f₂₁ : A₂₀ → A₂₂} {f₄₁ : A₄₀ → A₄₂}
-            {f₁₂ : A₀₂ → A₂₂} {f₃₂ : A₂₂ → A₄₂}
-            {f₀₃ : A₀₂ → A₀₄} {f₂₃ : A₂₂ → A₂₄} {f₄₃ : A₄₂ → A₄₄}
-            {f₁₄ : A₀₄ → A₂₄} {f₃₄ : A₂₄ → A₄₄}
+  definition ap_con_idp_left {A B : Type} (f : A → B) {a a' : A} (p : a = a') :
+    square (ap_con f idp p) idp (ap02 f (idp_con p)) (idp_con (ap f p)) :=
+  begin induction p, exact ids end
 
-  definition hsquare [reducible] (f₁₀ : A₀₀ → A₂₀) (f₁₂ : A₀₂ → A₂₂)
-                                 (f₀₁ : A₀₀ → A₀₂) (f₂₁ : A₂₀ → A₂₂) : Type :=
-  f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁
+  definition apd10_prepostcompose_nondep {A B C D : Type} (h : C → D) {g g' : B → C} (p : g = g')
+    (f : A → B) (a : A) : apd10 (ap (λg a, h (g (f a))) p) a = ap h (apd10 p (f a)) :=
+  begin induction p, reflexivity end
 
-  definition hsquare_of_homotopy (p : f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁) : hsquare f₁₀ f₁₂ f₀₁ f₂₁ :=
-  p
+  definition apd10_prepostcompose {A B : Type} {C : B → Type} {D : A → Type}
+    (f : A → B) (h : Πa, C (f a) → D a) {g g' : Πb, C b}
+    (p : g = g') (a : A) :
+    apd10 (ap (λg a, h a (g (f a))) p) a = ap (h a) (apd10 p (f a)) :=
+  begin induction p, reflexivity end
 
-  definition homotopy_of_hsquare (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) : f₂₁ ∘ f₁₀ ~ f₁₂ ∘ f₀₁ :=
-  p
+  /- alternative induction principles -/
+  definition eq.rec_to {A : Type} {a₀ : A} {P : Π⦃a₁⦄, a₀ = a₁ → Type}
+    {a₁ : A} (p₀ : a₀ = a₁) (H : P p₀) ⦃a₂ : A⦄ (p : a₀ = a₂) : P p :=
+  begin
+    induction p₀, induction p, exact H
+  end
 
-  definition homotopy_top_of_hsquare {f₂₁ : A₂₀ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
-    f₁₀ ~ f₂₁⁻¹ ∘ f₁₂ ∘ f₀₁ :=
-  homotopy_inv_of_homotopy_post _ _ _ p
+  definition eq.rec_to2 {A : Type} {P : Π⦃a₀ a₁⦄, a₀ = a₁ → Type}
+    {a₀ a₀' a₁' : A} (p' : a₀' = a₁') (p₀ : a₀ = a₀') (H : P p') ⦃a₁ : A⦄ (p : a₀ = a₁) : P p :=
+  begin
+   induction p₀, induction p', induction p, exact H
+  end
 
-  definition homotopy_top_of_hsquare' [is_equiv f₂₁] (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
-    f₁₀ ~ f₂₁⁻¹ ∘ f₁₂ ∘ f₀₁ :=
-  homotopy_inv_of_homotopy_post _ _ _ p
+  definition eq.rec_right_inv {A : Type} (f : A ≃ A) {P : Π⦃a₀ a₁⦄, f a₀ = a₁ → Type}
+    (H : Πa, P (right_inv f a)) ⦃a₀ a₁ : A⦄ (p : f a₀ = a₁) : P p :=
+  begin
+    revert a₀ p, refine equiv_rect f⁻¹ᵉ _ _,
+    intro a₀ p, exact eq.rec_to (right_inv f a₀) (H a₀) p,
+  end
 
-  definition hhconcat (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) (q : hsquare f₃₀ f₃₂ f₂₁ f₄₁) :
-    hsquare (f₃₀ ∘ f₁₀) (f₃₂ ∘ f₁₂) f₀₁ f₄₁ :=
-  hwhisker_right f₁₀ q ⬝hty hwhisker_left f₃₂ p
+  definition eq.rec_equiv {A B : Type} {a₀ : A} (f : A ≃ B) {P : Π{a₁}, f a₀ = f a₁ → Type}
+    (H : P (idpath (f a₀))) ⦃a₁ : A⦄ (p : f a₀ = f a₁) : P p :=
+  begin
+    assert qr : Σ(q : a₀ = a₁), ap f q = p,
+    { exact ⟨eq_of_fn_eq_fn f p, ap_eq_of_fn_eq_fn' f p⟩ },
+    cases qr with q r, apply transport P r, induction q, exact H
+  end
 
-  definition hvconcat (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) (q : hsquare f₁₂ f₁₄ f₀₃ f₂₃) :
-    hsquare f₁₀ f₁₄ (f₀₃ ∘ f₀₁) (f₂₃ ∘ f₂₁) :=
-  hwhisker_left f₂₃ p ⬝hty hwhisker_right f₀₁ q
+  definition eq.rec_equiv_symm {A B : Type} {a₁ : A} (f : A ≃ B) {P : Π{a₀}, f a₀ = f a₁ → Type}
+    (H : P (idpath (f a₁))) ⦃a₀ : A⦄ (p : f a₀ = f a₁) : P p :=
+  begin
+    assert qr : Σ(q : a₀ = a₁), ap f q = p,
+    { exact ⟨eq_of_fn_eq_fn f p, ap_eq_of_fn_eq_fn' f p⟩ },
+    cases qr with q r, apply transport P r, induction q, exact H
+  end
 
-  definition hhinverse {f₁₀ : A₀₀ ≃ A₂₀} {f₁₂ : A₀₂ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
-    hsquare f₁₀⁻¹ᵉ f₁₂⁻¹ᵉ f₂₁ f₀₁ :=
-  λb, eq_inv_of_eq ((p (f₁₀⁻¹ᵉ b))⁻¹ ⬝ ap f₂₁ (to_right_inv f₁₀ b))
+  definition eq.rec_equiv_to_same {A B : Type} {a₀ : A} (f : A ≃ B) {P : Π{a₁}, f a₀ = f a₁ → Type}
+    ⦃a₁' : A⦄ (p' : f a₀ = f a₁') (H : P p') ⦃a₁ : A⦄ (p : f a₀ = f a₁) : P p :=
+  begin
+    revert a₁' p' H a₁ p,
+    refine eq.rec_equiv f _,
+    exact eq.rec_equiv f
+  end
 
-  definition hvinverse {f₀₁ : A₀₀ ≃ A₀₂} {f₂₁ : A₂₀ ≃ A₂₂} (p : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
-    hsquare f₁₂ f₁₀ f₀₁⁻¹ᵉ f₂₁⁻¹ᵉ :=
-  λa, inv_eq_of_eq (p (f₀₁⁻¹ᵉ a) ⬝ ap f₁₂ (to_right_inv f₀₁ a))⁻¹
+  definition eq.rec_equiv_to {A A' B : Type} {a₀ : A} (f : A ≃ B) (g : A' ≃ B)
+    {P : Π{a₁}, f a₀ = g a₁ → Type}
+    ⦃a₁' : A'⦄ (p' : f a₀ = g a₁') (H : P p') ⦃a₁ : A'⦄ (p : f a₀ = g a₁) : P p :=
+  begin
+    assert qr : Σ(q : g⁻¹ (f a₀) = a₁), (right_inv g (f a₀))⁻¹ ⬝ ap g q = p,
+    { exact ⟨eq_of_fn_eq_fn g (right_inv g (f a₀) ⬝ p),
+             whisker_left _ (ap_eq_of_fn_eq_fn' g _) ⬝ !inv_con_cancel_left⟩ },
+    assert q'r' : Σ(q' : g⁻¹ (f a₀) = a₁'), (right_inv g (f a₀))⁻¹ ⬝ ap g q' = p',
+    { exact ⟨eq_of_fn_eq_fn g (right_inv g (f a₀) ⬝ p'),
+             whisker_left _ (ap_eq_of_fn_eq_fn' g _) ⬝ !inv_con_cancel_left⟩ },
+    induction qr with q r, induction q'r' with q' r',
+    induction q, induction q',
+    induction r, induction r',
+    exact H
+  end
 
-  infix ` ⬝htyh `:73 := hhconcat
-  infix ` ⬝htyv `:73 := hvconcat
-  postfix `⁻¹ʰᵗʸʰ`:(max+1) := hhinverse
-  postfix `⁻¹ʰᵗʸᵛ`:(max+1) := hvinverse
+  definition eq.rec_grading {A A' B : Type} {a : A} (f : A ≃ B) (g : A' ≃ B)
+    {P : Π{b}, f a = b → Type}
+    {a' : A'} (p' : f a = g a') (H : P p') ⦃b : B⦄ (p : f a = b) : P p :=
+  begin
+    revert b p, refine equiv_rect g _ _,
+    exact eq.rec_equiv_to f g p' H
+  end
 
-  end hsquare
+  definition eq.rec_grading_unbased {A B B' C : Type} (f : A ≃ B) (g : B ≃ C) (h : B' ≃ C)
+    {P : Π{b c}, g b = c → Type}
+    {a' : A} {b' : B'} (p' : g (f a') = h b') (H : P p') ⦃b : B⦄ ⦃c : C⦄ (q : f a' = b)
+    (p : g b = c) : P p :=
+  begin
+    induction q, exact eq.rec_grading (f ⬝e g) h p' H p
+  end
 
 end eq

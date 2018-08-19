@@ -275,20 +275,20 @@ namespace eq
   definition hassoc {A B C D : Type} (h : C → D) (g : B → C) (f : A → B) : (h ∘ g) ∘ f ~ h ∘ (g ∘ f) :=
   λa, idp
 
-  definition homotopy_of_eq {f g : Πx, P x} (H1 : f = g) : f ~ g :=
-  H1 ▸ homotopy.refl f
+  definition homotopy_of_eq [unfold 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
+  λa, ap (λh, h a) H
 
   definition apd10 [unfold 5] {f g : Πx, P x} (H : f = g) : f ~ g :=
-  λx, by induction H; reflexivity
+  λa, ap (λh, h a) H
 
   --the next theorem is useful if you want to write "apply (apd10' a)"
   definition apd10' [unfold 6] {f g : Πx, P x} (a : A) (H : f = g) : f a = g a :=
-  by induction H; reflexivity
+  apd10 H a
 
-  --apd10 is also ap evaluation
+  --apd10 is a special case of ap
   definition apd10_eq_ap_eval {f g : Πx, P x} (H : f = g) (a : A)
     : apd10 H a = ap (λs : Πx, P x, s a) H :=
-  by induction H; reflexivity
+  by reflexivity
 
   definition ap10 [reducible] [unfold 5] {f g : A → B} (H : f = g) : f ~ g := apd10 H
 

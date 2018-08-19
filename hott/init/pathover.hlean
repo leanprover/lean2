@@ -314,6 +314,10 @@ namespace eq
     (q : f =[p] g) (r : b =[p] b₂) : f b = g b₂ :=
   eq_of_pathover (apo11 q r)
 
+  definition apd02 [unfold 8] (f : Πa, B a) {a a' : A} {p q : a = a'}
+    (r : p = q) : change_path r (apd f p) = apd f q :=
+  by induction r; reflexivity
+
   /- properties about these "ap"s, transporto and pathover_ap -/
   definition apd_con (f : Πa, B a) (p : a = a₂) (q : a₂ = a₃)
     : apd f (p ⬝ q) = apd f p ⬝o apd f q :=

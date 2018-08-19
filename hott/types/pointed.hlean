@@ -70,13 +70,13 @@ namespace pointed
     : Σ(p : carrier A = carrier B :> Type), Point A =[p] Point B :=
   by induction p; exact ⟨idp, idpo⟩
 
-  protected definition pType.sigma_char.{u} : pType.{u} ≃ Σ(X : Type.{u}), X :=
+  definition pType.sigma_char.{u} [constructor] : pType.{u} ≃ Σ(X : Type.{u}), X :=
   begin
     fapply equiv.MK,
-    { intro x, induction x with X x, exact ⟨X, x⟩},
-    { intro x, induction x with X x, exact pointed.MK X x},
-    { intro x, induction x with X x, reflexivity},
-    { intro x, induction x with X x, reflexivity},
+    { intro X, exact ⟨X, pt⟩ },
+    { intro X, exact pointed.MK X.1 X.2 },
+    { intro x, induction x with X x, reflexivity },
+    { intro x, induction x with X x, reflexivity },
   end
 
   definition pType.eta_expand [constructor] (A : Type*) : Type* :=
@@ -168,6 +168,16 @@ namespace pointed
   definition pmap.eta_expand [constructor] {A B : Type*} (f : A →* B) : A →* B :=
   pmap.mk f (respect_pt f)
 
+  definition pmap_eta [constructor] {X Y : Type*} (f : X →* Y) : f ~* pmap.mk f (respect_pt f) :=
+  begin
+    fapply phomotopy.mk,
+    reflexivity,
+    esimp, exact !idp_con
+  end
+
+  definition pmap_eta_eq {A B : Type*} (f : A →* B) : pmap.mk f (respect_pt f) = f :=
+  begin induction f, reflexivity end
+
   definition pmap_equiv_right (A : Type*) (B : Type)
     : (Σ(b : B), A →* (pointed.Mk b)) ≃ (A → B) :=
   begin
@@ -201,7 +211,7 @@ namespace pointed
     we generalize the definition of ap1 to arbitrary paths, so that we can prove properties about it
     using path induction (see for example ap1_gen_con and ap1_gen_con_natural)
   -/
-  definition ap1_gen [reducible] [unfold 6 9 10] {A B : Type} (f : A → B) {a a' : A}
+  definition ap1_gen [reducible] [unfold 8 9 10] {A B : Type} (f : A → B) {a a' : A}
     {b b' : B} (q : f a = b) (q' : f a' = b') (p : a = a') : b = b' :=
   q⁻¹ ⬝ ap f p ⬝ q'
 
@@ -1188,5 +1198,101 @@ namespace pointed
     apply phomotopy_pinv_left_of_phomotopy,
     apply apn_succ_phomotopy_in
   end
+
+  section psquare
+  /-
+    Squares of pointed maps
+
+    We treat expressions of the form
+      psquare f g h k :≡ k ∘* f ~* g ∘* h
+    as squares, where f is the top, g is the bottom, h is the left face and k is the right face.
+    Then the following are operations on squares
+  -/
+
+  variables {A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
+            {f₁₀ f₁₀' : A₀₀ →* A₂₀} {f₃₀ : A₂₀ →* A₄₀}
+            {f₀₁ f₀₁' : A₀₀ →* A₀₂} {f₂₁ f₂₁' : A₂₀ →* A₂₂} {f₄₁ : A₄₀ →* A₄₂}
+            {f₁₂ f₁₂' : A₀₂ →* A₂₂} {f₃₂ : A₂₂ →* A₄₂}
+            {f₀₃ : A₀₂ →* A₀₄} {f₂₃ : A₂₂ →* A₂₄} {f₄₃ : A₄₂ →* A₄₄}
+            {f₁₄ : A₀₄ →* A₂₄} {f₃₄ : A₂₄ →* A₄₄}
+
+  definition psquare [reducible] (f₁₀ : A₀₀ →* A₂₀) (f₁₂ : A₀₂ →* A₂₂)
+                                 (f₀₁ : A₀₀ →* A₀₂) (f₂₁ : A₂₀ →* A₂₂) : Type :=
+  f₂₁ ∘* f₁₀ ~* f₁₂ ∘* f₀₁
+
+  definition psquare_of_phomotopy (p : f₂₁ ∘* f₁₀ ~* f₁₂ ∘* f₀₁) : psquare f₁₀ f₁₂ f₀₁ f₂₁ :=
+  p
+
+  definition phomotopy_of_psquare (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : f₂₁ ∘* f₁₀ ~* f₁₂ ∘* f₀₁ :=
+  p
+
+  definition phdeg_square {f f' : A →* A'} (p : f ~* f') : psquare !pid !pid f f' :=
+  !pcompose_pid ⬝* p⁻¹* ⬝* !pid_pcompose⁻¹*
+  definition pvdeg_square {f f' : A →* A'} (p : f ~* f') : psquare f f' !pid !pid :=
+  !pid_pcompose ⬝* p ⬝* !pcompose_pid⁻¹*
+
+  variables (f₀₁ f₁₀)
+  definition phrefl : psquare !pid !pid f₀₁ f₀₁ := phdeg_square phomotopy.rfl
+  definition pvrefl : psquare f₁₀ f₁₀ !pid !pid := pvdeg_square phomotopy.rfl
+  variables {f₀₁ f₁₀}
+  definition phrfl : psquare !pid !pid f₀₁ f₀₁ := phrefl f₀₁
+  definition pvrfl : psquare f₁₀ f₁₀ !pid !pid := pvrefl f₁₀
+
+  definition phconcat (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : psquare f₃₀ f₃₂ f₂₁ f₄₁) :
+    psquare (f₃₀ ∘* f₁₀) (f₃₂ ∘* f₁₂) f₀₁ f₄₁ :=
+  !passoc⁻¹* ⬝* pwhisker_right f₁₀ q ⬝* !passoc ⬝* pwhisker_left f₃₂ p ⬝* !passoc⁻¹*
+
+  definition pvconcat (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : psquare f₁₂ f₁₄ f₀₃ f₂₃) :
+    psquare f₁₀ f₁₄ (f₀₃ ∘* f₀₁) (f₂₃ ∘* f₂₁) :=
+  !passoc ⬝* pwhisker_left _ p ⬝* !passoc⁻¹* ⬝* pwhisker_right _ q ⬝* !passoc
+
+  definition phinverse {f₁₀ : A₀₀ ≃* A₂₀} {f₁₂ : A₀₂ ≃* A₂₂} (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare f₁₀⁻¹ᵉ* f₁₂⁻¹ᵉ* f₂₁ f₀₁ :=
+  !pid_pcompose⁻¹* ⬝* pwhisker_right _ (pleft_inv f₁₂)⁻¹* ⬝* !passoc ⬝*
+  pwhisker_left _
+    (!passoc⁻¹* ⬝* pwhisker_right _ p⁻¹* ⬝* !passoc ⬝* pwhisker_left _ !pright_inv ⬝* !pcompose_pid)
+
+  definition pvinverse {f₀₁ : A₀₀ ≃* A₀₂} {f₂₁ : A₂₀ ≃* A₂₂} (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare f₁₂ f₁₀ f₀₁⁻¹ᵉ* f₂₁⁻¹ᵉ* :=
+  (phinverse p⁻¹*)⁻¹*
+
+  definition phomotopy_hconcat (q : f₀₁' ~* f₀₁) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare f₁₀ f₁₂ f₀₁' f₂₁ :=
+  p ⬝* pwhisker_left f₁₂ q⁻¹*
+
+  definition hconcat_phomotopy (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : f₂₁' ~* f₂₁) :
+    psquare f₁₀ f₁₂ f₀₁ f₂₁' :=
+  pwhisker_right f₁₀ q ⬝* p
+
+  definition phomotopy_vconcat (q : f₁₀' ~* f₁₀) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare f₁₀' f₁₂ f₀₁ f₂₁ :=
+  pwhisker_left f₂₁ q ⬝* p
+
+  definition vconcat_phomotopy (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : f₁₂' ~* f₁₂) :
+    psquare f₁₀ f₁₂' f₀₁ f₂₁ :=
+  p ⬝* pwhisker_right f₀₁ q⁻¹*
+
+  infix ` ⬝h* `:73 := phconcat
+  infix ` ⬝v* `:73 := pvconcat
+  infixl ` ⬝hp* `:72 := hconcat_phomotopy
+  infixr ` ⬝ph* `:72 := phomotopy_hconcat
+  infixl ` ⬝vp* `:72 := vconcat_phomotopy
+  infixr ` ⬝pv* `:72 := phomotopy_vconcat
+  postfix `⁻¹ʰ*`:(max+1) := phinverse
+  postfix `⁻¹ᵛ*`:(max+1) := pvinverse
+
+  definition pwhisker_tl (f : A →* A₀₀) (q : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare (f₁₀ ∘* f) f₁₂ (f₀₁ ∘* f) f₂₁ :=
+  !passoc⁻¹* ⬝* pwhisker_right f q ⬝* !passoc
+
+  definition ap1_psquare (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare (Ω→ f₁₀) (Ω→ f₁₂) (Ω→ f₀₁) (Ω→ f₂₁) :=
+  !ap1_pcompose⁻¹* ⬝* ap1_phomotopy p ⬝* !ap1_pcompose
+
+  definition apn_psquare (n : ℕ) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare (Ω→[n] f₁₀) (Ω→[n] f₁₂) (Ω→[n] f₀₁) (Ω→[n] f₂₁) :=
+  !apn_pcompose⁻¹* ⬝* apn_phomotopy n p ⬝* !apn_pcompose
+
+  end psquare
 
 end pointed

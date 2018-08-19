@@ -157,7 +157,7 @@ namespace rezk
     --induction b using rezk.rec with b' b' b g, --why does this not work if it works below?
     refine @rezk.rec _ _ _ (rezk_hom_left_pth_1_trunc a a' f) _ _ _ b,
     intro b, apply equiv_precompose (to_hom f⁻¹ⁱ), --how do i unfold properly at this point?
-    { intro b b' g, apply equiv_pathover, intro g' g'' H,
+    { intro b b' g, apply equiv_pathover2, intro g' g'' H,
       refine !pathover_rezk_hom_left_pt ⬝op _,
       refine !assoc ⬝ ap (λ x, x ∘ _) _,  refine eq_of_parallel_po_right _ H,
       apply pathover_rezk_hom_left_pt },

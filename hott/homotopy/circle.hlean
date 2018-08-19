@@ -316,7 +316,7 @@ namespace circle
   begin
     induction x,
     { apply base_eq_base_equiv},
-    { apply equiv_pathover, intro p p' q, apply pathover_of_eq,
+    { apply equiv_pathover2, intro p p' q, apply pathover_of_eq,
       note H := eq_of_square (square_of_pathover q),
       rewrite con_comm_base at H,
       note H' := cancel_left _ H,

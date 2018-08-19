@@ -8,10 +8,10 @@ Properties of trunc_index, is_trunc, trunctype, trunc, and the pointed versions 
 
 -- NOTE: the fact that (is_trunc n A) is a mere proposition is proved in .prop_trunc
 
-import .pointed ..function algebra.order types.nat.order types.unit
+import .pointed2 ..function algebra.order types.nat.order types.unit types.int.hott
 
 open eq sigma sigma.ops pi function equiv trunctype
-     is_equiv prod pointed nat is_trunc algebra sum unit
+     is_equiv prod pointed nat is_trunc algebra unit
 
   /- basic computation with ℕ₋₂, its operations and its order -/
 namespace trunc_index
@@ -71,6 +71,7 @@ namespace trunc_index
   le.step (trunc_index.le.tr_refl n)
 
   -- the order is total
+  open sum
   protected theorem le_sum_le (n m : ℕ₋₂) : n ≤ m ⊎ m ≤ n :=
   begin
     induction m with m IH,
@@ -185,6 +186,23 @@ namespace trunc_index
   definition of_nat_add_two (n : ℕ₋₂) : of_nat (add_two n) = n.+2 :=
   begin induction n with n IH, reflexivity, exact ap succ IH end
 
+  lemma minus_two_add_plus_two (n : ℕ₋₂) : -2+2+n = n :=
+  by induction n with n p; reflexivity; exact ap succ p
+
+  lemma add_plus_two_comm (n k : ℕ₋₂) : n +2+ k = k +2+ n :=
+  begin
+    induction n with n IH,
+    { exact minus_two_add_plus_two k },
+    { exact !succ_add_plus_two ⬝ ap succ IH}
+  end
+
+  lemma sub_one_add_plus_two_sub_one (n m : ℕ) : n.-1 +2+ m.-1 = of_nat (n + m) :=
+  begin
+    induction m with m IH,
+    { reflexivity },
+    { exact ap succ IH }
+  end
+
   definition of_nat_le_of_nat {n m : ℕ} (H : n ≤ m) : (of_nat n ≤ of_nat m) :=
   begin
     induction H with m H IH,
@@ -218,6 +236,13 @@ namespace trunc_index
     exact le_of_succ_le_succ (le_of_succ_le_succ H)
   end
 
+  protected definition of_nat_monotone {n k : ℕ} : n ≤ k → of_nat n ≤ of_nat k :=
+  begin
+    intro H, induction H with k H K,
+    { apply le.tr_refl },
+    { apply le.step K }
+  end
+
   protected theorem succ_le_of_not_le {n m : ℕ₋₂} (H : ¬ n ≤ m) : m.+1 ≤ n :=
   begin
     cases (le.total n m) with H2 H2,
@@ -237,6 +262,15 @@ namespace trunc_index
     { left, apply succ_le_succ H},
     right, intro H2, apply H, exact le_of_succ_le_succ H2
   end
+
+  protected definition pred [unfold 1] (n : ℕ₋₂) : ℕ₋₂ :=
+  begin cases n with n, exact -2, exact n end
+
+  definition trunc_index_equiv_nat [constructor] : ℕ₋₂ ≃ ℕ :=
+  equiv.MK add_two sub_two add_two_sub_two sub_two_add_two
+
+  definition is_set_trunc_index [instance] : is_set ℕ₋₂ :=
+  is_trunc_equiv_closed_rev 0 trunc_index_equiv_nat
 
 end trunc_index open trunc_index
 
@@ -447,8 +481,7 @@ namespace is_trunc
     apply iff.mp !is_trunc_iff_is_contr_loop H
   end
 
-  -- rename to is_trunc_loopn_of_is_trunc
-  theorem is_trunc_loop_of_is_trunc (n : ℕ₋₂) (k : ℕ) (A : Type*) [H : is_trunc n A] :
+  theorem is_trunc_loopn_of_is_trunc (n : ℕ₋₂) (k : ℕ) (A : Type*) [H : is_trunc n A] :
     is_trunc n (Ω[k] A) :=
   begin
     induction k with k IH,
@@ -463,9 +496,20 @@ namespace is_trunc
     apply is_trunc_eq, apply IH, rewrite [succ_add_nat, add_nat_succ at H], exact H
   end
 
+  lemma is_trunc_loopn_nat (n m : ℕ) (A : Type*) [H : is_trunc (n + m) A] :
+    is_trunc n (Ω[m] A) :=
+  @is_trunc_loopn n m A (transport (λk, is_trunc k _) (of_nat_add_of_nat n m)⁻¹ H)
+
   definition is_set_loopn (n : ℕ) (A : Type*) [is_trunc n A] : is_set (Ω[n] A) :=
-  have is_trunc (0+[ℕ₋₂]n) A, by rewrite [trunc_index.zero_add]; exact _,
-  is_trunc_loopn 0 n A
+  have is_trunc (0+n) A, by rewrite [zero_add]; exact _,
+  is_trunc_loopn_nat 0 n A
+
+  lemma is_trunc_loop_nat (n : ℕ) (A : Type*) [H : is_trunc (n + 1) A] :
+    is_trunc n (Ω A) :=
+  is_trunc_loop A n
+
+  definition is_trunc_of_eq {n m : ℕ₋₂} (p : n = m) {A : Type} (H : is_trunc n A) : is_trunc m A :=
+  transport (λk, is_trunc k A) p H
 
   definition pequiv_punit_of_is_contr [constructor] (A : Type*) (H : is_contr A) : A ≃* punit :=
   pequiv_of_equiv (equiv_unit_of_is_contr A) (@is_prop.elim unit _ _ _)
@@ -623,8 +667,8 @@ namespace trunc
   begin
     note H2 := is_trunc_of_le (trunc n A) H,
     fapply equiv.MK,
-    { intro x, induction x with x, induction x with x, exact tr x},
-    { intro x, induction x with x, exact tr (tr x)},
+    { intro x, induction x with x, induction x with x, exact tr x },
+    { exact trunc_functor n tr },
     { intro x, induction x with x, reflexivity},
     { intro x, induction x with x, induction x with x, reflexivity}
   end
@@ -663,6 +707,17 @@ namespace trunc
     induction x with x, esimp, exact ap tr (p x)
   end
 
+  section hsquare
+  variables {A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type}
+            {f₁₀ : A₀₀ → A₂₀} {f₀₁ : A₀₀ → A₀₂} {f₂₁ : A₂₀ → A₂₂} {f₁₂ : A₀₂ → A₂₂}
+
+  definition trunc_functor_hsquare (n : ℕ₋₂) (h : hsquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    hsquare (trunc_functor n f₁₀) (trunc_functor n f₁₂)
+            (trunc_functor n f₀₁) (trunc_functor n f₂₁) :=
+  λa, !trunc_functor_compose⁻¹ ⬝ trunc_functor_homotopy n h a ⬝ !trunc_functor_compose
+
+  end hsquare
+
   definition trunc_functor_homotopy_of_le {n k : ℕ₋₂} {A B : Type} (f : A → B) (H : n ≤ k) :
     to_fun (trunc_trunc_equiv_left B H) ∘
     trunc_functor n (trunc_functor k f) ∘
@@ -693,6 +748,13 @@ namespace trunc
   definition ptrunc [constructor] (n : ℕ₋₂) (X : Type*) : n-Type* :=
   ptrunctype.mk (trunc n X) _ (tr pt)
 
+  definition is_trunc_ptrunc_of_is_trunc [instance] [priority 500] (A : Type*)
+    (n m : ℕ₋₂) [H : is_trunc n A] : is_trunc n (ptrunc m A) :=
+  is_trunc_trunc_of_is_trunc A n m
+
+  definition is_contr_ptrunc_minus_one (A : Type*) : is_contr (ptrunc -1 A) :=
+  is_contr_of_inhabited_prop pt
+
   /- pointed maps involving ptrunc -/
   definition ptrunc_functor [constructor] {X Y : Type*} (n : ℕ₋₂) (f : X →* Y)
     : ptrunc n X →* ptrunc n Y :=
@@ -707,6 +769,11 @@ namespace trunc
   definition ptrunc.elim [constructor] (n : ℕ₋₂) {X Y : Type*} [is_trunc n Y] (f : X →* Y) :
     ptrunc n X →* Y :=
   pmap.mk (trunc.elim f) (respect_pt f)
+
+  definition ptrunc_functor_le {k l : ℕ₋₂} (p : l ≤ k) (X : Type*)
+    : ptrunc k X →* ptrunc l X :=
+  have is_trunc k (ptrunc l X), from is_trunc_of_le _ p,
+  ptrunc.elim _ (ptr l X)
 
   /- pointed equivalences involving ptrunc -/
   definition ptrunc_pequiv_ptrunc [constructor] (n : ℕ₋₂) {X Y : Type*} (H : X ≃* Y)
@@ -735,6 +802,10 @@ namespace trunc
     : ptrunc n (ptrunc m A) ≃* ptrunc m (ptrunc n A) :=
   pequiv_of_equiv (trunc_trunc_equiv_trunc_trunc n m A) idp
 
+  definition ptrunc_change_index {k l : ℕ₋₂} (p : k = l) (X : Type*)
+    : ptrunc k X ≃* ptrunc l X :=
+  pequiv_ap (λ n, ptrunc n X) p
+
   definition loop_ptrunc_pequiv [constructor] (n : ℕ₋₂) (A : Type*) :
     Ω (ptrunc (n+1) A) ≃* ptrunc n (Ω A) :=
   pequiv_of_equiv !tr_eq_tr_equiv idp
@@ -755,6 +826,10 @@ namespace trunc
       refine _ ⬝e* IH (n.+1),
       exact loopn_pequiv_loopn k (pequiv_of_eq (ap (λn, ptrunc n A) !succ_add_nat⁻¹)) }
   end
+
+  definition loopn_ptrunc_pequiv_nat (n k : ℕ) (A : Type*) :
+    Ω[k] (ptrunc (n + k) A) ≃* ptrunc n (Ω[k] A) :=
+  loopn_pequiv_loopn k (ptrunc_change_index (of_nat_add_of_nat n k)⁻¹ A) ⬝e* loopn_ptrunc_pequiv n k A
 
   definition loopn_ptrunc_pequiv_con {n : ℕ₋₂} {k : ℕ} {A : Type*}
     (p q : Ω[succ k] (ptrunc (n+succ k) A)) :
@@ -870,6 +945,114 @@ namespace trunc
     { esimp, exact !idp_con ⬝ whisker_right _ !ap_compose },
   end
 
+  definition ptrunc_pequiv_natural [constructor] (n : ℕ₋₂) {A B : Type*} (f : A →* B) [is_trunc n A]
+    [is_trunc n B] : f ∘* ptrunc_pequiv n A ~* ptrunc_pequiv n B ∘* ptrunc_functor n f :=
+  begin
+    fapply phomotopy.mk,
+    { intro a, induction a with a, reflexivity },
+    { refine !idp_con ⬝ _ ⬝ !idp_con⁻¹, refine !ap_compose'⁻¹ ⬝ _, apply ap_id }
+  end
+
+  definition ptr_natural [constructor] (n : ℕ₋₂) {A B : Type*} (f : A →* B) :
+    ptrunc_functor n f ∘* ptr n A ~* ptr n B ∘* f :=
+  begin
+    fapply phomotopy.mk,
+    { intro a, reflexivity },
+    { reflexivity }
+  end
+
+  definition ptrunc_elim_pcompose (n : ℕ₋₂) {A B C : Type*} (g : B →* C) (f : A →* B) [is_trunc n B]
+    [is_trunc n C] : ptrunc.elim n (g ∘* f) ~* g ∘* ptrunc.elim n f :=
+  begin
+    fapply phomotopy.mk,
+    { intro a, induction a with a, reflexivity },
+    { apply idp_con }
+  end
+
+  definition ptrunc_elim_ptr_phomotopy_pid (n : ℕ₋₂) (A : Type*):
+    ptrunc.elim n (ptr n A) ~* pid (ptrunc n A) :=
+  begin
+    fapply phomotopy.mk,
+    { intro a, induction a with a, reflexivity },
+    { apply idp_con }
+  end
+
+  section psquare
+  variables {A₀₀ A₂₀ A₀₂ A₂₂ : Type*}
+            {f₁₀ : A₀₀ →* A₂₀} {f₁₂ : A₀₂ →* A₂₂}
+            {f₀₁ : A₀₀ →* A₀₂} {f₂₁ : A₂₀ →* A₂₂}
+
+  definition ptrunc_functor_psquare (n : ℕ₋₂) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
+    psquare (ptrunc_functor n f₁₀) (ptrunc_functor n f₁₂)
+            (ptrunc_functor n f₀₁) (ptrunc_functor n f₂₁) :=
+  !ptrunc_functor_pcompose⁻¹* ⬝* ptrunc_functor_phomotopy n p ⬝* !ptrunc_functor_pcompose
+
+  end psquare
+
+  definition is_equiv_ptrunc_functor_ptr [constructor] (A : Type*) {n m : ℕ₋₂} (H : n ≤ m)
+    : is_equiv (ptrunc_functor n (ptr m A)) :=
+  to_is_equiv (trunc_trunc_equiv_left A H)⁻¹ᵉ
+
+  -- The following pointed equivalence can be defined more easily, but now we get the right maps definitionally
+  definition ptrunc_pequiv_ptrunc_of_is_trunc {n m k : ℕ₋₂} {A : Type*}
+    (H1 : n ≤ m) (H2 : n ≤ k) (H : is_trunc n A) : ptrunc m A ≃* ptrunc k A :=
+  have is_trunc m A, from is_trunc_of_le A H1,
+  have is_trunc k A, from is_trunc_of_le A H2,
+  pequiv.MK (ptrunc.elim _ (ptr k A)) (ptrunc.elim _ (ptr m A))
+    abstract begin
+      refine !ptrunc_elim_pcompose⁻¹* ⬝* _,
+      exact ptrunc_elim_phomotopy _ !ptrunc_elim_ptr ⬝* !ptrunc_elim_ptr_phomotopy_pid,
+    end end
+    abstract begin
+      refine !ptrunc_elim_pcompose⁻¹* ⬝* _,
+      exact ptrunc_elim_phomotopy _ !ptrunc_elim_ptr ⬝* !ptrunc_elim_ptr_phomotopy_pid,
+    end end
+
+  /- A more general version of ptrunc_elim_phomotopy, where the proofs of truncatedness might be different -/
+  definition ptrunc_elim_phomotopy2 [constructor] (k : ℕ₋₂) {A B : Type*} {f g : A →* B} (H₁ : is_trunc k B)
+    (H₂ : is_trunc k B) (p : f ~* g) : @ptrunc.elim k A B H₁ f ~* @ptrunc.elim k A B H₂ g :=
+  begin
+    fapply phomotopy.mk,
+    { intro x, induction x with a, exact p a },
+    { exact to_homotopy_pt p }
+  end
+
+  definition pmap_ptrunc_equiv [constructor] (n : ℕ₋₂) (A B : Type*) [H : is_trunc n B] :
+    (ptrunc n A →* B) ≃ (A →* B) :=
+  begin
+    fapply equiv.MK,
+    { intro g, exact g ∘* ptr n A },
+    { exact ptrunc.elim n },
+    { intro f, apply eq_of_phomotopy, apply ptrunc_elim_ptr },
+    { intro g, apply eq_of_phomotopy,
+      exact ptrunc_elim_pcompose n g (ptr n A) ⬝* pwhisker_left g (ptrunc_elim_ptr_phomotopy_pid n A) ⬝*
+        pcompose_pid g }
+  end
+
+  definition pmap_ptrunc_pequiv [constructor] (n : ℕ₋₂) (A B : Type*) [H : is_trunc n B] :
+    ppmap (ptrunc n A) B ≃* ppmap A B :=
+  pequiv_of_equiv (pmap_ptrunc_equiv n A B) (eq_of_phomotopy (pconst_pcompose (ptr n A)))
+
+  definition ptrunctype.sigma_char [constructor] (n : ℕ₋₂) :
+    n-Type* ≃ Σ(X : Type*), is_trunc n X :=
+  equiv.MK (λX, ⟨ptrunctype.to_pType X, _⟩)
+           (λX, ptrunctype.mk (carrier X.1) X.2 pt)
+           begin intro X, induction X with X HX, induction X, reflexivity end
+           begin intro X, induction X, reflexivity end
+
+  definition is_embedding_ptrunctype_to_pType (n : ℕ₋₂) : is_embedding (@ptrunctype.to_pType n) :=
+  begin
+    intro X Y, fapply is_equiv_of_equiv_of_homotopy,
+    { exact eq_equiv_fn_eq (ptrunctype.sigma_char n) _ _ ⬝e subtype_eq_equiv _ _ },
+    intro p, induction p, reflexivity
+  end
+
+  definition ptrunctype_eq_equiv {n : ℕ₋₂} (X Y : n-Type*) : (X = Y) ≃ (X ≃* Y) :=
+  equiv.mk _ (is_embedding_ptrunctype_to_pType n X Y) ⬝e pType_eq_equiv X Y
+
+  definition Prop_eq {P Q : Prop} (H : P ↔ Q) : P = Q :=
+  tua (equiv_of_is_prop (iff.mp H) (iff.mpr H))
+
 end trunc open trunc
 
 /- The truncated encode-decode method -/
@@ -950,3 +1133,124 @@ namespace function
   -- a homotopy group.
 
 end function
+
+/- functions between ℤ and ℕ₋₂ -/
+namespace int
+
+  private definition maxm2_le.lemma₁ {n k : ℕ} : n+(1:int) + -[1+ k] ≤ n :=
+  le.intro (
+    calc n + 1 + -[1+ k] + k
+      = n + 1 + (-(k + 1)) + k : by reflexivity
+  ... = n + 1 + (- 1 - k) + k    : by krewrite (neg_add_rev k 1)
+  ... = n + 1 + (- 1 - k + k)    : add.assoc
+  ... = n + 1 + (- 1 + -k + k)   : by reflexivity
+  ... = n + 1 + (- 1 + (-k + k)) : add.assoc
+  ... = n + 1 + (- 1 + 0)        : add.left_inv
+  ... = n + (1 + (- 1 + 0))      : add.assoc
+  ... = n                       : int.add_zero)
+
+  private definition maxm2_le.lemma₂ {n : ℕ} {k : ℤ} : -[1+ n] + 1 + k ≤ k :=
+  le.intro (
+    calc -[1+ n] + 1 + k + n
+      = - (n + 1) + 1 + k + n : by reflexivity
+  ... = -n - 1 + 1 + k + n    : by rewrite (neg_add n 1)
+  ... = -n + (- 1 + 1) + k + n : by krewrite (int.add_assoc (-n) (- 1) 1)
+  ... = -n + 0 + k + n        : add.left_inv 1
+  ... = -n + k + n            : int.add_zero
+  ... = k + -n + n            : int.add_comm
+  ... = k + (-n + n)          : int.add_assoc
+  ... = k + 0                 : add.left_inv n
+  ... = k                     : int.add_zero)
+
+  open trunc_index
+  /-
+    The function from integers to truncation indices which sends
+    positive numbers to themselves, and negative numbers to negative
+    2. In particular -1 is sent to -2, but since we only work with
+    pointed types, that doesn't matter for us -/
+  definition maxm2 [unfold 1] : ℤ → ℕ₋₂ :=
+  λ n, int.cases_on n trunc_index.of_nat (λk, -2)
+
+  -- we also need the max -1 - function
+  definition maxm1 [unfold 1] : ℤ → ℕ₋₂ :=
+  λ n, int.cases_on n trunc_index.of_nat (λk, -1)
+
+  definition maxm2_le_maxm1 (n : ℤ) : maxm2 n ≤ maxm1 n :=
+  begin
+    induction n with n n,
+    { exact le.tr_refl n },
+    { exact minus_two_le -1 }
+  end
+
+  -- the is maxm1 minus 1
+  definition maxm1m1 [unfold 1] : ℤ → ℕ₋₂ :=
+  λ n, int.cases_on n (λ k, k.-1) (λ k, -2)
+
+  definition maxm1_eq_succ (n : ℤ) : maxm1 n = (maxm1m1 n).+1 :=
+  begin
+    induction n with n n,
+    { reflexivity },
+    { reflexivity }
+  end
+
+  definition maxm2_le_maxm0 (n : ℤ) : maxm2 n ≤ max0 n :=
+  begin
+    induction n with n n,
+    { exact le.tr_refl n },
+    { exact minus_two_le 0 }
+  end
+
+  definition max0_le_of_le {n : ℤ} {m : ℕ} (H : n ≤ of_nat m)
+    : nat.le (max0 n) m :=
+  begin
+    induction n with n n,
+    { exact le_of_of_nat_le_of_nat H },
+    { exact nat.zero_le m }
+  end
+
+  definition not_neg_succ_le_of_nat {n m : ℕ} : ¬m ≤ -[1+n] :=
+  by cases m: exact id
+
+  definition maxm2_monotone {n m : ℤ} (H : n ≤ m) : maxm2 n ≤ maxm2 m :=
+  begin
+    induction n with n n,
+    { induction m with m m,
+      { apply of_nat_le_of_nat, exact le_of_of_nat_le_of_nat H },
+      { exfalso, exact not_neg_succ_le_of_nat H }},
+    { apply minus_two_le }
+  end
+
+  definition sub_nat_le (n : ℤ) (m : ℕ) : n - m ≤ n :=
+  le.intro !sub_add_cancel
+
+  definition sub_nat_lt (n : ℤ) (m : ℕ) : n - m < n + 1 :=
+  add_le_add_right (sub_nat_le n m) 1
+
+  definition sub_one_le (n : ℤ) : n - 1 ≤ n :=
+  sub_nat_le n 1
+
+  definition le_add_nat (n : ℤ) (m : ℕ) : n ≤ n + m :=
+  le.intro rfl
+
+  definition le_add_one (n : ℤ) : n ≤ n + 1:=
+  le_add_nat n 1
+
+  open trunc_index
+
+  definition maxm2_le (n k : ℤ) : maxm2 (n+1+k) ≤ (maxm1m1 n).+1+2+(maxm1m1 k) :=
+  begin
+    rewrite [-(maxm1_eq_succ n)],
+    induction n with n n,
+    { induction k with k k,
+      { induction k with k IH,
+        { apply le.tr_refl },
+        { exact succ_le_succ IH } },
+      { exact trunc_index.le_trans (maxm2_monotone maxm2_le.lemma₁)
+                                   (maxm2_le_maxm1 n) } },
+    { krewrite (add_plus_two_comm -1 (maxm1m1 k)),
+      rewrite [-(maxm1_eq_succ k)],
+      exact trunc_index.le_trans (maxm2_monotone maxm2_le.lemma₂)
+                                 (maxm2_le_maxm1 k) }
+  end
+
+end int open int

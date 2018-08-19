@@ -83,6 +83,7 @@ namespace eq
   !idp_con⁻¹ ⬝ whisker_left idp r = r ⬝ !idp_con⁻¹ :=
   by induction r;induction q;reflexivity
 
+  -- this should maybe replace whisker_left_idp and whisker_left_idp_con
   definition whisker_left_idp_con {q q' : a₂ = a₃} (r : q = q') :
   whisker_left idp r ⬝ !idp_con = !idp_con ⬝ r :=
   by induction r;induction q;reflexivity
@@ -461,31 +462,36 @@ namespace eq
 
   section
     parameters {A : Type} (a₀ : A) (code : A → Type) (H : is_contr (Σa, code a))
-      (p : (center (Σa, code a)).1 = a₀)
-    include p
+      (c₀ : code a₀)
+    include H c₀
     protected definition encode {a : A} (q : a₀ = a) : code a :=
-    (p ⬝ q) ▸ (center (Σa, code a)).2
+    transport code q c₀
 
     protected definition decode' {a : A} (c : code a) : a₀ = a :=
-    (is_prop.elim ⟨a₀, encode idp⟩ ⟨a, c⟩)..1
+    have ⟨a₀, c₀⟩ = ⟨a, c⟩ :> Σa, code a, from !is_prop.elim,
+    this..1
 
     protected definition decode {a : A} (c : code a) : a₀ = a :=
-    (decode' (encode idp))⁻¹ ⬝ decode' c
+    (decode' c₀)⁻¹ ⬝ decode' c
 
+    open sigma.ops
     definition total_space_method (a : A) : (a₀ = a) ≃ code a :=
     begin
       fapply equiv.MK,
-      { exact encode},
-      { exact decode},
-      { intro c,
-        unfold [encode, decode, decode'],
-        induction p, esimp, rewrite [is_prop_elim_self,▸*,+idp_con],
-        apply tr_eq_of_pathover,
-        eapply @sigma.rec_on _ _ (λx, x.2 =[(is_prop.elim ⟨x.1, x.2⟩ ⟨a, c⟩)..1] c)
-          (center (sigma code)),
-        intro a c, apply eq_pr2},
+      { exact encode },
+      { exact decode },
+      { intro c, unfold [encode, decode, decode'],
+        rewrite [is_prop_elim_self, ▸*, idp_con],
+        apply tr_eq_of_pathover, apply eq_pr2 },
       { intro q, induction q, esimp, apply con.left_inv, },
     end
+
+  end
+
+  definition total_space_method2_refl {A : Type} (a₀ : A) (code : A → Type) (H : is_contr (Σa, code a))
+    (c₀ : code a₀) : total_space_method a₀ code H c₀ a₀ idp = c₀ :=
+  begin
+    reflexivity
   end
 
   definition encode_decode_method {A : Type} (a₀ a : A) (code : A → Type) (c₀ : code a₀)
@@ -498,7 +504,7 @@ namespace eq
       { intro p, fapply sigma_eq,
           apply decode, exact p.2,
         apply encode_decode}},
-    { reflexivity}
+    { exact c₀ }
   end
 
 end eq

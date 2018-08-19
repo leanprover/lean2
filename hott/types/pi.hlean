@@ -16,36 +16,15 @@ namespace pi
             {D : Πa b, C a b → Type}
             {a a' a'' : A} {b b₁ b₂ : B a} {b' : B a'} {b'' : B a''} {f g : Πa, B a}
 
-  /- Paths -/
-
-  /-
-    Paths [p : f ≈ g] in a function type [Πx:X, P x] are equivalent to functions taking values
-    in path types, [H : Πx:X, f x ≈ g x], or concisely, [H : f ~ g].
-
-    This equivalence, however, is just the combination of [apd10] and function extensionality
-    [funext], and as such, [eq_of_homotopy]
-
-    Now we show how these things compute.
-  -/
-
-  definition apd10_eq_of_homotopy (h : f ~ g) : apd10 (eq_of_homotopy h) ~ h :=
-  apd10 (right_inv apd10 h)
-
-  definition eq_of_homotopy_eta (p : f = g) : eq_of_homotopy (apd10 p) = p :=
-  left_inv apd10 p
-
-  definition eq_of_homotopy_idp (f : Πa, B a) : eq_of_homotopy (λx : A, refl (f x)) = refl f :=
-  !eq_of_homotopy_eta
+  /- Paths are charactirized in [init/funext] -/
 
   /- homotopy.symm is an equivalence -/
+  definition homotopy.symm_symm {A : Type} {P : A → Type} {f g : Πx, P x} (H : f ~ g) :
+    H⁻¹ʰᵗʸ⁻¹ʰᵗʸ = H :=
+  begin apply eq_of_homotopy, intro x, apply inv_inv end
+
   definition is_equiv_homotopy_symm : is_equiv (homotopy.symm : f ~ g → g ~ f) :=
-  begin
-    fapply adjointify homotopy.symm homotopy.symm,
-    { intro p, apply eq_of_homotopy, intro a,
-      unfold homotopy.symm, apply inv_inv },
-    { intro p, apply eq_of_homotopy, intro a,
-      unfold homotopy.symm, apply inv_inv }
-  end
+  adjointify homotopy.symm homotopy.symm homotopy.symm_symm homotopy.symm_symm
 
   /-
     The identification of the path space of a dependent function space,

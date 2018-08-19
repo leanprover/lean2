@@ -6,7 +6,7 @@ Authors: Floris van Doorn
 Basic group theory
 -/
 
-import algebra.category.category algebra.bundled .homomorphism
+import algebra.category.category algebra.bundled .homomorphism types.pointed2
 
 open eq algebra pointed function is_trunc pi equiv is_equiv
 set_option class.force_new true
@@ -590,5 +590,14 @@ namespace group
   definition trivial_group_of_is_contr' (G : Group) [H : is_contr G] : G = G0 :=
   eq_of_isomorphism (trivial_group_of_is_contr G)
 
+  definition pequiv_of_isomorphism_of_eq {G₁ G₂ : Group} (p : G₁ = G₂) :
+    pequiv_of_isomorphism (isomorphism_of_eq p) = pequiv_of_eq (ap pType_of_Group p) :=
+  begin
+    induction p,
+    apply pequiv_eq,
+    fapply phomotopy.mk,
+    { intro g, reflexivity },
+    { apply is_prop.elim }
+  end
 
 end group

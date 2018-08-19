@@ -722,4 +722,14 @@ namespace eq
     (r : p₂₁' = p₂₁) : aps f (q ⬝ph s₁₁ ⬝hp r⁻¹) = ap02 f q ⬝ph aps f s₁₁ ⬝hp (ap02 f r)⁻¹ :=
   by induction q; induction r; reflexivity
 
+  definition eq_hconcat_equiv [constructor] {p : a₀₀ = a₀₂} (r : p = p₀₁) :
+    square p₁₀ p₁₂ p p₂₁ ≃ square p₁₀ p₁₂ p₀₁ p₂₁ :=
+  equiv.MK (eq_hconcat r⁻¹) (eq_hconcat r)
+    begin intro s, induction r, reflexivity end begin intro s, induction r, reflexivity end
+
+  definition hconcat_eq_equiv [constructor] {p : a₂₀ = a₂₂} (r : p₂₁ = p) :
+    square p₁₀ p₁₂ p₀₁ p₂₁ ≃ square p₁₀ p₁₂ p₀₁ p :=
+  equiv.MK (λs, hconcat_eq s r) (λs, hconcat_eq s r⁻¹)
+    begin intro s, induction r, reflexivity end begin intro s, induction r, reflexivity end
+
 end eq

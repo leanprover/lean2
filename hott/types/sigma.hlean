@@ -120,6 +120,10 @@ namespace sigma
     sigma_eq (p1 ⬝ p2) (q1 ⬝o q2) = sigma_eq p1 q1 ⬝ sigma_eq p2 q2 :=
   by induction u; induction v; induction w; apply dpair_eq_dpair_con
 
+  definition dpair_eq_dpair_inv {A : Type} {B : A → Type} {a a' : A} {b : B a} {b' : B a'} (p : a = a')
+    (q : b =[p] b') : (dpair_eq_dpair p q)⁻¹ = dpair_eq_dpair p⁻¹ q⁻¹ᵒ :=
+  begin induction q, reflexivity end
+
   local attribute dpair_eq_dpair [reducible]
   definition dpair_eq_dpair_con_idp (p : a = a') (q : b =[p] b') :
     dpair_eq_dpair p q = dpair_eq_dpair p !pathover_tr ⬝
@@ -466,23 +470,21 @@ namespace sigma
 
   /- *** The negative universal property. -/
 
-  protected definition coind_unc (fg : Σ(f : Πa, B a), Πa, C a (f a)) (a : A)
+  protected definition coind_unc [constructor] (fg : Σ(f : Πa, B a), Πa, C a (f a)) (a : A)
     : Σ(b : B a), C a b :=
   ⟨fg.1 a, fg.2 a⟩
 
-  protected definition coind (f : Π a, B a) (g : Π a, C a (f a)) (a : A) : Σ(b : B a), C a b :=
+  protected definition coind [constructor] (f : Π a, B a) (g : Π a, C a (f a)) (a : A) : Σ(b : B a), C a b :=
   sigma.coind_unc ⟨f, g⟩ a
 
-  --is the instance below dangerous?
-  --in Coq this can be done without function extensionality
-  definition is_equiv_coind [instance] (C : Πa, B a → Type)
+  definition is_equiv_coind [constructor] (C : Πa, B a → Type)
     : is_equiv (@sigma.coind_unc _ _ C) :=
   adjointify _ (λ h, ⟨λa, (h a).1, λa, (h a).2⟩)
                (λ h, proof eq_of_homotopy (λu, !sigma.eta) qed)
                (λfg, destruct fg (λ(f : Π (a : A), B a) (g : Π (x : A), C x (f x)), proof idp qed))
 
-  definition sigma_pi_equiv_pi_sigma : (Σ(f : Πa, B a), Πa, C a (f a)) ≃ (Πa, Σb, C a b) :=
-  equiv.mk sigma.coind_unc _
+  definition sigma_pi_equiv_pi_sigma [constructor] : (Σ(f : Πa, B a), Πa, C a (f a)) ≃ (Πa, Σb, C a b) :=
+  equiv.mk sigma.coind_unc !is_equiv_coind
   end
 
   /- Subtypes (sigma types whose second components are props) -/

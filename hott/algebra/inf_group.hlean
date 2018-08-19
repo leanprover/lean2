@@ -582,6 +582,10 @@ section add_ab_inf_group
 
   theorem neg_neg_sub_neg (a b : A) : - (-a - -b) = a - b :=
     by rewrite [neg_sub, sub_neg_eq_add, neg_add_eq_sub]
+
+  definition add_sub_cancel_middle (a b : A) : a + (b - a) = b :=
+  !add.comm ⬝ !sub_add_cancel
+
 end add_ab_inf_group
 
 definition inf_group_of_add_inf_group (A : Type) [G : add_inf_group A] : inf_group A :=

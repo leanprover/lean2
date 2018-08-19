@@ -32,7 +32,7 @@ namespace is_trunc
     : is_contr (π[k] A) :=
   begin
       have H3 : is_contr (ptrunc k A), from is_conn_of_le A (of_nat_le_of_nat H),
-      have H4 : is_contr (Ω[k](ptrunc k A)), from !is_trunc_loop_of_is_trunc,
+      have H4 : is_contr (Ω[k](ptrunc k A)), from !is_trunc_loopn_of_is_trunc,
       apply is_trunc_equiv_closed_rev,
       { apply equiv_of_pequiv (homotopy_group_pequiv_loop_ptrunc k A)}
   end
@@ -204,6 +204,45 @@ namespace is_trunc
     fapply is_contr_of_trivial_homotopy_nat n A,
     intro k a H', revert a, apply is_conn.elim -1,
     cases A with A a, exact H k H'
+  end
+
+  definition is_trunc_of_trivial_homotopy {n : ℕ} {m : ℕ₋₂} {A : Type} (H : is_trunc m A)
+    (H2 : Πk a, k > n → is_contr (π[k] (pointed.MK A a))) : is_trunc n A :=
+  begin
+    fapply is_trunc_is_equiv_closed_rev, { exact @tr n A },
+    apply whitehead_principle m,
+    { apply is_equiv_trunc_functor_of_is_conn_fun,
+      note z := is_conn_fun_tr n A,
+      apply is_conn_fun_of_le _ (of_nat_le_of_nat (zero_le n)), },
+    intro a k,
+    apply @nat.lt_ge_by_cases n (k+1),
+    { intro H3, apply @is_equiv_of_is_contr, exact H2 _ _ H3,
+      refine @trivial_homotopy_group_of_is_trunc _ _ _ _ H3 },
+    { intro H3, apply @(is_equiv_π_of_is_connected _ H3), apply is_conn_fun_tr }
+  end
+
+  definition is_trunc_of_trivial_homotopy_pointed {n : ℕ} {m : ℕ₋₂} {A : Type*} (H : is_trunc m A)
+    (Hconn : is_conn 0 A) (H2 : Πk, k > n → is_contr (π[k] A)) : is_trunc n A :=
+  begin
+    apply is_trunc_of_trivial_homotopy H,
+    intro k a H3, revert a, apply is_conn.elim -1,
+    cases A with A a₀, exact H2 k H3
+  end
+
+  definition is_trunc_of_is_trunc_succ {n : ℕ} {A : Type} (H : is_trunc (n.+1) A)
+    (H2 : Πa, is_contr (π[n+1] (pointed.MK A a))) : is_trunc n A :=
+  begin
+    apply is_trunc_of_trivial_homotopy H,
+    intro k a H3, induction H3 with k H3 IH, exact H2 a,
+    apply @trivial_homotopy_group_of_is_trunc _ (n+1) _ H, exact succ_le_succ H3
+  end
+
+  definition is_trunc_of_is_trunc_succ_pointed {n : ℕ} {A : Type*} (H : is_trunc (n.+1) A)
+    (Hconn : is_conn 0 A) (H2 : is_contr (π[n+1] A)) : is_trunc n A :=
+  begin
+    apply is_trunc_of_trivial_homotopy_pointed H Hconn,
+    intro k H3, induction H3 with k H3 IH, exact H2,
+    apply @trivial_homotopy_group_of_is_trunc _ (n+1) _ H, exact succ_le_succ H3
   end
 
   definition ab_group_homotopy_group_of_is_conn (n : ℕ) (A : Type*) [H : is_conn 1 A] :
