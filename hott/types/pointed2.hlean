@@ -454,12 +454,6 @@ namespace pointed
   end
 
   /- properties of ppmap, the pointed type of pointed maps -/
-  definition pcompose_pconst [constructor] (f : B →* C) : f ∘* pconst A B ~* pconst A C :=
-  phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
-
-  definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
-  phomotopy.mk (λa, rfl) !ap_constant⁻¹
-
   definition ppcompose_left [constructor] (g : B →* C) : ppmap A B →* ppmap A C :=
   pmap.mk (pcompose g) (eq_of_phomotopy (pcompose_pconst g))
 

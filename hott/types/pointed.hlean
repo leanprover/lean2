@@ -197,7 +197,7 @@ namespace pointed
   definition pconst [constructor] (A B : Type*) : A →* B :=
   !ppi_const
 
-  -- the pointed type of pointed maps -- TODO: remove
+  -- the pointed type of pointed maps
   definition ppmap [constructor] (A B : Type*) : Type* :=
   @pppi A (λa, B)
 
@@ -326,6 +326,12 @@ namespace pointed
 
   definition is_equiv_pcast [instance] {A B : Type*} (p : A = B) : is_equiv (pcast p) :=
   !is_equiv_cast
+
+  definition pcompose_pconst [constructor] (f : B →* C) : f ∘* pconst A B ~* pconst A C :=
+  phomotopy.mk (λa, respect_pt f) (idp_con _)⁻¹
+
+  definition pconst_pcompose [constructor] (f : A →* B) : pconst B C ∘* f ~* pconst A C :=
+  phomotopy.mk (λa, rfl) !ap_constant⁻¹
 
   /- categorical properties of pointed homotopies -/
 
@@ -1211,10 +1217,10 @@ namespace pointed
 
   variables {A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
             {f₁₀ f₁₀' : A₀₀ →* A₂₀} {f₃₀ : A₂₀ →* A₄₀}
-            {f₀₁ f₀₁' : A₀₀ →* A₀₂} {f₂₁ f₂₁' : A₂₀ →* A₂₂} {f₄₁ : A₄₀ →* A₄₂}
             {f₁₂ f₁₂' : A₀₂ →* A₂₂} {f₃₂ : A₂₂ →* A₄₂}
-            {f₀₃ : A₀₂ →* A₀₄} {f₂₃ : A₂₂ →* A₂₄} {f₄₃ : A₄₂ →* A₄₄}
             {f₁₄ : A₀₄ →* A₂₄} {f₃₄ : A₂₄ →* A₄₄}
+            {f₀₁ f₀₁' : A₀₀ →* A₀₂} {f₂₁ f₂₁' : A₂₀ →* A₂₂} {f₄₁ : A₄₀ →* A₄₂}
+            {f₀₃ : A₀₂ →* A₀₄} {f₂₃ : A₂₂ →* A₂₄} {f₄₃ : A₄₂ →* A₄₄}
 
   definition psquare [reducible] (f₁₀ : A₀₀ →* A₂₀) (f₁₂ : A₀₂ →* A₂₂)
                                  (f₀₁ : A₀₀ →* A₀₂) (f₂₁ : A₂₀ →* A₂₂) : Type :=
@@ -1231,10 +1237,15 @@ namespace pointed
   definition pvdeg_square {f f' : A →* A'} (p : f ~* f') : psquare f f' !pid !pid :=
   !pid_pcompose ⬝* p ⬝* !pcompose_pid⁻¹*
 
-  variables (f₀₁ f₁₀)
+
+  variables (f₁₀ f₁₂ f₀₁ f₂₁)
+  definition hpconst_square : psquare !pconst !pconst f₀₁ f₂₁ :=
+  !pcompose_pconst ⬝* !pconst_pcompose⁻¹*
+  definition vpconst_square : psquare f₁₀ f₁₂ !pconst !pconst :=
+  !pconst_pcompose ⬝* !pcompose_pconst⁻¹*
   definition phrefl : psquare !pid !pid f₀₁ f₀₁ := phdeg_square phomotopy.rfl
   definition pvrefl : psquare f₁₀ f₁₀ !pid !pid := pvdeg_square phomotopy.rfl
-  variables {f₀₁ f₁₀}
+  variables {f₁₀ f₁₂ f₀₁ f₂₁}
   definition phrfl : psquare !pid !pid f₀₁ f₀₁ := phrefl f₀₁
   definition pvrfl : psquare f₁₀ f₁₀ !pid !pid := pvrefl f₁₀
 
