@@ -99,7 +99,7 @@ namespace is_conn
             intro r,
             refine equiv.trans _ (eq_con_inv_equiv_con_eq q p
                                    (ap (λv a, v (f a)) (eq_of_homotopy r))),
-            rewrite [-(ap (λv a, v (f a)) (apd10_eq_of_homotopy r))],
+            rewrite [-(ap (λv a, v (f a)) (apd10_eq_of_homotopy_fn r))],
             rewrite [-(apd10_ap_precompose_dependent f (eq_of_homotopy r))],
             apply equiv.symm,
             apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a)))

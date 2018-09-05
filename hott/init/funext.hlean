@@ -245,8 +245,11 @@ namespace eq
   definition eq_of_homotopy [reducible] : f ~ g → f = g :=
   (@apd10 A P f g)⁻¹
 
-  definition apd10_eq_of_homotopy (p : f ~ g) : apd10 (eq_of_homotopy p) = p :=
+  definition apd10_eq_of_homotopy_fn (p : f ~ g) : apd10 (eq_of_homotopy p) = p :=
   right_inv apd10 p
+
+  definition apd10_eq_of_homotopy (p : f ~ g) : apd10 (eq_of_homotopy p) ~ p :=
+  apd10 (right_inv apd10 p)
 
   definition eq_of_homotopy_apd10 (p : f = g) : eq_of_homotopy (apd10 p) = p :=
   left_inv apd10 p
