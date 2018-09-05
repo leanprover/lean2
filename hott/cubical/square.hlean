@@ -552,6 +552,7 @@ namespace eq
 
   definition square_fill_r : Σ (p : a₂₀ = a₂₂) , square p₁₀ p₁₂ p₀₁ p :=
   by induction p₁₀; induction p₁₂; exact ⟨_, !hrefl⟩
+  variables {p₁₀ p₁₂ p₀₁ p₂₁}
 
   /- Squares having an 'ap' term on one face -/
   --TODO find better names
