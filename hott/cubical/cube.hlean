@@ -204,8 +204,8 @@ namespace eq
   definition cube_fill110 : Σ lid, cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ lid s₁₁₂ :=
   begin
     induction s₀₁₁, induction s₂₁₁,
-    let fillsq := square_fill_l (eq_of_vdeg_square s₁₀₁)
-        (eq_of_hdeg_square s₁₁₂) (eq_of_vdeg_square s₁₂₁),
+    let fillsq := square_fill_l (eq_of_vdeg_square s₁₀₁) (eq_of_vdeg_square s₁₂₁)
+      (eq_of_hdeg_square s₁₁₂),
     apply sigma.mk,
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),
     apply cube_transport112 (left_inv (hdeg_square_equiv _ _) s₁₁₂),
@@ -216,8 +216,8 @@ namespace eq
   definition cube_fill112 : Σ lid, cube s₀₁₁ s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ lid :=
   begin
     induction s₀₁₁, induction s₂₁₁,
-    let fillsq := square_fill_r (eq_of_vdeg_square s₁₀₁)
-        (eq_of_hdeg_square s₁₁₀) (eq_of_vdeg_square s₁₂₁),
+    let fillsq := square_fill_r (eq_of_vdeg_square s₁₀₁) (eq_of_vdeg_square s₁₂₁)
+      (eq_of_hdeg_square s₁₁₀),
     apply sigma.mk,
     apply cube_transport101 (left_inv (vdeg_square_equiv _ _) s₁₀₁),
     apply cube_transport110 (left_inv (hdeg_square_equiv _ _) s₁₁₀),
@@ -228,8 +228,8 @@ namespace eq
   definition cube_fill011 : Σ lid, cube lid s₂₁₁ s₁₀₁ s₁₂₁ s₁₁₀ s₁₁₂ :=
   begin
     induction s₁₀₁, induction s₁₂₁,
-    let fillsq := square_fill_t (eq_of_vdeg_square s₁₁₀) (eq_of_vdeg_square s₁₁₂)
-      (eq_of_vdeg_square s₂₁₁),
+    let fillsq := square_fill_t (eq_of_vdeg_square s₂₁₁) (eq_of_vdeg_square s₁₁₀)
+      (eq_of_vdeg_square s₁₁₂),
     apply sigma.mk,
     apply cube_transport110 (left_inv (vdeg_square_equiv _ _) s₁₁₀),
     apply cube_transport211 (left_inv (vdeg_square_equiv _ _) s₂₁₁),
@@ -252,8 +252,8 @@ namespace eq
   definition cube_fill101 : Σ lid, cube s₀₁₁ s₂₁₁ lid s₁₂₁ s₁₁₀ s₁₁₂ :=
   begin
     induction s₁₁₀, induction s₁₁₂,
-    let fillsq := square_fill_t (eq_of_hdeg_square s₀₁₁) (eq_of_hdeg_square s₂₁₁)
-      (eq_of_hdeg_square s₁₂₁),
+    let fillsq := square_fill_t (eq_of_hdeg_square s₁₂₁) (eq_of_hdeg_square s₀₁₁)
+      (eq_of_hdeg_square s₂₁₁),
     apply sigma.mk,
     apply cube_transport011 (left_inv (hdeg_square_equiv _ _) s₀₁₁),
     apply cube_transport211 (left_inv (hdeg_square_equiv _ _) s₂₁₁),
