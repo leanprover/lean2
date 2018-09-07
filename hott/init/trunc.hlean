@@ -355,8 +355,6 @@ namespace is_trunc
   theorem is_set.elimo (q q' : c =[p] c₂) [H : is_set (C a)] : q = q' :=
   !is_prop.elim
 
-  -- TODO: port "Truncated morphisms"
-
   /- truncated universe -/
 
 end is_trunc

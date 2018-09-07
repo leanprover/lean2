@@ -48,10 +48,6 @@ namespace pointed
   --   intro p,
   -- end
 
-  /- Short term TODO: generalize to dependent maps (use ppi_eq_equiv?)
-     Long term TODO: use homotopies between pointed homotopies, not equalities
-  -/
-
   definition phomotopy_eq_equiv {A B : Type*} {f g : A →* B} (h k : f ~* g) :
     (h = k) ≃ Σ(p : to_homotopy h ~ to_homotopy k),
       whisker_right (respect_pt g) (p pt) ⬝ to_homotopy_pt k = to_homotopy_pt h :=
@@ -72,7 +68,7 @@ namespace pointed
       : by exact sigma_equiv_sigma_right (λp, equiv_eq_closed_left _ (whisker_right _ (!whisker_right_ap⁻¹ᵖ)))
       ... ≃ Σ(p : to_homotopy h ~ to_homotopy k),
       whisker_right (respect_pt g) (p pt) ⬝ to_homotopy_pt k = to_homotopy_pt h
-      : sigma_equiv_sigma_left' eq_equiv_homotopy
+      : sigma_equiv_sigma_left' !eq_equiv_homotopy
 
   definition phomotopy_eq {A B : Type*} {f g : A →* B} {h k : f ~* g} (p : to_homotopy h ~ to_homotopy k)
     (q : whisker_right (respect_pt g) (p pt) ⬝ to_homotopy_pt k = to_homotopy_pt h) : h = k :=
@@ -448,7 +444,7 @@ namespace pointed
     : f ~* g :=
   begin
     apply phomotopy.mk (λa, eq_of_phomotopy (p a)),
-    apply eq_of_fn_eq_fn (pmap_eq_equiv _ _), esimp [pmap_eq_equiv],
+    apply inj (pmap_eq_equiv _ _), esimp [pmap_eq_equiv],
     refine !phomotopy_of_eq_con ⬝ _,
     refine !phomotopy_of_eq_of_phomotopy ◾** idp ⬝ q,
   end
@@ -460,8 +456,8 @@ namespace pointed
   definition ppcompose_right [constructor] (f : A →* B) : ppmap B C →* ppmap A C :=
   pmap.mk (λg, g ∘* f) (eq_of_phomotopy (pconst_pcompose f))
 
-  /- TODO: give construction using pequiv.MK, which computes better (see comment for a start of the proof), rename to ppmap_pequiv_ppmap_right -/
-  definition pequiv_ppcompose_left [constructor] (g : B ≃* C) : ppmap A B ≃* ppmap A C :=
+  /- TODO: give construction using pequiv.MK, which computes better (see comment for a start of the proof) -/
+  definition ppmap_pequiv_ppmap_right [constructor] (g : B ≃* C) : ppmap A B ≃* ppmap A C :=
   pequiv.MK' (ppcompose_left g) (ppcompose_left g⁻¹ᵉ*)
     begin intro f, apply eq_of_phomotopy, apply pinv_pcompose_cancel_left end
     begin intro f, apply eq_of_phomotopy, apply pcompose_pinv_cancel_left end
@@ -477,7 +473,7 @@ namespace pointed
   --     exact sorry
   --   end end
 
-  definition pequiv_ppcompose_right [constructor] (f : A ≃* B) : ppmap B C ≃* ppmap A C :=
+  definition ppmap_pequiv_ppmap_left [constructor] (f : A ≃* B) : ppmap B C ≃* ppmap A C :=
   begin
     fapply pequiv.MK',
     { exact ppcompose_right f },
@@ -830,7 +826,7 @@ namespace pointed
     fapply is_trunc_equiv_closed,
       { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
     fapply is_contr_fiber_of_is_equiv,
-    exact pequiv.to_is_equiv (pequiv_ppcompose_left f)
+    exact pequiv.to_is_equiv (ppmap_pequiv_ppmap_right f)
   end
 
   definition is_contr_pleft_inv (f : A ≃* B) : is_contr (Σ(h : B →* A), h ∘* f ~* pid A) :=
@@ -838,7 +834,7 @@ namespace pointed
     fapply is_trunc_equiv_closed,
       { exact !fiber.sigma_char ⬝e sigma_equiv_sigma_right (λg, !pmap_eq_equiv) },
     fapply is_contr_fiber_of_is_equiv,
-    exact pequiv.to_is_equiv (pequiv_ppcompose_right f)
+    exact pequiv.to_is_equiv (ppmap_pequiv_ppmap_left f)
   end
 
   definition pequiv_eq_equiv (f g : A ≃* B) : (f = g) ≃ f ~* g :=

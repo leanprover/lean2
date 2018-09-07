@@ -71,7 +71,7 @@ namespace equiv
   rec_on_ua' f (λq, eq.rec_on q H)
 
   definition ua_refl (A : Type) : ua erfl = idpath A :=
-  eq_of_fn_eq_fn !eq_equiv_equiv (right_inv !eq_equiv_equiv erfl)
+  inj !eq_equiv_equiv (right_inv !eq_equiv_equiv erfl)
 
   definition ua_symm {A B : Type} (f : A ≃ B) : ua f⁻¹ᵉ = (ua f)⁻¹ :=
   begin

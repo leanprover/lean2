@@ -56,11 +56,11 @@ namespace sphere
 
   definition sphere_stability_pequiv (k n : ℕ) (H : k + 2 ≤ 2 * n) :
     π[k + 1] (S (n+1)) ≃* π[k] (S n) :=
-  iterate_susp_stability_pequiv pbool H
+  iterate_susp_stability_pequiv H pbool
 
   definition stability_isomorphism (k n : ℕ) (H : k + 3 ≤ 2 * n)
     : πg[k+1 +1] (S (n+1)) ≃g πg[k+1] (S n) :=
-  iterate_susp_stability_isomorphism pbool H
+  iterate_susp_stability_isomorphism H pbool
 
   open int circle hopf
   definition πnSn (n : ℕ) [H : is_succ n] : πg[n] (S (n)) ≃g gℤ :=

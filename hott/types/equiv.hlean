@@ -106,7 +106,7 @@ namespace is_equiv
     inv_commute' @f @h @h' p (f b)
       = (ap f⁻¹ (p b))⁻¹ ⬝ left_inv f (h b) ⬝ (ap h (left_inv f b))⁻¹ :=
   begin
-    rewrite [↑[inv_commute',eq_of_fn_eq_fn'],+ap_con,-adj_inv f,+con.assoc,inv_con_cancel_left,
+    rewrite [↑[inv_commute',inj'],+ap_con,-adj_inv f,+con.assoc,inv_con_cancel_left,
        adj f,+ap_inv,-+ap_compose,
        eq_bot_of_square (natural_square_tr (λb, (left_inv f (h b))⁻¹ ⬝ ap f⁻¹ (p b)) (left_inv f b))⁻¹ʰ,
        con_inv,inv_inv,+con.assoc],
@@ -254,8 +254,8 @@ namespace equiv
 
   definition equiv_eq_char (f f' : A ≃ B) : (f = f') ≃ (to_fun f = to_fun f') :=
   calc
-    (f = f') ≃ (to_fun !equiv.sigma_char f = to_fun !equiv.sigma_char f')
-                : eq_equiv_fn_eq (to_fun !equiv.sigma_char)
+    (f = f') ≃ (!equiv.sigma_char f = !equiv.sigma_char f')
+                : eq_equiv_fn_eq !equiv.sigma_char
          ... ≃ ((to_fun !equiv.sigma_char f).1 = (to_fun !equiv.sigma_char f').1 ) : equiv_subtype
          ... ≃ (to_fun f = to_fun f') : equiv.rfl
 
@@ -315,15 +315,15 @@ namespace equiv
   [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A ≃ B) :=
   by cases n; apply !is_contr_equiv; apply !is_trunc_succ_equiv
 
-  definition eq_of_fn_eq_fn'_idp {A B : Type} (f : A → B) [is_equiv f] (x : A)
-    : eq_of_fn_eq_fn' f (idpath (f x)) = idpath x :=
+  definition inj'_idp {A B : Type} (f : A → B) [is_equiv f] (x : A)
+    : inj' f (idpath (f x)) = idpath x :=
   !con.left_inv
 
-  definition eq_of_fn_eq_fn'_con {A B : Type} (f : A → B) [is_equiv f] {x y z : A}
+  definition inj'_con {A B : Type} (f : A → B) [is_equiv f] {x y z : A}
     (p : f x = f y) (q : f y = f z)
-    : eq_of_fn_eq_fn' f (p ⬝ q) = eq_of_fn_eq_fn' f p ⬝ eq_of_fn_eq_fn' f q :=
+    : inj' f (p ⬝ q) = inj' f p ⬝ inj' f q :=
   begin
-    unfold eq_of_fn_eq_fn',
+    unfold inj',
     refine _ ⬝ !con.assoc, apply whisker_right,
     refine _ ⬝ !con.assoc⁻¹ ⬝ !con.assoc⁻¹, apply whisker_left,
     refine !ap_con ⬝ _, apply whisker_left,

@@ -58,7 +58,7 @@ parameters {A B : Type.{u}} (f g : A → B)
   theorem elim_cp {P : Type} (P_i : B → P) (Pcp : Π(x : A), P_i (f x) = P_i (g x))
     (x : A) : ap (elim P_i Pcp) (cp x) = Pcp x :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (cp x)),
+    apply inj_inv !(pathover_constant (cp x)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_cp],
   end
 

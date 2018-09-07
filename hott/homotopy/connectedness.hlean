@@ -97,11 +97,11 @@ namespace is_conn
             rewrite [-(ap (λv a, v (f a)) (apd10_eq_of_homotopy_fn r))],
             rewrite [-(apd10_ap_precompose_dependent f (eq_of_homotopy r))],
             apply equiv.symm,
-            apply eq_equiv_fn_eq (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a)))
+            apply eq_equiv_fn_eq_of_is_equiv (@apd10 A (λa, P (f a)) (λa, g (f a)) (λa, h (f a)))
           end,
           apply equiv.trans (sigma.sigma_equiv_sigma_right e'), clear e',
           apply equiv.trans (equiv.symm (sigma.sigma_equiv_sigma_left
-                                           eq_equiv_homotopy)),
+                                           !eq_equiv_homotopy)),
           apply equiv.symm, apply equiv.trans !fiber_eq_equiv,
           apply sigma.sigma_equiv_sigma_right, intro r,
           apply eq_equiv_eq_symm
@@ -321,7 +321,7 @@ namespace is_conn
     [H2 : is_conn_fun k f] : is_conn_fun k (trunc_functor n f) :=
   begin
     apply is_conn_fun_of_is_equiv,
-    apply is_equiv_trunc_functor_of_le f H
+    exact is_equiv_trunc_functor_of_le f H _
   end
 
   -- Exercise 7.18
@@ -427,7 +427,7 @@ namespace is_conn
   begin
    apply is_conn_fun_of_is_equiv,
    have H3 : is_equiv (trunc_functor k f), from !is_equiv_trunc_functor_of_is_conn_fun,
-   have H4 : is_equiv (trunc_functor n f), from is_equiv_trunc_functor_of_le _ H,
+   have H4 : is_equiv (trunc_functor n f), from is_equiv_trunc_functor_of_le _ H _,
    apply is_equiv_of_equiv_of_homotopy (equiv.mk (trunc_functor n f) _ ⬝e !trunc_equiv),
    intro x, induction x, reflexivity
   end

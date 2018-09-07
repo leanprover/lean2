@@ -92,7 +92,7 @@ namespace simple_two_quotient
     (Pe : Π⦃a a' : A⦄ (s : R a a'), Pj a = Pj a') ⦃a a' : A⦄ (s : R a a')
     : ap (pre_elim Pj Pa Pe) (e s) = Pe s :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (e s)),
+    apply inj_inv !(pathover_constant (e s)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑pre_elim,rec_e],
   end
 

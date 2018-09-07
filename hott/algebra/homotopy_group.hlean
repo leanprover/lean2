@@ -10,8 +10,6 @@ import .trunc_group types.trunc .group_theory types.nat.hott
 
 open nat eq pointed trunc is_trunc algebra group function equiv unit is_equiv nat
 
--- TODO: consistently make n an argument before A
--- TODO: rename homotopy_group_functor_compose to homotopy_group_functor_pcompose
 namespace eq
 
   definition inf_pgroup_loop [constructor] [instance] (A : Type*) : inf_pgroup (Ω A) :=
@@ -103,7 +101,7 @@ namespace eq
     π[k] (ptrunc k A) ≃* π[k] A :=
   homotopy_group_ptrunc_of_le (le.refl k) A
 
-  theorem trivial_homotopy_of_is_set (A : Type*) [H : is_set A] (n : ℕ) : πg[n+1] A ≃g G0 :=
+  theorem trivial_homotopy_of_is_set (n : ℕ) (A : Type*) [H : is_set A] : πg[n+1] A ≃g G0 :=
   begin
     apply trivial_group_of_is_contr,
     apply is_trunc_trunc_of_is_trunc,
@@ -111,30 +109,30 @@ namespace eq
     apply is_trunc_succ_succ_of_is_set
   end
 
-  definition homotopy_group_succ_out (A : Type*) (n : ℕ) : π[n + 1] A = π₁ (Ω[n] A) := idp
+  definition homotopy_group_succ_out (n : ℕ) (A : Type*) : π[n + 1] A = π₁ (Ω[n] A) := idp
 
-  definition homotopy_group_succ_in (A : Type*) (n : ℕ) : π[n + 1] A ≃* π[n] (Ω A) :=
-  ptrunc_pequiv_ptrunc 0 (loopn_succ_in A n)
+  definition homotopy_group_succ_in (n : ℕ) (A : Type*) : π[n + 1] A ≃* π[n] (Ω A) :=
+  ptrunc_pequiv_ptrunc 0 (loopn_succ_in n A)
 
-  definition ghomotopy_group_succ_out (A : Type*) (n : ℕ) : πg[n + 1] A = π₁ (Ω[n] A) := idp
+  definition ghomotopy_group_succ_out (n : ℕ) (A : Type*) : πg[n + 1] A = π₁ (Ω[n] A) := idp
 
-  definition homotopy_group_succ_in_con {A : Type*} {n : ℕ} (g h : πg[n + 2] A) :
-    homotopy_group_succ_in A (succ n) (g * h) =
-    homotopy_group_succ_in A (succ n) g * homotopy_group_succ_in A (succ n) h :=
+  definition homotopy_group_succ_in_con {n : ℕ} {A : Type*} (g h : πg[n + 2] A) :
+    homotopy_group_succ_in (succ n) A (g * h) =
+    homotopy_group_succ_in (succ n) A g * homotopy_group_succ_in (succ n) A h :=
   begin
     induction g with p, induction h with q, esimp,
     apply ap tr, apply loopn_succ_in_con
   end
 
-  definition ghomotopy_group_succ_in [constructor] (A : Type*) (n : ℕ) :
+  definition ghomotopy_group_succ_in [constructor] (n : ℕ) (A : Type*) :
     πg[n + 2] A ≃g πg[n + 1] (Ω A) :=
   begin
     fapply isomorphism_of_equiv,
-    { exact homotopy_group_succ_in A (succ n)},
-    { exact homotopy_group_succ_in_con},
+    { exact homotopy_group_succ_in (succ n) A },
+    { exact homotopy_group_succ_in_con },
   end
 
-  definition is_contr_homotopy_group_of_is_contr (A : Type*) (n : ℕ) [is_contr A] : is_contr (π[n] A) :=
+  definition is_contr_homotopy_group_of_is_contr (n : ℕ) (A : Type*) [is_contr A] : is_contr (π[n] A) :=
   begin
     apply is_trunc_trunc_of_is_trunc,
     apply is_contr_loop_of_is_trunc,
@@ -154,35 +152,35 @@ namespace eq
   definition homotopy_group_functor_pid (n : ℕ) (A : Type*) : π→[n] (pid A) ~* pid (π[n] A) :=
   ptrunc_functor_phomotopy 0 !apn_pid ⬝* !ptrunc_functor_pid
 
-  definition homotopy_group_functor_compose [constructor] (n : ℕ) {A B C : Type*} (g : B →* C)
+  definition homotopy_group_functor_pcompose [constructor] (n : ℕ) {A B C : Type*} (g : B →* C)
     (f : A →* B) : π→[n] (g ∘* f) ~* π→[n] g ∘* π→[n] f :=
   ptrunc_functor_phomotopy 0 !apn_pcompose ⬝* !ptrunc_functor_pcompose
 
   definition is_equiv_homotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)
-    [is_equiv f] : is_equiv (π→[n] f) :=
-  @(is_equiv_trunc_functor 0 _) !is_equiv_apn
+    (H : is_equiv f) : is_equiv (π→[n] f) :=
+  @(is_equiv_trunc_functor 0 _) (is_equiv_apn n f H)
 
   definition homotopy_group_succ_in_natural (n : ℕ) {A B : Type*} (f : A →* B) :
-    homotopy_group_succ_in B n ∘* π→[n + 1] f ~*
-    π→[n] (Ω→ f) ∘* homotopy_group_succ_in A n :=
+    homotopy_group_succ_in n B ∘* π→[n + 1] f ~*
+    π→[n] (Ω→ f) ∘* homotopy_group_succ_in n A :=
   begin
     refine !ptrunc_functor_pcompose⁻¹* ⬝* _ ⬝* !ptrunc_functor_pcompose,
     exact ptrunc_functor_phomotopy 0 (apn_succ_phomotopy_in n f)
   end
 
   definition homotopy_group_succ_in_natural_unpointed (n : ℕ) {A B : Type*} (f : A →* B) :
-    hsquare (homotopy_group_succ_in A n) (homotopy_group_succ_in B n) (π→[n+1] f) (π→[n] (Ω→ f)) :=
+    hsquare (homotopy_group_succ_in n A) (homotopy_group_succ_in n B) (π→[n+1] f) (π→[n] (Ω→ f)) :=
   (homotopy_group_succ_in_natural n f)⁻¹*
 
   definition is_equiv_homotopy_group_functor_ap1 (n : ℕ) {A B : Type*} (f : A →* B)
     [is_equiv (π→[n + 1] f)] : is_equiv (π→[n] (Ω→ f)) :=
-  have is_equiv (π→[n] (Ω→ f) ∘ homotopy_group_succ_in A n),
-  from is_equiv_of_equiv_of_homotopy (equiv.mk (π→[n+1] f) _ ⬝e homotopy_group_succ_in B n)
+  have is_equiv (π→[n] (Ω→ f) ∘ homotopy_group_succ_in n A),
+  from is_equiv_of_equiv_of_homotopy (equiv.mk (π→[n+1] f) _ ⬝e homotopy_group_succ_in n B)
                                      (homotopy_group_succ_in_natural n f),
-  is_equiv.cancel_right (homotopy_group_succ_in A n) _
+  is_equiv.cancel_right (homotopy_group_succ_in n A) _
 
   definition tinverse [constructor] {X : Type*} : π[1] X →* π[1] X :=
-  ptrunc_functor 0 pinverse
+  ptrunc_functor 0 (pinverse X)
 
   definition is_equiv_tinverse [constructor] (A : Type*) : is_equiv (@tinverse A) :=
   by apply @is_equiv_trunc_functor; apply is_equiv_eq_inverse
@@ -218,14 +216,14 @@ namespace eq
   definition homotopy_group_homomorphism_pcompose (n : ℕ) [H : is_succ n] {A B C : Type*} (g : B →* C)
     (f : A →* B) : π→g[n] (g ∘* f) ~ π→g[n] g ∘ π→g[n] f :=
   begin
-    induction H with n, exact to_homotopy (homotopy_group_functor_compose (succ n) g f)
+    induction H with n, exact to_homotopy (homotopy_group_functor_pcompose (succ n) g f)
   end
 
   definition homotopy_group_isomorphism_of_pequiv [constructor] (n : ℕ) {A B : Type*} (f : A ≃* B)
     : πg[n+1] A ≃g πg[n+1] B :=
   begin
     apply isomorphism.mk (homotopy_group_homomorphism (succ n) f),
-    esimp, apply is_equiv_trunc_functor, apply is_equiv_apn,
+    exact is_equiv_homotopy_group_functor _ _ _,
   end
 
   definition homotopy_group_add (A : Type*) (n m : ℕ) :
@@ -238,11 +236,11 @@ namespace eq
       exact !loopn_succ_in⁻¹ᵉ*}
   end
 
-  theorem trivial_homotopy_add_of_is_set_loopn {A : Type*} {n : ℕ} (m : ℕ)
+  theorem trivial_homotopy_add_of_is_set_loopn {n : ℕ} (m : ℕ) {A : Type*}
     (H : is_set (Ω[n] A)) : πg[m+n+1] A ≃g G0 :=
   !homotopy_group_add ⬝g !trivial_homotopy_of_is_set
 
-  theorem trivial_homotopy_le_of_is_set_loopn {A : Type*} {n : ℕ} (m : ℕ) (H1 : n ≤ m)
+  theorem trivial_homotopy_le_of_is_set_loopn {n : ℕ} (m : ℕ) (H1 : n ≤ m) {A : Type*}
     (H2 : is_set (Ω[n] A)) : πg[m+1] A ≃g G0 :=
   obtain (k : ℕ) (p : n + k = m), from le.elim H1,
   isomorphism_of_eq (ap (λx, πg[x+1] A) (p⁻¹ ⬝ add.comm n k)) ⬝g
@@ -300,8 +298,8 @@ namespace eq
 
   definition homotopy_group_functor_psquare (n : ℕ) (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) :
         psquare (π→[n] f₁₀) (π→[n] f₁₂) (π→[n] f₀₁) (π→[n] f₂₁) :=
-  !homotopy_group_functor_compose⁻¹* ⬝* homotopy_group_functor_phomotopy n p ⬝*
-  !homotopy_group_functor_compose
+  !homotopy_group_functor_pcompose⁻¹* ⬝* homotopy_group_functor_phomotopy n p ⬝*
+  !homotopy_group_functor_pcompose
 
   definition homotopy_group_homomorphism_psquare (n : ℕ) [H : is_succ n]
     (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : hsquare (π→g[n] f₁₀) (π→g[n] f₁₂) (π→g[n] f₀₁) (π→g[n] f₂₁) :=
@@ -313,7 +311,7 @@ namespace eq
 
   /- some homomorphisms -/
 
-  -- definition is_homomorphism_cast_loopn_succ_eq_in {A : Type*} (n : ℕ) :
+  -- definition is_homomorphism_cast_loopn_succ_eq_in (n : ℕ) {A : Type*} :
   --   is_homomorphism (loopn_succ_in A (succ n) : πg[n+1+1] A → πg[n+1] (Ω A)) :=
   -- begin
   --   intro g h, induction g with g, induction h with h,
@@ -321,7 +319,7 @@ namespace eq
   --             loopn_succ_eq_in_concat, - + tr_compose],
   -- end
 
-  definition is_mul_hom_inverse (A : Type*) (n : ℕ)
+  definition is_mul_hom_inverse (n : ℕ) (A : Type*)
     : is_mul_hom (λp, p⁻¹ : (πag[n+2] A) → (πag[n+2] A)) :=
   begin
     intro g h, exact ap inv (mul.comm g h) ⬝ mul_inv h g,

@@ -71,7 +71,7 @@ namespace trunc
     exact fn_tr_eq_tr_fn p (λy, tr) x ⬝ !tr_compose
   end
 
-  definition is_equiv_trunc_functor [constructor] (f : X → Y) [H : is_equiv f]
+  definition is_equiv_trunc_functor [constructor] (f : X → Y) (H : is_equiv f)
     : is_equiv (trunc_functor n f) :=
   adjointify _
              (trunc_functor n f⁻¹)
@@ -83,7 +83,7 @@ namespace trunc
 
   section
     definition trunc_equiv_trunc [constructor] (f : X ≃ Y) : trunc n X ≃ trunc n Y :=
-    equiv.mk _ (is_equiv_trunc_functor n f)
+    equiv.mk _ (is_equiv_trunc_functor n f _)
   end
 
   section

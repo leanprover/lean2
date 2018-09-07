@@ -38,7 +38,7 @@ namespace sphere
   begin
     induction n with n s,
     { exact tt },
-    { exact (loopn_succ_in (S (succ n)) n)⁻¹ᵉ* (apn n (equator n) s) }
+    { exact (loopn_succ_in n (S (succ n)))⁻¹ᵉ* (apn n (equator n) s) }
   end
 
   definition sphere_equiv_bool [constructor] : S 0 ≃ bool := by reflexivity

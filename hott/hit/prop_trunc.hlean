@@ -78,7 +78,7 @@ namespace one_step_tr
     (Pe : Π(a a' : A), Pt a = Pt a') (a a' : A)
     : ap (elim Pt Pe) (tr_eq a a') = Pe a a' :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (tr_eq a a')),
+    apply inj_inv !(pathover_constant (tr_eq a a')),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_tr_eq],
   end
 

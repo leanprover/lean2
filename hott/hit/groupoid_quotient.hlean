@@ -219,7 +219,7 @@ section
   definition encode_con (p : elt a = elt b)
     (q : elt b = elt c) : encode (elt c) (p ⬝ q) = encode (elt c) q ∘ encode (elt b) p :=
   begin
-    apply eq_of_fn_eq_fn (elt_eq_elt_equiv a c)⁻¹ᵉ,
+    apply inj (elt_eq_elt_equiv a c)⁻¹ᵉ,
     refine !right_inv ⬝ _ ⬝ !decode_comp⁻¹,
     apply concat2, do 2 exact (to_left_inv !elt_eq_elt_equiv _)⁻¹
   end

@@ -59,7 +59,7 @@ section
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
     : ap (elim Pc Pp) (eq_of_rel H) = Pp H :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (eq_of_rel H)),
+    apply inj_inv !(pathover_constant (eq_of_rel H)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_eq_of_rel],
   end
 

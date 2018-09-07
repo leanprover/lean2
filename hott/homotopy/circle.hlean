@@ -59,14 +59,14 @@ namespace circle
   theorem elim2_seg1 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb1 = Pb2)
     : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg1 = Ps1 :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant seg1),
+    apply inj_inv !(pathover_constant seg1),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim2,rec2_seg1],
   end
 
   theorem elim2_seg2 {P : Type} (Pb1 Pb2 : P) (Ps1 : Pb1 = Pb2) (Ps2 : Pb1 = Pb2)
     : ap (elim2 Pb1 Pb2 Ps1 Ps2) seg2 = Ps2 :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant seg2),
+    apply inj_inv !(pathover_constant seg2),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim2,rec2_seg2],
   end
 
@@ -122,14 +122,14 @@ namespace circle
   theorem elim_loop {P : Type} (Pbase : P) (Ploop : Pbase = Pbase) :
     ap (circle.elim Pbase Ploop) loop = Ploop :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant loop),
+    apply inj_inv !(pathover_constant loop),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑circle.elim,rec_loop],
   end
 
   theorem elim_seg1 {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
     : ap (circle.elim Pbase Ploop) seg1 = (tr_constant seg1 Pbase)⁻¹ :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant seg1),
+    apply inj_inv !(pathover_constant seg1),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑circle.elim,↑circle.rec],
     rewrite [↑circle.rec2_on,rec2_seg1], apply inverse,
     apply pathover_of_eq_tr_constant_inv
@@ -138,7 +138,7 @@ namespace circle
   theorem elim_seg2 {P : Type} (Pbase : P) (Ploop : Pbase = Pbase)
     : ap (circle.elim Pbase Ploop) seg2 = Ploop ⬝ (tr_constant seg1 Pbase)⁻¹ :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant seg2),
+    apply inj_inv !(pathover_constant seg2),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑circle.elim,↑circle.rec],
     rewrite [↑circle.rec2_on,rec2_seg2],
     assert l : Π(A B : Type)(a a₂ a₂' : A)(b b' : B)(p : a = a₂)(p' : a₂' = a₂)
@@ -295,7 +295,7 @@ namespace circle
   trunc_equiv_trunc 0 base_eq_base_equiv ⬝e @(trunc_equiv 0 ℤ) proof _ qed
 
   definition con_comm_base (p q : base = base) : p ⬝ q = q ⬝ p :=
-  eq_of_fn_eq_fn base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])
+  inj base_eq_base_equiv (by esimp;rewrite [+encode_con,add.comm])
 
   definition fundamental_group_of_circle : π₁(S¹*) ≃g gℤ :=
   begin
@@ -308,7 +308,7 @@ namespace circle
   open nat
   definition homotopy_group_of_circle (n : ℕ) : πg[n+2] S¹* ≃g G0 :=
   begin
-    refine @trivial_homotopy_add_of_is_set_loopn S¹* 1 n _,
+    refine @trivial_homotopy_add_of_is_set_loopn 1 n S¹* _,
     exact is_trunc_equiv_closed_rev _ base_eq_base_equiv _
   end
 

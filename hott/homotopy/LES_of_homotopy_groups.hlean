@@ -181,7 +181,7 @@ namespace chain_complex
     (fiber_sequence_carrier_pequiv n ∘*
       fiber_sequence_fun (n + 3)) ∘*
         (fiber_sequence_carrier_pequiv (n + 1))⁻¹ᵉ* ~*
-          Ω→ (fiber_sequence_fun n) ∘* pinverse :=
+          Ω→ (fiber_sequence_fun n) ∘* !pinverse :=
   begin
     fapply phomotopy.mk,
     { exact chain_complex.fiber_sequence_fun_eq_helper f n},
@@ -203,7 +203,7 @@ namespace chain_complex
   theorem fiber_sequence_fun_phomotopy (n : ℕ) :
     fiber_sequence_carrier_pequiv n ∘*
       fiber_sequence_fun (n + 3) ~*
-          (Ω→ (fiber_sequence_fun n) ∘* pinverse) ∘* fiber_sequence_carrier_pequiv (n + 1) :=
+          (Ω→ (fiber_sequence_fun n) ∘* !pinverse) ∘* fiber_sequence_carrier_pequiv (n + 1) :=
   begin
     apply phomotopy_of_pinv_right_phomotopy,
     apply fiber_sequence_fun_phomotopy_helper
@@ -271,7 +271,7 @@ namespace chain_complex
   by reflexivity
 
   definition pid_or_pinverse_add4_rev (n : ℕ) :
-    pid_or_pinverse (n + 4) ~* pinverse ∘* Ω→(pid_or_pinverse (n + 1)) :=
+    pid_or_pinverse (n + 4) ~* !pinverse ∘* Ω→(pid_or_pinverse (n + 1)) :=
   !ap1_pcompose_pinverse
 
   theorem fiber_sequence_phomotopy_loop_spaces : Π(n : ℕ),
@@ -312,7 +312,7 @@ namespace chain_complex
   | 0     := !pid
   | 1     := !pid
   | 2     := !pid
-  | (k+3) := Ω→(pid_or_pinverse_right k) ∘* pinverse
+  | (k+3) := Ω→(pid_or_pinverse_right k) ∘* !pinverse
 
   definition pid_or_pinverse_left : Π(n : ℕ), loop_spaces n →* loop_spaces n
   | 0     := pequiv.rfl
@@ -320,14 +320,14 @@ namespace chain_complex
   | 2     := pequiv.rfl
   | 3     := pequiv.rfl
   | 4     := pequiv.rfl
-  | (k+5) := Ω→(pid_or_pinverse_left (k+2)) ∘* pinverse
+  | (k+5) := Ω→(pid_or_pinverse_left (k+2)) ∘* !pinverse
 
   definition pid_or_pinverse_right_add3 (n : ℕ)
-    : pid_or_pinverse_right (n + 3) = Ω→(pid_or_pinverse_right n) ∘* pinverse :=
+    : pid_or_pinverse_right (n + 3) = Ω→(pid_or_pinverse_right n) ∘* !pinverse :=
   by reflexivity
 
   definition pid_or_pinverse_left_add5 (n : ℕ)
-    : pid_or_pinverse_left (n + 5) = Ω→(pid_or_pinverse_left (n+2)) ∘* pinverse :=
+    : pid_or_pinverse_left (n + 5) = Ω→(pid_or_pinverse_left (n+2)) ∘* !pinverse :=
   by reflexivity
 
   theorem pid_or_pinverse_commute_right : Π(n : ℕ),
@@ -420,7 +420,7 @@ namespace chain_complex
   definition loop_spaces_fun2 : Π(n : +3ℕ), loop_spaces2 (S n) →* loop_spaces2 n
   | (n, fin.mk 0 H) := proof Ω→[n] f qed
   | (n, fin.mk 1 H) := proof Ω→[n] (ppoint f) qed
-  | (n, fin.mk 2 H) := proof Ω→[n] boundary_map ∘* loopn_succ_in Y n qed
+  | (n, fin.mk 2 H) := proof Ω→[n] boundary_map ∘* loopn_succ_in n Y qed
   | (n, fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
 
   definition loop_spaces_fun2_add1_0 (n : ℕ) (H : 0 < succ 2)
@@ -580,7 +580,7 @@ namespace chain_complex
   | (n, fin.mk 0 H) := proof π→[n] f qed
   | (n, fin.mk 1 H) := proof π→[n] (ppoint f) qed
   | (n, fin.mk 2 H) :=
-    proof π→[n] boundary_map ∘* homotopy_group_succ_in Y n qed
+    proof π→[n] boundary_map ∘* homotopy_group_succ_in n Y qed
   | (n, fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
 
   definition homotopy_groups_fun_phomotopy_loop_spaces_fun2 [reducible]
@@ -638,7 +638,7 @@ namespace chain_complex
     cc_to_fn LES_of_homotopy_groups (n, 1) = π→[n] (ppoint f) :=
   by reflexivity
   definition LES_of_homotopy_groups_fun_2 : cc_to_fn LES_of_homotopy_groups (n, 2) =
-    π→[n] boundary_map ∘* homotopy_group_succ_in Y n :=
+    π→[n] boundary_map ∘* homotopy_group_succ_in n Y :=
   by reflexivity
 
   open group
@@ -673,7 +673,7 @@ namespace chain_complex
     begin
       apply homomorphism.mk (cc_to_fn LES_of_homotopy_groups (k + 1, 2)),
       exact abstract begin rewrite [LES_of_homotopy_groups_fun_2],
-      refine homomorphism.struct ((π→g[k+1] boundary_map) ∘g ghomotopy_group_succ_in Y k),
+      refine homomorphism.struct ((π→g[k+1] boundary_map) ∘g ghomotopy_group_succ_in k Y),
       end end
     end
   | (k, fin.mk (l+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
@@ -749,7 +749,7 @@ namespace chain_complex
     : Π(n : +3ℕ), fibration_sequence_car (S n) →* fibration_sequence_car n
   | (n, fin.mk 0 H) := proof Ω→[n] f qed
   | (n, fin.mk 1 H) := proof Ω→[n] g qed
-  | (n, fin.mk 2 H) := proof Ω→[n] (e ∘* boundary_map f) ∘* loopn_succ_in Y n qed
+  | (n, fin.mk 2 H) := proof Ω→[n] (e ∘* boundary_map f) ∘* loopn_succ_in n Y qed
   | (n, fin.mk (k+3) H) := begin exfalso, apply lt_le_antisymm H, apply le_add_left end
 
   definition fibration_sequence_pequiv : Π(x : +3ℕ),

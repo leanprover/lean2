@@ -162,7 +162,7 @@ namespace pointed
     { induction x, reflexivity }
   end
 
-  definition pmap.sigma_char [constructor] {A B : Type*} : (A →* B) ≃ Σ(f : A → B), f pt = pt :=
+  definition pmap.sigma_char [constructor] (A B : Type*) : (A →* B) ≃ Σ(f : A → B), f pt = pt :=
   !ppi.sigma_char
 
   definition pmap.eta_expand [constructor] {A B : Type*} (f : A →* B) : A →* B :=
@@ -204,7 +204,7 @@ namespace pointed
   definition pcast [constructor] {A B : Type*} (p : A = B) : A →* B :=
   pmap.mk (cast (ap pType.carrier p)) (by induction p; reflexivity)
 
-  definition pinverse [constructor] {X : Type*} : Ω X →* Ω X :=
+  definition pinverse [constructor] (X : Type*) : Ω X →* Ω X :=
   pmap.mk eq.inverse idp
 
   /-
@@ -301,24 +301,16 @@ namespace pointed
     intro p, exact !idp_con⁻¹
   end
 
-  definition is_equiv_apn (n : ℕ) (f : A →* B) [H : is_equiv f]
-    : is_equiv (apn n f) :=
-  begin
-    induction n with n IH,
-    { exact H},
-    { exact is_equiv_ap1 (apn n f)}
-  end
-
   definition pinverse_con [constructor] {X : Type*} (p q : Ω X)
-    : pinverse (p ⬝ q) = pinverse q ⬝ pinverse p :=
+    : pinverse X (p ⬝ q) = pinverse X q ⬝ pinverse X p :=
   !con_inv
 
   definition pinverse_inv [constructor] {X : Type*} (p : Ω X)
-    : pinverse p⁻¹ = (pinverse p)⁻¹ :=
+    : pinverse X p⁻¹ = (pinverse X p)⁻¹ :=
   idp
 
   definition ap1_pcompose_pinverse [constructor] {X Y : Type*} (f : X →* Y) :
-    Ω→ f ∘* pinverse ~* pinverse ∘* Ω→ f :=
+    Ω→ f ∘* pinverse X ~* pinverse Y ∘* Ω→ f :=
   phomotopy.mk (ap1_gen_inv f (respect_pt f) (respect_pt f))
     abstract begin
       induction Y with Y y₀, induction f with f f₀, esimp at * ⊢, induction f₀, reflexivity
@@ -437,7 +429,7 @@ namespace pointed
                    : sigma_equiv_sigma_right
                        (λp, equiv_eq_closed_right _ (whisker_right _ (ap_eq_apd10 p _)))
             ...  ≃ Σ(p : k ~ l), respect_pt k = p pt ⬝ respect_pt l
-                   : sigma_equiv_sigma_left' eq_equiv_homotopy
+                   : sigma_equiv_sigma_left' !eq_equiv_homotopy
             ...  ≃ Σ(p : k ~ l), p pt ⬝ respect_pt l = respect_pt k
                    : sigma_equiv_sigma_right (λp, eq_equiv_eq_symm _ _)
             ...  ≃ (k ~* l) : phomotopy.sigma_char k l
@@ -640,7 +632,7 @@ namespace pointed
     { reflexivity}
   end
 
-  definition ap1_pinverse [constructor] {A : Type*} : ap1 (@pinverse A) ~* @pinverse (Ω A) :=
+  definition ap1_pinverse [constructor] {A : Type*} : ap1 (pinverse A) ~* pinverse (Ω A) :=
   begin
     fapply phomotopy.mk,
     { intro p, refine !idp_con ⬝ _, exact !inv_eq_inv2⁻¹ },
@@ -715,7 +707,7 @@ namespace pointed
   definition pcast_idp [constructor] {A : Type*} : pcast (idpath A) ~* pid A :=
   by reflexivity
 
-  definition pinverse_pinverse (A : Type*) : pinverse ∘* pinverse ~* pid (Ω A) :=
+  definition pinverse_pinverse (A : Type*) : pinverse A ∘* pinverse A ~* pid (Ω A) :=
   begin
     fapply phomotopy.mk,
     { apply inv_inv},
@@ -1051,7 +1043,6 @@ namespace pointed
 
   /- pointed equivalences between particular pointed types -/
 
-  -- TODO: remove is_equiv_apn, which is proven again here
   definition loopn_pequiv_loopn [constructor] (n : ℕ) (f : A ≃* B) : Ω[n] A ≃* Ω[n] B :=
   pequiv.MK (apn n f) (apn n f⁻¹ᵉ*)
   abstract begin
@@ -1073,8 +1064,14 @@ namespace pointed
       apply ap1_pid}
   end end
 
+  definition is_equiv_apn [constructor] (n : ℕ) (f : A →* B) (H : is_equiv f) : is_equiv (apn n f) :=
+  to_is_equiv (loopn_pequiv_loopn n (pequiv_of_pmap f H))
+
   definition loop_pequiv_loop [constructor] (f : A ≃* B) : Ω A ≃* Ω B :=
   loopn_pequiv_loopn 1 f
+
+  notation `Ω≃`:(max+5) := loop_pequiv_loop
+  notation `Ω≃[`:95 n:0 `]`:0 := loopn_pequiv_loopn n
 
   definition loop_pequiv_eq_closed [constructor] {A : Type} {a a' : A} (p : a = a')
     : pointed.MK (a = a) idp ≃* pointed.MK (a' = a') idp :=
@@ -1121,7 +1118,7 @@ namespace pointed
     end end
 
   definition pequiv_pinverse (A : Type*) : Ω A ≃* Ω A :=
-  pequiv_of_pmap pinverse !is_equiv_eq_inverse
+  pequiv_of_pmap (pinverse A) !is_equiv_eq_inverse
 
   definition pequiv_of_eq_pt [constructor] {A : Type} {a a' : A} (p : a = a') :
     pointed.MK A a ≃* pointed.MK A a' :=
@@ -1142,36 +1139,33 @@ namespace pointed
   end
 
   /- properties of iterated loop space -/
-  variable (A)
-  definition loopn_succ_in (n : ℕ) : Ω[succ n] A ≃* Ω[n] (Ω A) :=
+  definition loopn_succ_in (n : ℕ) (A : Type*) : Ω[succ n] A ≃* Ω[n] (Ω A) :=
   begin
     induction n with n IH,
     { reflexivity},
     { exact loop_pequiv_loop IH}
   end
 
-  definition loopn_add (n m : ℕ) : Ω[n] (Ω[m] A) ≃* Ω[m+n] (A) :=
+  definition loopn_add (n m : ℕ) (A : Type*) : Ω[n] (Ω[m] A) ≃* Ω[m+n] (A) :=
   begin
     induction n with n IH,
     { reflexivity},
     { exact loop_pequiv_loop IH}
   end
 
-  definition loopn_succ_out (n : ℕ) : Ω[succ n] A ≃* Ω(Ω[n] A)  :=
+  definition loopn_succ_out (n : ℕ) (A : Type*) : Ω[succ n] A ≃* Ω(Ω[n] A)  :=
   by reflexivity
 
-  variable {A}
-
   definition loopn_succ_in_con {n : ℕ} (p q : Ω[succ (succ n)] A) :
-    loopn_succ_in A (succ n) (p ⬝ q) =
-    loopn_succ_in A (succ n) p ⬝ loopn_succ_in A (succ n) q :=
+    loopn_succ_in (succ n) A (p ⬝ q) =
+    loopn_succ_in (succ n) A p ⬝ loopn_succ_in (succ n) A q :=
   !loop_pequiv_loop_con
 
   definition loopn_loop_irrel (p : point A = point A) : Ω(pointed.Mk p) = Ω[2] A :=
   begin
     intros, fapply pType_eq,
     { esimp, transitivity _,
-      apply eq_equiv_fn_eq_of_equiv (equiv_eq_closed_right _ p⁻¹),
+      apply eq_equiv_fn_eq (equiv_eq_closed_right _ p⁻¹),
       esimp, apply eq_equiv_eq_closed, apply con.right_inv, apply con.right_inv},
     { esimp, apply con.left_inv}
   end
@@ -1185,7 +1179,7 @@ namespace pointed
       ... = Ω[n+2] A                                 : by rewrite [algebra.add.comm]
 
   definition apn_succ_phomotopy_in (n : ℕ) (f : A →* B) :
-    loopn_succ_in B n ∘* Ω→[n + 1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in A n :=
+    loopn_succ_in n B ∘* Ω→[n + 1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in n A :=
   begin
     induction n with n IH,
     { reflexivity},
@@ -1193,11 +1187,11 @@ namespace pointed
   end
 
   definition loopn_succ_in_natural {A B : Type*} (n : ℕ) (f : A →* B) :
-    loopn_succ_in B n ∘* Ω→[n+1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in A n :=
+    loopn_succ_in n B ∘* Ω→[n+1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in n A :=
   !apn_succ_phomotopy_in
 
   definition loopn_succ_in_inv_natural {A B : Type*} (n : ℕ) (f : A →* B) :
-    Ω→[n + 1] f ∘* (loopn_succ_in A n)⁻¹ᵉ* ~* (loopn_succ_in B n)⁻¹ᵉ* ∘* Ω→[n] (Ω→ f):=
+    Ω→[n + 1] f ∘* (loopn_succ_in n A)⁻¹ᵉ* ~* (loopn_succ_in n B)⁻¹ᵉ* ∘* Ω→[n] (Ω→ f):=
   begin
     apply pinv_right_phomotopy_of_phomotopy,
     refine _ ⬝* !passoc⁻¹*,

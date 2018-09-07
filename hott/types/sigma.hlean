@@ -198,15 +198,14 @@ namespace sigma
     : bc =[p] ⟨p ▸ bc.1, p ▸D bc.2⟩ :=
   by induction p; induction bc; apply idpo
 
-  -- TODO: interchange sigma_pathover and sigma_pathover'
-  definition sigma_pathover (p : a = a') (u : Σ(b : B a), C a b) (v : Σ(b : B a'), C a' b)
+  definition sigma_pathover' (p : a = a') (u : Σ(b : B a), C a b) (v : Σ(b : B a'), C a' b)
     (r : u.1 =[p] v.1) (s : u.2 =[apd011 C p r] v.2) : u =[p] v :=
   begin
     induction u, induction v, esimp at *, induction r,
     esimp [apd011] at s, induction s using idp_rec_on, apply idpo
   end
 
-  definition sigma_pathover' (p : a = a') (u : Σ(b : B a), C a b) (v : Σ(b : B a'), C a' b)
+  definition sigma_pathover (p : a = a') (u : Σ(b : B a), C a b) (v : Σ(b : B a'), C a' b)
     (r : u.1 =[p] v.1) (s : pathover (λx, C x.1 x.2) u.2 (sigma_eq p r) v.2) : u =[p] v :=
   begin
     induction u, induction v, esimp at *, induction r,

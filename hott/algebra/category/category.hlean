@@ -120,7 +120,7 @@ namespace category
     (q : Πa b c g f, cast p (@comp ob C a b c g f) = @comp ob D a b c (cast p g) (cast p f))
       : C = D :=
   begin
-    apply eq_of_fn_eq_fn !category.sigma_char,
+    apply inj !category.sigma_char,
     fapply sigma_eq,
     { induction C, induction D, esimp, exact precategory_eq @p q},
     { unfold is_univalent, apply is_prop.elimo},

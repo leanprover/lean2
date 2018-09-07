@@ -45,7 +45,7 @@ namespace join
     (Pglue : Π(x : A)(y : B), Pinl x = Pinr y) (x : A) (y : B)
     : ap (join.elim Pinl Pinr Pglue) (glue x y) = Pglue x y :=
   begin
-    apply equiv.eq_of_fn_eq_fn_inv !(pathover_constant (glue x y)),
+    apply equiv.inj_inv !(pathover_constant (glue x y)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑join.elim],
     apply join.rec_glue
   end

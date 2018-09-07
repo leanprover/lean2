@@ -66,7 +66,7 @@ parameters {TL BL TR : Type} (f : TL → BL) (g : TL → TR)
     (Pglue : Π(x : TL), Pinl (f x) = Pinr (g x)) (x : TL)
     : ap (elim Pinl Pinr Pglue) (glue x) = Pglue x :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (glue x)),
+    apply inj_inv !(pathover_constant (glue x)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑pushout.elim,rec_glue],
   end
 

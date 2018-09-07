@@ -31,7 +31,7 @@ namespace fiber
     : (x = y) ≃ (Σ(p : point x = point y), point_eq x = ap f p ⬝ point_eq y) :=
   begin
     apply equiv.trans,
-      apply eq_equiv_fn_eq_of_equiv, apply fiber.sigma_char,
+      apply eq_equiv_fn_eq, apply fiber.sigma_char,
     apply equiv.trans,
       apply sigma_eq_equiv,
     apply sigma_equiv_sigma_right,
@@ -180,7 +180,7 @@ namespace fiber
   begin
     fapply pequiv_of_equiv, esimp,
     refine fiber.equiv_precompose f g (Point B),
-    esimp, apply (eq_of_fn_eq_fn (fiber.sigma_char _ _)), fapply sigma_eq: esimp,
+    esimp, apply (inj (fiber.sigma_char _ _)), fapply sigma_eq: esimp,
     { apply respect_pt g },
     { apply eq_pathover_Fl' }
   end
@@ -210,7 +210,7 @@ namespace fiber
     x = y ≃ fiber (ap1_gen f (point_eq x) (point_eq y)) (idpath b) :=
   calc
     x = y ≃ fiber.sigma_char f b x = fiber.sigma_char f b y :
-      eq_equiv_fn_eq_of_equiv (fiber.sigma_char f b) x y
+      eq_equiv_fn_eq (fiber.sigma_char f b) x y
       ... ≃ Σ(p : point x = point y), point_eq x =[p] point_eq y : sigma_eq_equiv
       ... ≃ Σ(p : point x = point y), (point_eq x)⁻¹ ⬝ ap f p ⬝ point_eq y = idp :
       sigma_equiv_sigma_right (λp,

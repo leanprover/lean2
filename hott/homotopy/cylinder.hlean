@@ -67,7 +67,7 @@ section
     (Pseg : Π(a : A), Pbase (f a) = Ptop a)
     (a : A) : ap (elim Pbase Ptop Pseg) (seg a) = Pseg a :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (seg a)),
+    apply inj_inv !(pathover_constant (seg a)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_seg],
   end
 

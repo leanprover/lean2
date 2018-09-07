@@ -79,8 +79,8 @@ namespace is_trunc
   begin
     have π→[k] pdown.{v u} ∘* π→[k] (plift_functor f) ∘* π→[k] pup.{u v} ~* π→[k] f,
     begin
-      refine pwhisker_left _ !homotopy_group_functor_compose⁻¹* ⬝* _,
-      refine !homotopy_group_functor_compose⁻¹* ⬝* _,
+      refine pwhisker_left _ !homotopy_group_functor_pcompose⁻¹* ⬝* _,
+      refine !homotopy_group_functor_pcompose⁻¹* ⬝* _,
       apply homotopy_group_functor_phomotopy, apply plift_functor_phomotopy
     end,
     have π→[k] pdown.{v u} ∘ π→[k] (plift_functor f) ∘ π→[k] pup.{u v} ~ π→[k] f, from this,
@@ -133,10 +133,10 @@ namespace is_trunc
            pmap.to_fun (π→[k + 1] (pmap_of_map (ap f) p))),
       begin
         apply is_equiv_compose, exact this a p,
-        apply is_equiv_trunc_functor
+        exact is_equiv_trunc_functor _ _ _
       end,
       apply is_equiv.homotopy_closed, exact this,
-      refine !homotopy_group_functor_compose⁻¹* ⬝* _,
+      refine !homotopy_group_functor_pcompose⁻¹* ⬝* _,
       apply homotopy_group_functor_phomotopy,
       fapply phomotopy.mk,
       { esimp, intro q, refine !idp_con⁻¹},
@@ -157,12 +157,12 @@ namespace is_trunc
       apply is_equiv_compose
               (π→[k + 1] (pointed_eta_pequiv B ⬝e* (pequiv_of_eq_pt (respect_pt f))⁻¹ᵉ*)),
       apply is_equiv_compose (π→[k + 1] f),
-      all_goals apply is_equiv_homotopy_group_functor,
+      all_goals exact is_equiv_homotopy_group_functor _ _ _,
     end,
     refine @(is_equiv.homotopy_closed _) _ this _,
     apply to_homotopy,
-    refine pwhisker_left _ !homotopy_group_functor_compose⁻¹* ⬝* _,
-    refine !homotopy_group_functor_compose⁻¹* ⬝* _,
+    refine pwhisker_left _ !homotopy_group_functor_pcompose⁻¹* ⬝* _,
+    refine !homotopy_group_functor_pcompose⁻¹* ⬝* _,
     apply homotopy_group_functor_phomotopy, apply phomotopy_pmap_of_map
   end
 

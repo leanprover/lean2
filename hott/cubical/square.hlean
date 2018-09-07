@@ -668,7 +668,7 @@ namespace eq
     induction r₁₀, induction r₀₁, induction r₁₂, induction r₂₁,
     induction p₁₂, induction p₁₀, induction p₂₁, esimp at *, induction s₁₁, esimp at *,
     esimp [square_of_eq],
-    apply eq_of_fn_eq_fn !square_equiv_eq, esimp,
+    apply inj !square_equiv_eq, esimp,
     exact (eq_bot_of_square u)⁻¹
   end
 

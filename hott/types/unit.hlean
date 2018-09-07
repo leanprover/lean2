@@ -42,7 +42,7 @@ namespace unit
   definition unit_arrow_eq_compose {X Y : Type} (g : X → Y) (f : unit → X) :
     unit_arrow_eq (g ∘ f) = ap (λf, g ∘ f) (unit_arrow_eq f) :=
   begin
-    apply eq_of_fn_eq_fn' apd10,
+    apply inj' apd10,
     refine right_inv apd10 _ ⬝ _,
     refine _ ⬝ ap apd10 (!compose_eq_of_homotopy)⁻¹,
     refine _ ⬝ (right_inv apd10 _)⁻¹,

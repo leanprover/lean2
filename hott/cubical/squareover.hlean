@@ -242,7 +242,7 @@ namespace eq
     induction p₁₀, -- if needed we can remove this induction and use con_tr_idp in types/eq2
     rewrite [▸* at H,idp_con at H,+ap_id at H],
     let H' := eq_of_vdeg_square H,
-    exact eq_of_fn_eq_fn !pathover_equiv_tr_eq H'
+    exact inj !pathover_equiv_tr_eq H'
   end
 
   -- definition vdeg_tr_squareover {q₁₂ : p₀₁ ▸ b₀₀ =[p₁₂] p₂₁ ▸ b₂₀} (r : q₁₀ =[_] q₁₂)

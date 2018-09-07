@@ -69,7 +69,7 @@ namespace susp
   theorem elim_merid {P : Type} {PN PS : P} (Pm : A → PN = PS) (a : A)
     : ap (susp.elim PN PS Pm) (merid a) = Pm a :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (merid a)),
+    apply inj_inv !(pathover_constant (merid a)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑susp.elim,rec_merid],
   end
 
@@ -512,7 +512,7 @@ namespace susp
   begin
     revert X Y, induction n with n IH: intro X Y,
     { reflexivity },
-    { refine !susp_adjoint_loop ⬝e* !IH ⬝e* _, apply pequiv_ppcompose_left,
+    { refine !susp_adjoint_loop ⬝e* !IH ⬝e* _, apply ppmap_pequiv_ppmap_right,
       symmetry, apply loopn_succ_in }
   end
 

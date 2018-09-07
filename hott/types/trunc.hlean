@@ -325,7 +325,7 @@ namespace is_trunc
     (A = B) ≃ (carrier A = carrier B) :=
   calc
     (A = B) ≃ (to_fun (trunctype.sigma_char n) A = to_fun (trunctype.sigma_char n) B)
-              : eq_equiv_fn_eq_of_equiv
+              : eq_equiv_fn_eq
       ... ≃ ((to_fun (trunctype.sigma_char n) A).1 = (to_fun (trunctype.sigma_char n) B).1)
              : equiv.symm (!equiv_subtype)
       ... ≃ (carrier A = carrier B) : equiv.refl
@@ -352,7 +352,7 @@ namespace is_trunc
   definition tua_refl {n : ℕ₋₂} (A : n-Type) : tua (@erfl A) = idp :=
   begin
     refine ap (trunctype_eq_equiv n A A)⁻¹ᶠ (ua_refl A) ⬝ _,
-    refine ap (eq_of_fn_eq_fn _) _ ⬝ !eq_of_fn_eq_fn'_idp ,
+    refine ap (inj _) _ ⬝ !inj'_idp ,
     apply ap (dpair_eq_dpair idp), apply is_prop.elim
   end
 
@@ -360,7 +360,7 @@ namespace is_trunc
     : tua (f ⬝e g) = tua f ⬝ tua g :=
   begin
     refine ap (trunctype_eq_equiv n A C)⁻¹ᶠ (ua_trans f g) ⬝ _,
-    refine ap (eq_of_fn_eq_fn _) _ ⬝ !eq_of_fn_eq_fn'_con,
+    refine ap (inj _) _ ⬝ !inj'_con,
     refine _ ⬝ !dpair_eq_dpair_con,
     apply ap (dpair_eq_dpair _), esimp, apply is_prop.elim
   end
@@ -723,7 +723,7 @@ namespace trunc
   end
 
   definition is_equiv_trunc_functor_of_le {n k : ℕ₋₂} {A B : Type} (f : A → B) (H : n ≤ k)
-    [is_equiv (trunc_functor k f)] : is_equiv (trunc_functor n f) :=
+    (H' : is_equiv (trunc_functor k f)) : is_equiv (trunc_functor n f) :=
   is_equiv_of_equiv_of_homotopy (trunc_equiv_trunc_of_le H (equiv.mk (trunc_functor k f) _))
                                 (trunc_functor_homotopy_of_le f H)
 
@@ -1116,7 +1116,7 @@ namespace function
     apply is_equiv_of_imp_is_equiv,
     intro p,
     note q := ap (@tr 0 _) p,
-    note r := @(eq_of_fn_eq_fn' (trunc_functor 0 f)) _ (tr a) (tr a') q,
+    note r := @(inj' (trunc_functor 0 f)) _ (tr a) (tr a') q,
     induction (tr_eq_tr_equiv _ _ _ r) with s,
     induction s,
     apply is_equiv.homotopy_closed (ap1 (pmap_of_map f a)),

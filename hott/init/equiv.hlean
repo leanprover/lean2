@@ -174,10 +174,10 @@ namespace is_equiv
   have Hfinv : is_equiv f⁻¹, from is_equiv_inv f,
   @homotopy_closed _ _ _ _ (is_equiv_compose f⁻¹ (f ∘ g)) (λa, left_inv f (g a))
 
-  definition eq_of_fn_eq_fn' [unfold 4] {x y : A} (q : f x = f y) : x = y :=
+  definition inj' [unfold 4] {x y : A} (q : f x = f y) : x = y :=
   (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y
 
-  definition ap_eq_of_fn_eq_fn' {x y : A} (q : f x = f y) : ap f (eq_of_fn_eq_fn' f q) = q :=
+  definition ap_inj' {x y : A} (q : f x = f y) : ap f (inj' f q) = q :=
   !ap_con ⬝ whisker_right _ !ap_con
           ⬝ ((!ap_inv ⬝ inverse2 (adj f _)⁻¹)
             ◾ (inverse (ap_compose f f⁻¹ _))
@@ -186,15 +186,15 @@ namespace is_equiv
           ⬝ whisker_right _ !con.left_inv
           ⬝ !idp_con
 
-  definition eq_of_fn_eq_fn'_ap {x y : A} (q : x = y) : eq_of_fn_eq_fn' f (ap f q) = q :=
+  definition inj'_ap {x y : A} (q : x = y) : inj' f (ap f q) = q :=
   by induction q; apply con.left_inv
 
   definition is_equiv_ap [instance] [constructor] (x y : A) : is_equiv (ap f : x = y → f x = f y) :=
   adjointify
     (ap f)
-    (eq_of_fn_eq_fn' f)
-    (ap_eq_of_fn_eq_fn' f)
-    (eq_of_fn_eq_fn'_ap f)
+    (inj' f)
+    (ap_inj' f)
+    (inj'_ap f)
 
   end
 
@@ -269,16 +269,16 @@ namespace is_equiv
   include H
   definition inv_commute' (p : Π⦃a : A⦄ (b : B (g' a)), f (h b) = h' (f b)) {a : A}
     (c : C (g' a)) : f⁻¹ (h' c) = h (f⁻¹ c) :=
-  eq_of_fn_eq_fn' f (right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹)
+  inj' f (right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹)
 
   definition fun_commute_of_inv_commute' (p : Π⦃a : A⦄ (c : C (g' a)), f⁻¹ (h' c) = h (f⁻¹ c))
     {a : A} (b : B (g' a)) : f (h b) = h' (f b) :=
-  eq_of_fn_eq_fn' f⁻¹ (left_inv f (h b) ⬝ ap h (left_inv f b)⁻¹ ⬝ (p (f b))⁻¹)
+  inj' f⁻¹ (left_inv f (h b) ⬝ ap h (left_inv f b)⁻¹ ⬝ (p (f b))⁻¹)
 
   definition ap_inv_commute' (p : Π⦃a : A⦄ (b : B (g' a)), f (h b) = h' (f b)) {a : A}
     (c : C (g' a)) : ap f (inv_commute' @f @h @h' p c)
                        = right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹ :=
-  !ap_eq_of_fn_eq_fn'
+  !ap_inj'
 
   -- inv_commute'_fn is in types.equiv
   end
@@ -286,7 +286,7 @@ namespace is_equiv
   -- This is inv_commute' for A ≡ unit
   definition inv_commute1' {B C : Type} (f : B → C) [is_equiv f] (h : B → B) (h' : C → C)
     (p : Π(b : B), f (h b) = h' (f b)) (c : C) : f⁻¹ (h' c) = h (f⁻¹ c) :=
-  eq_of_fn_eq_fn' f (right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹)
+  inj' f (right_inv f (h' c) ⬝ ap h' (right_inv f c)⁻¹ ⬝ (p (f⁻¹ c))⁻¹)
 
 end is_equiv
 open is_equiv
@@ -350,12 +350,11 @@ namespace equiv
     : A ≃ B :=
   equiv.mk f (inv_homotopy_closed Heq)
 
-  --rename: eq_equiv_fn_eq_fn_of_is_equiv
-  definition eq_equiv_fn_eq [constructor] (f : A → B) [H : is_equiv f] (a b : A) : (a = b) ≃ (f a = f b) :=
+  definition eq_equiv_fn_eq_of_is_equiv [constructor] (f : A → B) [H : is_equiv f] (a b : A) :
+    (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
-  --rename: eq_equiv_fn_eq_fn
-  definition eq_equiv_fn_eq_of_equiv [constructor] (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
+  definition eq_equiv_fn_eq [constructor] (f : A ≃ B) (a b : A) : (a = b) ≃ (f a = f b) :=
   equiv.mk (ap f) !is_equiv_ap
 
   definition equiv_ap [constructor] (P : A → Type) {a b : A} (p : a = b) : P a ≃ P b :=
@@ -368,17 +367,17 @@ namespace equiv
     : equiv_of_eq (refl A) = equiv.refl A :=
   idp
 
-  definition eq_of_fn_eq_fn [unfold 3] (f : A ≃ B) {x y : A} (q : f x = f y) : x = y :=
+  definition inj [unfold 3] (f : A ≃ B) {x y : A} (q : f x = f y) : x = y :=
   (left_inv f x)⁻¹ ⬝ ap f⁻¹ q ⬝ left_inv f y
 
-  definition eq_of_fn_eq_fn_inv [unfold 3] (f : A ≃ B) {x y : B} (q : f⁻¹ x = f⁻¹ y) : x = y :=
+  definition inj_inv [unfold 3] (f : A ≃ B) {x y : B} (q : f⁻¹ x = f⁻¹ y) : x = y :=
   (right_inv f x)⁻¹ ⬝ ap f q ⬝ right_inv f y
 
-  definition ap_eq_of_fn_eq_fn (f : A ≃ B) {x y : A} (q : f x = f y) : ap f (eq_of_fn_eq_fn' f q) = q :=
-  ap_eq_of_fn_eq_fn' f q
+  definition ap_inj (f : A ≃ B) {x y : A} (q : f x = f y) : ap f (inj' f q) = q :=
+  ap_inj' f q
 
-  definition eq_of_fn_eq_fn_ap (f : A ≃ B) {x y : A} (q : x = y) : eq_of_fn_eq_fn' f (ap f q) = q :=
-  eq_of_fn_eq_fn'_ap f q
+  definition inj_ap (f : A ≃ B) {x y : A} (q : x = y) : inj' f (ap f q) = q :=
+  inj'_ap f q
 
   definition to_inv_homotopy_inv {f g : A ≃ B} (p : f ~ g) : f⁻¹ᵉ ~ g⁻¹ᵉ :=
   inv_homotopy_inv p

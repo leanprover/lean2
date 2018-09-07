@@ -58,7 +58,7 @@ namespace pi
 
   /- Pathovers -/
 
-  definition pi_pathover {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+  definition pi_pathover' {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
     (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[apd011 C p q] g b') : f =[p] g :=
   begin
     cases p, apply pathover_idp_of_eq,
@@ -66,7 +66,7 @@ namespace pi
     apply eq_of_pathover_idp, apply r
   end
 
-  definition pi_pathover_left {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+  definition pi_pathover_left' {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
     (r : Π(b : B a), f b =[apd011 C p !pathover_tr] g (p ▸ b)) : f =[p] g :=
   begin
     cases p, apply pathover_idp_of_eq,
@@ -74,7 +74,7 @@ namespace pi
     apply eq_of_pathover_idp, apply r
   end
 
-  definition pi_pathover_right {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
+  definition pi_pathover_right' {f : Πb, C a b} {g : Πb', C a' b'} {p : a = a'}
     (r : Π(b' : B a'), f (p⁻¹ ▸ b') =[apd011 C p !tr_pathover] g b') : f =[p] g :=
   begin
     cases p, apply pathover_idp_of_eq,
@@ -93,7 +93,7 @@ namespace pi
 
   -- a version where C is uncurried, but where the conclusion of r is still a proper pathover
   -- instead of a heterogenous equality
-  definition pi_pathover' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
+  definition pi_pathover {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
     {p : a = a'} (r : Π(b : B a) (b' : B a') (q : b =[p] b'), f b =[dpair_eq_dpair p q] g b')
     : f =[p] g :=
   begin
@@ -102,7 +102,7 @@ namespace pi
     apply (@eq_of_pathover_idp _ C), exact (r b b (pathover.idpatho b)),
   end
 
-  definition pi_pathover_left' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
+  definition pi_pathover_left {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
     {p : a = a'} (r : Π(b : B a), f b =[dpair_eq_dpair p !pathover_tr] g (p ▸ b))
     : f =[p] g :=
   begin
@@ -111,7 +111,7 @@ namespace pi
     apply eq_of_pathover_idp, esimp at r, exact !pathover_ap (r b)
   end
 
-  definition pi_pathover_right' {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
+  definition pi_pathover_right {C : (Σa, B a) → Type} {f : Πb, C ⟨a, b⟩} {g : Πb', C ⟨a', b'⟩}
     {p : a = a'} (r : Π(b' : B a'), f (p⁻¹ ▸ b') =[dpair_eq_dpair p !tr_pathover] g b')
     : f =[p] g :=
   begin

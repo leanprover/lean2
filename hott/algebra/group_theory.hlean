@@ -182,7 +182,7 @@ namespace group
   definition to_ginv [constructor] (φ : G₁ ≃g G₂) : G₂ →g G₁ :=
   homomorphism.mk φ⁻¹
     abstract begin
-    intro g₁ g₂, apply eq_of_fn_eq_fn' φ,
+    intro g₁ g₂, apply inj' φ,
     rewrite [respect_mul φ, +right_inv φ]
     end end
 

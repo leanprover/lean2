@@ -109,7 +109,7 @@ namespace smash
     (Pgl : Πa : A, Pmk a pt = Pl) (Pgr : Πb : B, Pmk pt b = Pr) (a : A) :
     ap (smash.elim Pmk Pl Pr Pgl Pgr) (gluel a) = Pgl a :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (@gluel A B a)),
+    apply inj_inv !(pathover_constant (@gluel A B a)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑smash.elim,rec_gluel],
   end
 
@@ -117,7 +117,7 @@ namespace smash
     (Pgl : Πa : A, Pmk a pt = Pl) (Pgr : Πb : B, Pmk pt b = Pr) (b : B) :
     ap (smash.elim Pmk Pl Pr Pgl Pgr) (gluer b) = Pgr b :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (@gluer A B b)),
+    apply inj_inv !(pathover_constant (@gluer A B b)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑smash.elim,rec_gluer],
   end
 

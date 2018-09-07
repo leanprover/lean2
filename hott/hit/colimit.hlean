@@ -67,7 +67,7 @@ section
     (Pglue : Π(j : J) (x : A (dom j)), Pincl (f j x) = Pincl x)
       {j : J} (x : A (dom j)) : ap (elim Pincl Pglue) (cglue j x) = Pglue j x :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (cglue j x)),
+    apply inj_inv !(pathover_constant (cglue j x)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_cglue],
   end
 
@@ -157,7 +157,7 @@ section
     (Pglue : Π⦃n : ℕ⦄ (a : A n), Pincl (f a) = Pincl a) {n : ℕ} (a : A n)
       : ap (elim Pincl Pglue) (glue a) = Pglue a :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (glue a)),
+    apply inj_inv !(pathover_constant (glue a)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑elim,rec_glue],
   end
 

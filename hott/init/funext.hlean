@@ -239,7 +239,7 @@ end funext
 open funext
 
 namespace eq
-  definition eq_equiv_homotopy : (f = g) ≃ (f ~ g) :=
+  definition eq_equiv_homotopy (f g : Πx, P x) : (f = g) ≃ (f ~ g) :=
   equiv.mk apd10 _
 
   definition eq_of_homotopy [reducible] : f ~ g → f = g :=

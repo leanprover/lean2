@@ -383,7 +383,7 @@ namespace functor
     { intro G H I η θ, reflexivity},
   end
 
-  definition faithful_precomposition_functor [instance] 
+  definition faithful_precomposition_functor [instance]
     {C D E} {H : C ⇒ D} [Hs : essentially_surjective H] : faithful (precomposition_functor E H) :=
   begin
     intro F G γ δ Hγδ, apply nat_trans_eq, intro b,
@@ -414,7 +414,7 @@ namespace functor
   begin
     induction Hs b with Hb, induction Hb with a0 h, fconstructor,
     exact G h ∘ γ a0 ∘ F h⁻¹ⁱ, intro a f,
-    induction Hf (to_hom (f ⬝i h⁻¹ⁱ)) with k Ek, 
+    induction Hf (to_hom (f ⬝i h⁻¹ⁱ)) with k Ek,
     have is_iso (H k), by rewrite Ek; apply _,
     refine _ ⬝ !assoc⁻¹, refine _ ⬝ ap (λ x, x ∘ F f) !assoc⁻¹, refine _ ⬝ !assoc,
     refine _ ⬝ ap (λ x, (G f⁻¹ⁱ ∘ G h) ∘ x) !assoc,
@@ -425,24 +425,24 @@ namespace functor
 
   --TODO speed this up
   private definition fully_faithful_precomposition_naturality {b b' : carrier D}
-    (f : hom b b') : to_fun_hom G f ∘ (fully_faithful_precomposition_functor_pair γ b).1 
+    (f : hom b b') : to_fun_hom G f ∘ (fully_faithful_precomposition_functor_pair γ b).1
     = (fully_faithful_precomposition_functor_pair γ b').1 ∘ to_fun_hom F f :=
   begin
     esimp[fully_faithful_precomposition_functor_pair],
     induction Hs b with Hb, induction Hb with a h,
     induction Hs b' with Hb', induction Hb' with a' h',
-    induction Hf (to_hom h'⁻¹ⁱ ∘ f ∘ to_hom h) with k Ek, 
+    induction Hf (to_hom h'⁻¹ⁱ ∘ f ∘ to_hom h) with k Ek,
     apply concat, apply assoc,
     apply concat, apply ap (λ x, x ∘ _),
-     apply concat, apply !respect_comp⁻¹, 
-     apply concat, apply ap (λ x, to_fun_hom G x), apply inverse, 
+     apply concat, apply !respect_comp⁻¹,
+     apply concat, apply ap (λ x, to_fun_hom G x), apply inverse,
       apply comp_eq_of_eq_inverse_comp, apply Ek, apply respect_comp,
-    apply concat, apply !assoc⁻¹, 
-    apply concat, apply ap (λ x, _ ∘ x), apply concat, apply assoc, 
-     apply concat, apply ap (λ x, x ∘ _), apply naturality γ, apply !assoc⁻¹, 
-    apply concat, apply ap (λ x, _ ∘ _ ∘ x), apply concat, esimp, apply !respect_comp⁻¹, 
-     apply concat, apply ap (λ x, to_fun_hom F x), 
-      apply comp_inverse_eq_of_eq_comp, apply Ek ⬝ !assoc, apply respect_comp, 
+    apply concat, apply !assoc⁻¹,
+    apply concat, apply ap (λ x, _ ∘ x), apply concat, apply assoc,
+     apply concat, apply ap (λ x, x ∘ _), apply naturality γ, apply !assoc⁻¹,
+    apply concat, apply ap (λ x, _ ∘ _ ∘ x), apply concat, esimp, apply !respect_comp⁻¹,
+     apply concat, apply ap (λ x, to_fun_hom F x),
+      apply comp_inverse_eq_of_eq_comp, apply Ek ⬝ !assoc, apply respect_comp,
     apply concat, apply assoc, apply concat, apply assoc,
     apply ap (λ x, x ∘ _) !assoc⁻¹
   end
@@ -454,13 +454,13 @@ namespace functor
     { apply faithful_precomposition_functor },
     { intro F G γ, esimp at *, fapply image.mk,
       fconstructor,
-      { intro b, apply (fully_faithful_precomposition_functor_pair γ b).1 }, 
+      { intro b, apply (fully_faithful_precomposition_functor_pair γ b).1 },
       { intro b b' f, apply fully_faithful_precomposition_naturality },
       { fapply nat_trans_eq, intro a, esimp,
         apply inverse,
         induction (fully_faithful_precomposition_functor_pair γ (to_fun_ob H a)) with g Hg,
         esimp, apply concat, apply Hg a (iso.refl (H a)), esimp,
-        apply concat, apply ap (λ x, x ∘ _), apply respect_id, apply concat, apply id_left, 
+        apply concat, apply ap (λ x, x ∘ _), apply respect_id, apply concat, apply id_left,
         apply concat, apply ap (λ x, _ ∘ x), apply respect_id, apply id_right } }
   end
 
@@ -480,7 +480,7 @@ namespace functor
   structure essentially_surj_precomp_X (b : carrier B) : Type :=
     (c : carrier C)
     (k : Π (a : carrier A) (h : H a ≅ b), F a ≅ c)
-    (k_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h 
+    (k_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h
       → to_hom (k a' h') ∘ to_fun_hom F f = to_hom (k a h))
   local abbreviation X := essentially_surj_precomp_X
   local abbreviation X.mk [constructor] := @essentially_surj_precomp_X.mk
@@ -493,9 +493,9 @@ namespace functor
     {k : Π (a : carrier A) (h : H a ≅ b), F a ≅ c}
     {k' : Π (a : carrier A) (h : H a ≅ b), F a ≅ c'}
     (q : Π (a : carrier A) (h : H a ≅ b), to_hom (k a h ⬝i iso_of_eq p) = to_hom (k' a h))
-    {k_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h 
+    {k_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h
       → to_hom (k a' h') ∘ to_fun_hom F f = to_hom (k a h)}
-    {k'_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h 
+    {k'_coh : Π {a a'} h h' (f : hom a a'), to_hom h' ∘ (to_fun_hom H f) = to_hom h
       → to_hom (k' a' h') ∘ to_fun_hom F f = to_hom (k' a h)}
   include c c' p k k' q
 
@@ -503,7 +503,7 @@ namespace functor
   begin
     cases p,
     assert q' : k = k',
-    { apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro h, 
+    { apply eq_of_homotopy, intro a, apply eq_of_homotopy, intro h,
       apply iso_eq, apply !id_left⁻¹ ⬝ q a h },
     cases q',
     apply ap (essentially_surj_precomp_X.mk c' k'),
@@ -541,10 +541,10 @@ namespace functor
     { intro a h, apply to_fun_iso F, apply reflect_iso H,
       exact h ⬝i Ha0⁻¹ⁱ },
     { intros a a' h h' f HH,
-      apply concat, apply !respect_comp⁻¹, apply ap (to_fun_hom F), 
+      apply concat, apply !respect_comp⁻¹, apply ap (to_fun_hom F),
       esimp, rewrite [-HH],
-      apply concat, apply ap (λ x, _ ∘ x), apply inverse, apply left_inv (to_fun_hom H), 
-      apply concat, apply !hom_inv_respect_comp⁻¹, apply ap (hom_inv H), 
+      apply concat, apply ap (λ x, _ ∘ x), apply inverse, apply left_inv (to_fun_hom H),
+      apply concat, apply !hom_inv_respect_comp⁻¹, apply ap (hom_inv H),
       apply !assoc⁻¹ }
   end
   local abbreviation G0 [reducible] := λ (b), X.c (X_inh b)
@@ -626,37 +626,37 @@ namespace functor
       apply concat, apply ap (λ x, _ ∘ x), apply right_inv (to_fun_hom H),
       apply comp_inverse_cancel_left },
     fapply Y.mk,
-    { refine to_hom (k b' a0' h0') ∘ _ ∘ to_hom (k b a0 h0)⁻¹ⁱ, 
+    { refine to_hom (k b' a0' h0') ∘ _ ∘ to_hom (k b a0 h0)⁻¹ⁱ,
       apply to_fun_hom F, apply l0Hl0.1 },
     { intros a a' h h' l Hl, esimp, apply inverse,
       assert mHm : Σ m, to_hom h0 ∘ to_fun_hom H m = to_hom h,
-      { fconstructor, apply hom_inv, apply He.1, exact to_hom h0⁻¹ⁱ ∘ to_hom h, 
+      { fconstructor, apply hom_inv, apply He.1, exact to_hom h0⁻¹ⁱ ∘ to_hom h,
         apply concat, apply ap (λ x, _ ∘ x), apply right_inv (to_fun_hom H),
         apply comp_inverse_cancel_left },
       assert m'Hm' : Σ m', to_hom h0' ∘ to_fun_hom H m' = to_hom h',
-      { fconstructor, apply hom_inv, apply He.1, exact to_hom h0'⁻¹ⁱ ∘ to_hom h', 
+      { fconstructor, apply hom_inv, apply He.1, exact to_hom h0'⁻¹ⁱ ∘ to_hom h',
         apply concat, apply ap (λ x, _ ∘ x), apply right_inv (to_fun_hom H),
         apply comp_inverse_cancel_left },
       assert m'l0lm : l0Hl0.1 ∘ mHm.1 = m'Hm'.1 ∘ l,
       { apply faithful_of_fully_faithful, apply He.1,
         apply concat, apply respect_comp, apply comp.cancel_left (to_hom h0'), apply inverse,
-        apply concat, apply ap (λ x, _ ∘ x), apply respect_comp, 
+        apply concat, apply ap (λ x, _ ∘ x), apply respect_comp,
         apply concat, apply assoc,
         apply concat, apply ap (λ x, x ∘ _), apply m'Hm'.2,
-        apply concat, apply Hl, 
+        apply concat, apply Hl,
         apply concat, apply ap (λ x, _ ∘ x), apply mHm.2⁻¹,
         apply concat, apply assoc,
         apply concat, apply ap (λ x, x ∘ _), apply l0Hl0.2⁻¹, apply !assoc⁻¹ },
       apply concat, apply !assoc⁻¹,
-      apply concat, apply ap (λ x, _ ∘ x), apply !assoc⁻¹, 
-      apply concat, apply ap (λ x, _ ∘ _ ∘ x), apply inverse_comp_eq_of_eq_comp, 
+      apply concat, apply ap (λ x, _ ∘ x), apply !assoc⁻¹,
+      apply concat, apply ap (λ x, _ ∘ _ ∘ x), apply inverse_comp_eq_of_eq_comp,
        apply inverse, apply k_coh b h h0, apply mHm.2,
-      apply concat, apply ap (λ x, _ ∘ x), apply concat, apply !respect_comp⁻¹, 
+      apply concat, apply ap (λ x, _ ∘ x), apply concat, apply !respect_comp⁻¹,
        apply concat, apply ap (to_fun_hom F), apply m'l0lm, apply respect_comp,
       apply concat, apply assoc, apply ap (λ x, x ∘ _),
       apply k_coh, apply m'Hm'.2 }
   end
- 
+
   private definition G_hom [constructor] := λ {b b'} (f : hom b b'), Y.g (Y_inh f)
   private definition G_hom_coh := λ {b b'} (f : hom b b'),
     @essentially_surj_precomp_Y.Hg b b' f (Y_inh f)
@@ -712,7 +712,7 @@ namespace functor
     fconstructor,
     { exact F a0 },
     { intro a h, apply to_fun_iso F, apply reflect_iso, apply He.1, exact h },
-    { intro a a' h h' f l, esimp, 
+    { intro a a' h h' f l, esimp,
       apply concat, apply !respect_comp⁻¹, apply ap (to_fun_hom F), apply inverse,
       apply concat, apply ap (hom_inv H) l⁻¹,
       apply concat, apply hom_inv_respect_comp, apply ap (λ x, _ ∘ x), apply left_inv }
@@ -739,7 +739,7 @@ namespace functor
       apply concat, apply assoc,
       apply concat, apply ap (λ x, x ∘ _), apply X_phi_hom_of_eq, esimp[XF],
       refine !respect_comp⁻¹ ⬝ ap (to_fun_hom F) _ ⬝ !respect_comp,
-      apply eq_of_fn_eq_fn' (to_fun_hom H),
+      apply inj' (to_fun_hom H),
       refine !respect_comp ⬝ _ ⬝ !respect_comp⁻¹,
       apply concat, apply ap (λ x, x ∘ _) !(right_inv (to_fun_hom H)),
       apply concat, rotate 1, apply ap (λ x, _ ∘ x) !(right_inv (to_fun_hom H))⁻¹,

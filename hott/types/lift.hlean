@@ -142,10 +142,10 @@ namespace lift
     fiber (lift_functor f) (up b) ≃ fiber f b :=
   begin
     fapply equiv.MK: intro v; cases v with a p,
-    { cases a with a, exact fiber.mk a (eq_of_fn_eq_fn' up p) },
+    { cases a with a, exact fiber.mk a (inj' up p) },
     { exact fiber.mk (up a) (ap up p) },
-    { apply ap (fiber.mk a), apply eq_of_fn_eq_fn'_ap },
-    { cases a with a, esimp, apply ap (fiber.mk (up a)), apply ap_eq_of_fn_eq_fn' }
+    { apply ap (fiber.mk a), apply inj'_ap },
+    { cases a with a, esimp, apply ap (fiber.mk (up a)), apply ap_inj' }
   end
 
   definition lift_functor2 {A B C : Type} (f : A → B → C) (x : lift A) (y : lift B) : lift C :=

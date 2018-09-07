@@ -257,7 +257,7 @@ namespace EM
     { rewrite [EMadd1_succ G (succ n)],
       refine (ptrunc_pequiv (succ n + 1) _)⁻¹ᵉ*  ⬝e* _ ⬝e* (loop_ptrunc_pequiv _ _)⁻¹ᵉ*,
       have succ n + 1 ≤ 2 * succ n, from add_mul_le_mul_add n 1 1,
-      refine freudenthal_pequiv _ this }
+      refine freudenthal_pequiv this _ }
   end
 
   definition loopn_EMadd1_pequiv_EM1 (G : AbGroup) (n : ℕ) : EM1 G ≃* Ω[n] (EMadd1 G n) :=

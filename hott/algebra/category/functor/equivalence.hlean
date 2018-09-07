@@ -161,7 +161,7 @@ namespace category
     { exact inverse_of_fully_faithful_of_split_essentially_surjective},
     { fapply natural_iso.mk',
       { intro c, esimp, apply reflect_iso F, exact (H₂ (F c)).2},
-      intro c c' f, esimp, apply eq_of_fn_eq_fn' (to_fun_hom F),
+      intro c c' f, esimp, apply inj' (to_fun_hom F),
       rewrite [+respect_comp, +right_inv (to_fun_hom F), comp_inverse_cancel_left]},
     { fapply natural_iso.mk',
       { intro c, esimp, exact (H₂ c).2},

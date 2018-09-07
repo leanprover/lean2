@@ -248,7 +248,7 @@ namespace eq
     (H : P (idpath (f a₀))) ⦃a₁ : A⦄ (p : f a₀ = f a₁) : P p :=
   begin
     assert qr : Σ(q : a₀ = a₁), ap f q = p,
-    { exact ⟨eq_of_fn_eq_fn f p, ap_eq_of_fn_eq_fn' f p⟩ },
+    { exact ⟨inj f p, ap_inj' f p⟩ },
     cases qr with q r, apply transport P r, induction q, exact H
   end
 
@@ -256,7 +256,7 @@ namespace eq
     (H : P (idpath (f a₁))) ⦃a₀ : A⦄ (p : f a₀ = f a₁) : P p :=
   begin
     assert qr : Σ(q : a₀ = a₁), ap f q = p,
-    { exact ⟨eq_of_fn_eq_fn f p, ap_eq_of_fn_eq_fn' f p⟩ },
+    { exact ⟨inj f p, ap_inj' f p⟩ },
     cases qr with q r, apply transport P r, induction q, exact H
   end
 
@@ -273,11 +273,11 @@ namespace eq
     ⦃a₁' : A'⦄ (p' : f a₀ = g a₁') (H : P p') ⦃a₁ : A'⦄ (p : f a₀ = g a₁) : P p :=
   begin
     assert qr : Σ(q : g⁻¹ (f a₀) = a₁), (right_inv g (f a₀))⁻¹ ⬝ ap g q = p,
-    { exact ⟨eq_of_fn_eq_fn g (right_inv g (f a₀) ⬝ p),
-             whisker_left _ (ap_eq_of_fn_eq_fn' g _) ⬝ !inv_con_cancel_left⟩ },
+    { exact ⟨inj g (right_inv g (f a₀) ⬝ p),
+             whisker_left _ (ap_inj' g _) ⬝ !inv_con_cancel_left⟩ },
     assert q'r' : Σ(q' : g⁻¹ (f a₀) = a₁'), (right_inv g (f a₀))⁻¹ ⬝ ap g q' = p',
-    { exact ⟨eq_of_fn_eq_fn g (right_inv g (f a₀) ⬝ p'),
-             whisker_left _ (ap_eq_of_fn_eq_fn' g _) ⬝ !inv_con_cancel_left⟩ },
+    { exact ⟨inj g (right_inv g (f a₀) ⬝ p'),
+             whisker_left _ (ap_inj' g _) ⬝ !inv_con_cancel_left⟩ },
     induction qr with q r, induction q'r' with q' r',
     induction q, induction q',
     induction r, induction r',

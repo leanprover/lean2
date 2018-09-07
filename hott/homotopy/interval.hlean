@@ -44,7 +44,7 @@ namespace interval
   theorem elim_seg {P : Type} (P0 P1 : P) (Ps : P0 = P1)
     : ap (interval.elim P0 P1 Ps) seg = Ps :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant seg),
+    apply inj_inv !(pathover_constant seg),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑interval.elim,rec_seg],
   end
 

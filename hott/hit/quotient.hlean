@@ -34,7 +34,7 @@ namespace quotient
     (Pp : Π⦃a a' : A⦄ (H : R a a'), Pc a = Pc a') {a a' : A} (H : R a a')
     : ap (quotient.elim Pc Pp) (eq_of_rel R H) = Pp H :=
   begin
-    apply eq_of_fn_eq_fn_inv !(pathover_constant (eq_of_rel R H)),
+    apply inj_inv !(pathover_constant (eq_of_rel R H)),
     rewrite [▸*,-apd_eq_pathover_of_eq_ap,↑quotient.elim,rec_eq_of_rel],
   end
 
@@ -148,7 +148,7 @@ namespace quotient
       induction v with q p,
       induction q,
       { exact Qpt p},
-      { apply pi_pathover_left', esimp, intro c,
+      { apply pi_pathover_left, esimp, intro c,
         refine _ ⬝op apdt Qpt (elim_type_eq_of_rel C f H c)⁻¹ᵖ,
         refine _ ⬝op (tr_compose Q Ppt _ _)⁻¹ ,
         rewrite ap_inv,
