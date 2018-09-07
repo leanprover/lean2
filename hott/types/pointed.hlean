@@ -134,7 +134,7 @@ namespace pointed
 
   definition passoc [constructor] (h : C →* D) (g : B →* C) (f : A →* B) : (h ∘* g) ∘* f ~* h ∘* (g ∘* f) :=
   phomotopy.mk (λa, idp)
-    abstract !idp_con ⬝ whisker_right _ (!ap_con ⬝ whisker_right _ !ap_compose'⁻¹) ⬝ !con.assoc end
+    abstract !idp_con ⬝ whisker_right _ (!ap_con ⬝ whisker_right _ !ap_compose') ⬝ !con.assoc end
 
   definition pid_pcompose [constructor] (f : A →* B) : pid B ∘* f ~* f :=
   begin
@@ -368,7 +368,7 @@ namespace pointed
 
   definition is_trunc_ppi [instance] (n : ℕ₋₂) {A : Type*} (B : A → Type) (b₀ : B pt) [Πa, is_trunc n (B a)] :
     is_trunc n (ppi B b₀) :=
-  is_trunc_equiv_closed_rev _ !ppi.sigma_char
+  is_trunc_equiv_closed_rev _ !ppi.sigma_char _
 
   definition is_trunc_pmap [instance] (n : ℕ₋₂) (A B : Type*) [is_trunc n B] :
     is_trunc n (A →* B) :=

@@ -70,7 +70,7 @@ section
     { reflexivity },
     { reflexivity },
     { apply eq_pathover, rewrite ap_id,
-      rewrite (ap_compose' (λy, -y)),
+      rewrite [-(ap_compose' (λy, -y))],
       krewrite susp.elim_merid, rewrite ap_inv,
       krewrite susp.elim_merid, rewrite neg_neg,
       rewrite inv_inv, apply hrefl }
@@ -85,7 +85,7 @@ section
     { reflexivity },
     { reflexivity },
     { apply eq_pathover, rewrite ap_id,
-      krewrite (ap_compose' (λy, y*)),
+      krewrite [-(ap_compose' (λy, y*))],
       do 2 krewrite susp.elim_merid, rewrite neg_neg,
       apply hrefl }
   end
@@ -96,7 +96,7 @@ section
     { reflexivity },
     { reflexivity },
     { apply eq_pathover,
-      krewrite [ap_compose' (λy, y*),ap_compose' (λy, -y) (λy, y*)],
+      krewrite [-ap_compose' (λy, y*),-ap_compose' (λy, -y) (λy, y*)],
       do 3 krewrite susp.elim_merid, rewrite ap_inv, krewrite susp.elim_merid,
       apply hrefl }
   end

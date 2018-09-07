@@ -184,7 +184,7 @@ namespace pushout
         { apply ap inl, reflexivity },
         { apply ap inr, reflexivity },
         { unfold F, unfold G, apply eq_pathover,
-          rewrite [ap_id,ap_compose' (quotient.elim _ _)],
+          rewrite [ap_id,-ap_compose' (quotient.elim _ _)],
           krewrite elim_glue, krewrite elim_eq_of_rel, apply hrefl } },
       { intro q, induction q with z z z' fr,
         { induction z with a p, induction a with x x,
@@ -192,7 +192,7 @@ namespace pushout
           { reflexivity } },
         { induction fr with a a' r p, induction r with x,
           esimp, apply eq_pathover,
-          rewrite [ap_id,ap_compose' (pushout.elim _ _ _)],
+          rewrite [ap_id,-ap_compose' (pushout.elim _ _ _)],
           krewrite elim_eq_of_rel, krewrite elim_glue, apply hrefl } }
     end
   end
@@ -276,7 +276,7 @@ namespace pushout
       { apply ap inl, apply right_inv },
       { apply ap inr, apply right_inv },
       { apply eq_pathover,
-        rewrite [ap_id,ap_compose' (pushout.functor tl bl tr fh gh)],
+        rewrite [ap_id,-ap_compose' (pushout.functor tl bl tr fh gh)],
         krewrite elim_glue,
         rewrite [ap_inv,ap_con,ap_inv],
         krewrite [pushout.ap_functor_inr], rewrite ap_con,
@@ -307,7 +307,7 @@ namespace pushout
       { apply ap inl, apply left_inv },
       { apply ap inr, apply left_inv },
       { apply eq_pathover,
-        rewrite [ap_id,ap_compose'
+        rewrite [ap_id,-ap_compose'
           (pushout.functor tl⁻¹ bl⁻¹ tr⁻¹ _ _)
           (pushout.functor tl bl tr _ _)],
         krewrite elim_glue,

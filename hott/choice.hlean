@@ -56,7 +56,7 @@ namespace choice
   begin
     intro H, apply not_is_prop_bool_eq_bool,
     apply @is_trunc_equiv_closed (x0 = x0),
-    apply equiv.symm !equiv_subtype
+    apply equiv.symm !equiv_subtype, exact _
   end
 
   definition is_set_x1 (x : X) : is_set x.1 :=

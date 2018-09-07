@@ -114,7 +114,7 @@ namespace rezk
     transport (elim_set Pe Pp Pcomp) (pth f) = Pp f :=
   begin
     rewrite [tr_eq_cast_ap_fn, ↑elim_set, ▸*],
-    rewrite [ap_compose' trunctype.carrier, elim_pth], apply tcast_tua_fn
+    rewrite [-ap_compose' trunctype.carrier, elim_pth], apply tcast_tua_fn
   end
 
   end

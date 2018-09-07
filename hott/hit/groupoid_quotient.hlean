@@ -145,7 +145,7 @@ section
     (Pcomp : Π⦃a b c⦄ (g : b ⟶ c) (f : a ⟶ b) (x : Pe a), Pp (g ∘ f) x = Pp g (Pp f x))
     {a b : G} (f : a ⟶ b) :
     transport (elim_set Pe Pp Pcomp) (pth f) = Pp f :=
-  by rewrite [tr_eq_cast_ap_fn, ↑elim_set, ▸*, ap_compose' trunctype.carrier, elim_pth];
+  by rewrite [tr_eq_cast_ap_fn, ↑elim_set, ▸*, -ap_compose' trunctype.carrier, elim_pth];
      apply tcast_tua_fn
 
 end

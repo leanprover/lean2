@@ -62,9 +62,9 @@ namespace hopf
     rewrite circle_star_eq, induction x,
     { reflexivity },
     { apply eq_pathover, rewrite ap_constant,
-      krewrite [ap_compose' (λz : S¹ × S¹, circle_mul z.1 z.2)
+      krewrite [-ap_compose' (λz : S¹ × S¹, circle_mul z.1 z.2)
                             (λa : S¹, (a, circle_star a))],
-      rewrite [ap_compose' (prod_functor (λa : S¹, a) circle_star)
+      rewrite [-ap_compose' (prod_functor (λa : S¹, a) circle_star)
                            (λa : S¹, (a, a))],
       rewrite ap_diagonal,
       krewrite [ap_prod_functor (λa : S¹, a) circle_star loop loop],

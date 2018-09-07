@@ -124,8 +124,9 @@ namespace Wtype
   fapply is_trunc_equiv_closed,
   { apply equiv_path_W},
   { apply is_trunc_sigma,
-    intro p, cases p, esimp, apply is_trunc_equiv_closed_rev,
-      apply pathover_idp}
+    intro p, cases p,
+    apply is_trunc_equiv_closed_rev n !pathover_idp,
+    apply is_trunc_pi_eq, intro b, apply IH }
   end
 
 end Wtype

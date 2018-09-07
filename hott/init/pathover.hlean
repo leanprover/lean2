@@ -21,6 +21,7 @@ namespace eq
   idpatho : pathover B b (refl a) b
 
   notation b ` =[`:50 p:0 `] `:0 b₂:50 := pathover _ b p b₂
+  notation b ` =[`:50 p:0 `; `:0 B `] `:0 b₂:50 := pathover B b p b₂
 
   definition idpo [reducible] [constructor] : b =[refl a] b :=
   pathover.idpatho b

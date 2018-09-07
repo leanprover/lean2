@@ -31,10 +31,9 @@ namespace is_trunc
   theorem trivial_homotopy_group_of_is_conn (A : Type*) {k n : ℕ} (H : k ≤ n) [is_conn n A]
     : is_contr (π[k] A) :=
   begin
-      have H3 : is_contr (ptrunc k A), from is_conn_of_le A (of_nat_le_of_nat H),
-      have H4 : is_contr (Ω[k](ptrunc k A)), from !is_trunc_loopn_of_is_trunc,
-      apply is_trunc_equiv_closed_rev,
-      { apply equiv_of_pequiv (homotopy_group_pequiv_loop_ptrunc k A)}
+    have H3 : is_contr (ptrunc k A), from is_conn_of_le A (of_nat_le_of_nat H),
+    have H4 : is_contr (Ω[k](ptrunc k A)), from !is_trunc_loopn_of_is_trunc,
+    exact is_trunc_equiv_closed_rev _ (equiv_of_pequiv (homotopy_group_pequiv_loop_ptrunc k A)) _
   end
 
   -- Corollary 8.3.3

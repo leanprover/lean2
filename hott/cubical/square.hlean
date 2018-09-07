@@ -529,7 +529,7 @@ namespace eq
 
   definition is_trunc_square [instance] (n : trunc_index) [H : is_trunc n .+2 A]
     : is_trunc n (square p₁₀ p₁₂ p₀₁ p₂₁) :=
-  is_trunc_equiv_closed_rev n !square_equiv_eq
+  is_trunc_equiv_closed_rev n !square_equiv_eq _
 
   -- definition square_of_con_inv_hsquare {p₁ p₂ p₃ p₄ : a₁ = a₂}
   --   {t : p₁ = p₂} {b : p₃ = p₄} {l : p₁ = p₃} {r : p₂ = p₄}
@@ -633,6 +633,12 @@ namespace eq
   begin
     induction q, esimp at r, induction r using idp_rec_on, exact hrfl
   end
+
+  definition natural_square2 {A B X : Type} {C : A → B → Type}
+    {a a₂ : A} {b b₂ : B} {c : C a b} {c₂ : C a₂ b₂} {f : A → X} {g : B → X}
+    (h : Πa b, C a b → f a = g b) (p : a = a₂) (q : b = b₂) (r : transport11 C p q c = c₂) :
+    square (h a b c) (h a₂ b₂ c₂) (ap f p) (ap g q) :=
+  by induction p; induction q; induction r; exact vrfl
 
   /- some higher coherence conditions -/
 

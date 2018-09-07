@@ -34,7 +34,7 @@ namespace category
 
   theorem is_trunc_comma_object (n : trunc_index) [HA : is_trunc n A]
     [HB : is_trunc n B] [H : Π(s d : C), is_trunc n (hom s d)] : is_trunc n (comma_object S T) :=
-  by apply is_trunc_equiv_closed;apply comma_object_sigma_char
+  is_trunc_equiv_closed n !comma_object_sigma_char _
 
   variables {S T}
   definition comma_object_eq' {x y : comma_object S T} (p : ob1 x = ob1 y) (q : ob2 x = ob2 y)
@@ -105,7 +105,7 @@ namespace category
   theorem is_trunc_comma_morphism (n : trunc_index) [H1 : is_trunc n (ob1 x ⟶ ob1 y)]
     [H2 : is_trunc n (ob2 x ⟶ ob2 y)] [Hp : Πm1 m2, is_trunc n (T m2 ∘ mor x = mor y ∘ S m1)]
     : is_trunc n (comma_morphism x y) :=
-  by apply is_trunc_equiv_closed; apply comma_morphism_sigma_char
+  is_trunc_equiv_closed n !comma_morphism_sigma_char _
 
   variables {x y z w}
   definition comma_morphism_eq {f f' : comma_morphism x y}

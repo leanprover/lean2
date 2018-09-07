@@ -152,13 +152,13 @@ namespace join
       { apply ap inl, apply to_right_inv },
       { apply ap inr, apply to_right_inv },
       { apply eq_pathover, rewrite ap_id,
-        rewrite (ap_compose' (join.elim _ _ _)),
+        rewrite [-(ap_compose' (join.elim _ _ _))],
         do 2 krewrite join.elim_glue, apply join.hsquare } },
     { intro x, induction x with a b a b,
       { apply ap inl, apply to_left_inv },
       { apply ap inr, apply to_left_inv },
       { apply eq_pathover, rewrite ap_id,
-        rewrite (ap_compose' (join.elim _ _ _)),
+        rewrite [-(ap_compose' (join.elim _ _ _))],
         do 2 krewrite join.elim_glue, apply join.hsquare } }
   end
 
@@ -202,7 +202,7 @@ namespace join
       { reflexivity },
       { reflexivity },
       { esimp, apply eq_pathover, rewrite ap_id,
-        rewrite (ap_compose' (join.elim _ _ _)),
+        rewrite [-(ap_compose' (join.elim _ _ _))],
         rewrite [susp.elim_merid,ap_con,ap_inv],
         krewrite [join.elim_glue,join.elim_glue],
         esimp, rewrite [inv_inv,idp_con],
@@ -212,13 +212,13 @@ namespace join
       { apply glue },
       { induction b,
         { esimp, apply eq_pathover, rewrite ap_id,
-          rewrite (ap_compose' (susp.elim _ _ _)),
+          rewrite [-(ap_compose' (susp.elim _ _ _))],
           krewrite join.elim_glue, rewrite ap_inv,
           krewrite susp.elim_merid,
           apply square_of_eq_top, apply inverse,
           rewrite con.assoc, apply con.left_inv },
         { esimp, apply eq_pathover, rewrite ap_id,
-          rewrite (ap_compose' (susp.elim _ _ _)),
+          rewrite [-(ap_compose' (susp.elim _ _ _))],
           krewrite join.elim_glue, esimp,
           apply square_of_eq_top,
           rewrite [idp_con,con.right_inv] } } }
@@ -251,7 +251,7 @@ namespace join
     induction x with a b a b, do 2 reflexivity,
     apply eq_pathover, rewrite ap_id,
     apply hdeg_square,
-    apply concat, apply ap_compose' (join.elim _ _ _),
+    apply concat, apply ap_compose (join.elim _ _ _),
     krewrite [join.elim_glue, ap_inv, join.elim_glue], apply inv_inv,
   end
 

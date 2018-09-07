@@ -269,28 +269,22 @@ namespace pi
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     revert B H,
-    eapply (trunc_index.rec_on n),
-      {intro B H,
-        fapply is_contr.mk,
-          intro a, apply center,
-          intro f, apply eq_of_homotopy,
-            intro x, apply (center_eq (f x))},
-      {intro n IH B H,
-        fapply is_trunc_succ_intro, intro f g,
-          fapply is_trunc_equiv_closed,
-            apply equiv.symm, apply eq_equiv_homotopy,
-            apply IH,
-              intro a,
-              show is_trunc n (f a = g a), from
-              is_trunc_eq n (f a) (g a)}
+    induction n with n IH,
+    { intros B H, apply is_contr.mk (λa, !center),
+      intro f, apply eq_of_homotopy,
+      intro x, apply (center_eq (f x)) },
+    { intros B H, fapply is_trunc_succ_intro, intro f g,
+      fapply is_trunc_equiv_closed,
+      apply equiv.symm, apply eq_equiv_homotopy,
+      apply IH,
+      intro a,
+      show is_trunc n (f a = g a), from
+      is_trunc_eq n (f a) (g a) }
   end
   local attribute is_trunc_pi [instance]
-  theorem is_trunc_pi_eq [instance] [priority 500] (n : trunc_index) (f g : Πa, B a)
+  theorem is_trunc_pi_eq (n : trunc_index) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
-  begin
-    apply is_trunc_equiv_closed_rev,
-    apply eq_equiv_homotopy
-  end
+  is_trunc_equiv_closed_rev n !eq_equiv_homotopy _
 
   theorem is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
   by unfold not;exact _

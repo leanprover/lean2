@@ -283,7 +283,7 @@ namespace category
       { intro H, induction H with H1 H2, induction H1, induction H2, reflexivity},
       { intro H, induction H, reflexivity}
     end,
-    apply is_trunc_equiv_closed_rev, exact f,
+    exact is_trunc_equiv_closed_rev -1 f _
   end
 
   theorem is_prop_is_isomorphism [instance] (F : C ⇒ D) : is_prop (is_isomorphism F) :=

@@ -270,7 +270,7 @@ namespace trunc_index
   equiv.MK add_two sub_two add_two_sub_two sub_two_add_two
 
   definition is_set_trunc_index [instance] : is_set ℕ₋₂ :=
-  is_trunc_equiv_closed_rev 0 trunc_index_equiv_nat
+  is_trunc_equiv_closed_rev 0 trunc_index_equiv_nat _
 
 end trunc_index open trunc_index
 
@@ -333,8 +333,8 @@ namespace is_trunc
   theorem is_trunc_trunctype [instance] (n : ℕ₋₂) : is_trunc n.+1 (n-Type) :=
   begin
     apply is_trunc_succ_intro, intro X Y,
-    fapply is_trunc_equiv_closed_rev, { apply trunctype_eq_equiv},
-    fapply is_trunc_equiv_closed_rev, { apply eq_equiv_equiv},
+    apply is_trunc_equiv_closed_rev _ !trunctype_eq_equiv,
+    apply is_trunc_equiv_closed_rev _ !eq_equiv_equiv,
     induction n,
     { apply @is_contr_of_inhabited_prop,
       { apply is_trunc_equiv },
@@ -649,16 +649,14 @@ namespace trunc
     (n m : ℕ₋₂) [H : is_trunc n A] : is_trunc n (trunc m A) :=
   begin
     revert A m H, eapply (trunc_index.rec_on n),
-    { clear n, intro A m H, apply is_contr_equiv_closed,
-      { apply equiv.symm, apply trunc_equiv, apply (@is_trunc_of_le _ -2), apply minus_two_le} },
+    { clear n, intro A m H, refine is_contr_equiv_closed_rev _ H,
+      { apply trunc_equiv, apply (@is_trunc_of_le _ -2), apply minus_two_le} },
     { clear n, intro n IH A m H, induction m with m,
       { apply (@is_trunc_of_le _ -2), apply minus_two_le},
       { apply is_trunc_succ_intro, intro aa aa',
         apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_prop)),
         eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_prop)),
-        intro a a', apply (is_trunc_equiv_closed_rev),
-        { apply tr_eq_tr_equiv},
-        { exact (IH _ _ _)}}}
+        intro a a', apply is_trunc_equiv_closed_rev _ !tr_eq_tr_equiv (IH _ _ _) }}
   end
 
   /- equivalences between truncated types (see also hit.trunc) -/
@@ -696,10 +694,7 @@ namespace trunc
 
   theorem is_trunc_trunc_of_le (A : Type)
     (n : ℕ₋₂) {m k : ℕ₋₂} (H : m ≤ k) [is_trunc n (trunc k A)] : is_trunc n (trunc m A) :=
-  begin
-    apply is_trunc_equiv_closed,
-    { apply trunc_trunc_equiv_left, exact H},
-  end
+  is_trunc_equiv_closed _ (trunc_trunc_equiv_left _ H) _
 
   definition trunc_functor_homotopy [unfold 7] {X Y : Type} (n : ℕ₋₂) {f g : X → Y}
     (p : f ~ g) (x : trunc n X) : trunc_functor n f x = trunc_functor n g x :=
@@ -855,8 +850,8 @@ namespace trunc
   begin
     fapply phomotopy.mk,
     { apply trunc_functor_compose},
-    { esimp, refine !idp_con ⬝ _, refine whisker_right _ !ap_compose'⁻¹ᵖ ⬝ _,
-      esimp, refine whisker_right _ (ap_compose' tr g _) ⬝ _, exact !ap_con⁻¹},
+    { esimp, refine !idp_con ⬝ _, refine whisker_right _ !ap_compose' ⬝ _,
+      esimp, refine whisker_right _ (ap_compose tr g _) ⬝ _, exact !ap_con⁻¹},
   end
 
   definition ptrunc_functor_pid [constructor] (X : Type*) (n : ℕ₋₂) :
@@ -872,7 +867,7 @@ namespace trunc
   begin
     fapply phomotopy.mk,
     { intro x, esimp, refine !trunc_functor_cast ⬝ _, refine ap010 cast _ x,
-      refine !ap_compose'⁻¹ ⬝ !ap_compose'},
+      refine !ap_compose' ⬝ !ap_compose },
     { induction p, reflexivity},
   end
 
@@ -950,7 +945,7 @@ namespace trunc
   begin
     fapply phomotopy.mk,
     { intro a, induction a with a, reflexivity },
-    { refine !idp_con ⬝ _ ⬝ !idp_con⁻¹, refine !ap_compose'⁻¹ ⬝ _, apply ap_id }
+    { refine !idp_con ⬝ _ ⬝ !idp_con⁻¹, refine !ap_compose' ⬝ _, apply ap_id }
   end
 
   definition ptr_natural [constructor] (n : ℕ₋₂) {A B : Type*} (f : A →* B) :

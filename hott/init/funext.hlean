@@ -243,7 +243,7 @@ namespace eq
   equiv.mk apd10 _
 
   definition eq_of_homotopy [reducible] : f ~ g → f = g :=
-  (@apd10 A P f g)⁻¹
+  (@apd10 A P f g)⁻¹ᶠ
 
   definition apd10_eq_of_homotopy_fn (p : f ~ g) : apd10 (eq_of_homotopy p) = p :=
   right_inv apd10 p

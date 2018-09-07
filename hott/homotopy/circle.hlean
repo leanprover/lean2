@@ -309,7 +309,7 @@ namespace circle
   definition homotopy_group_of_circle (n : ℕ) : πg[n+2] S¹* ≃g G0 :=
   begin
     refine @trivial_homotopy_add_of_is_set_loopn S¹* 1 n _,
-    apply is_trunc_equiv_closed_rev, apply base_eq_base_equiv
+    exact is_trunc_equiv_closed_rev _ base_eq_base_equiv _
   end
 
   definition eq_equiv_Z (x : S¹) : x = x ≃ ℤ :=
@@ -326,8 +326,8 @@ namespace circle
   proposition is_trunc_circle [instance] : is_trunc 1 S¹ :=
   begin
     apply is_trunc_succ_of_is_trunc_loop,
-    { apply trunc_index.minus_one_le_succ},
-    { intro x, apply is_trunc_equiv_closed_rev, apply eq_equiv_Z}
+    { apply trunc_index.minus_one_le_succ },
+    { intro x, exact is_trunc_equiv_closed_rev 0 !eq_equiv_Z _ }
   end
 
   proposition is_conn_circle [instance] : is_conn 0 S¹ :=

@@ -172,9 +172,9 @@ namespace pushout
     { rewrite [decode_list_pair, decode_list_nil], exact ap tr !con.left_inv},
     { apply decode_list_singleton},
     { apply decode_list_singleton},
-    { rewrite [+decode_list_pair], induction h with p, apply ap tr, rewrite [-+ap_compose'],
+    { rewrite [+decode_list_pair], induction h with p, apply ap tr, rewrite [+ap_compose'],
       exact !ap_con_eq_con_ap⁻¹},
-    { rewrite [+decode_list_pair], induction h with p, apply ap tr, rewrite [-+ap_compose'],
+    { rewrite [+decode_list_pair], induction h with p, apply ap tr, rewrite [+ap_compose'],
       apply ap_con_eq_con_ap}
   end
 

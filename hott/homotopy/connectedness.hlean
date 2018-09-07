@@ -24,16 +24,11 @@ namespace is_conn
     : A ≃ B → is_conn n A → is_conn n B :=
   begin
     intros H C,
-    fapply @is_contr_equiv_closed (trunc n A) _,
-    apply trunc_equiv_trunc,
-    assumption
+    exact is_contr_equiv_closed (trunc_equiv_trunc n H) C,
   end
 
   theorem is_conn_of_le (A : Type) {n k : ℕ₋₂} (H : n ≤ k) [is_conn k A] : is_conn n A :=
-  begin
-    apply is_contr_equiv_closed,
-    apply trunc_trunc_equiv_left _ H
-  end
+  is_contr_equiv_closed (trunc_trunc_equiv_left _ H) _
 
   theorem is_conn_fun_of_le {A B : Type} (f : A → B) {n k : ℕ₋₂} (H : n ≤ k)
     [is_conn_fun k f] : is_conn_fun n f :=
@@ -175,7 +170,7 @@ namespace is_conn
     begin
       intro a,
       apply is_conn_equiv_closed n (equiv.symm (fiber_const_equiv A a₀ a)),
-      apply @is_contr_equiv_closed _ _ (tr_eq_tr_equiv n a₀ a),
+      apply is_contr_equiv_closed (tr_eq_tr_equiv n a₀ a) _,
     end
 
   end
@@ -274,15 +269,11 @@ namespace is_conn
 
   definition is_conn_trunc [instance] (A : Type) (n k : ℕ₋₂) [H : is_conn n A]
     : is_conn n (trunc k A) :=
-  begin
-    apply is_trunc_equiv_closed, apply trunc_trunc_equiv_trunc_trunc
-  end
+  is_contr_equiv_closed !trunc_trunc_equiv_trunc_trunc _
 
   definition is_conn_eq [instance] (n : ℕ₋₂) {A : Type} (a a' : A) [is_conn (n.+1) A] :
     is_conn n (a = a') :=
-  begin
-    apply is_trunc_equiv_closed, apply tr_eq_tr_equiv,
-  end
+  is_contr_equiv_closed !tr_eq_tr_equiv _
 
   definition is_conn_loop [instance] (n : ℕ₋₂) (A : Type*) [is_conn (n.+1) A] : is_conn n (Ω A) :=
   !is_conn_eq
@@ -346,8 +337,8 @@ namespace is_conn
   definition is_conn_fun_lift_functor (n : ℕ₋₂) {A B : Type} (f : A → B) [is_conn_fun n f] :
     is_conn_fun n (lift_functor f) :=
   begin
-    intro b, cases b with b, apply is_trunc_equiv_closed_rev,
-    { apply trunc_equiv_trunc, apply fiber_lift_functor}
+    intro b, cases b with b,
+    exact is_contr_equiv_closed_rev (trunc_equiv_trunc _ !fiber_lift_functor) _
   end
 
   open trunc_index
@@ -378,7 +369,7 @@ namespace is_conn
     apply @is_contr_of_inhabited_prop,
     { apply is_trunc_succ_intro,
       refine trunc.rec _, intro a, refine trunc.rec _, intro a',
-      apply is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ },
+      exact is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ _ },
     exact a
   end
 
@@ -460,7 +451,7 @@ namespace is_conn
 
   definition is_contr_of_is_conn_of_is_trunc {n : ℕ₋₂} {A : Type} (H : is_trunc n A)
     (K : is_conn n A) : is_contr A :=
-  is_contr_equiv_closed (trunc_equiv n A)
+  is_contr_equiv_closed (trunc_equiv n A) _
 
   definition is_trunc_succ_succ_of_is_trunc_loop (n : ℕ₋₂) (A : Type*) (H : is_trunc (n.+1) (Ω A))
     (H2 : is_conn 0 A) : is_trunc (n.+2) A :=
@@ -477,7 +468,7 @@ namespace is_conn
     rewrite [succ_add],
     apply is_trunc_succ_succ_of_is_trunc_loop,
     { apply IH,
-      { apply is_trunc_equiv_closed _ !loopn_succ_in },
+      { exact is_trunc_equiv_closed _ !loopn_succ_in _ },
       apply is_conn_loop },
     exact is_conn_of_le _ (zero_le_of_nat m)
   end

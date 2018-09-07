@@ -418,7 +418,7 @@ namespace category
         { exact Cpushout_functor_inl η},
         { exact Cpushout_functor_inr η}},
         esimp, apply iso_pathover, apply hom_pathover,
-        rewrite [ap_compose' _ pr₁, ap_compose' _ pr₂, prod_eq_pr1, prod_eq_pr2],
+        rewrite [-ap_compose' _ pr₁, -ap_compose' _ pr₂, prod_eq_pr1, prod_eq_pr2],
         rewrite [-+respect_hom_of_eq (precomposition_functor _ _), +hom_of_eq_eq_of_iso],
         apply nat_trans_eq, intro c, esimp [category.to_precategory],
         rewrite [+id_left, +id_right, Cpushout_functor_list_singleton] end end},

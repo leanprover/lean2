@@ -42,11 +42,11 @@ namespace is_equiv
   definition is_contr_right_coherence (u : Σ(g : B → A), f ∘ g ~ id)
     : is_contr (Σ(η : u.1 ∘ f ~ id), Π(a : A), u.2 (f a) = ap f (η a)) :=
   begin
-    fapply is_trunc_equiv_closed,
-      {apply equiv.symm, apply sigma_pi_equiv_pi_sigma},
-    fapply is_trunc_equiv_closed,
-      {apply pi_equiv_pi_right, intro a,
-        apply (fiber_eq_equiv (fiber.mk (u.1 (f a)) (u.2 (f a))) (fiber.mk a idp))},
+    apply is_contr_equiv_closed_rev !sigma_pi_equiv_pi_sigma,
+    apply is_contr_equiv_closed,
+    { apply pi_equiv_pi_right, intro a,
+      apply (fiber_eq_equiv (fiber.mk (u.1 (f a)) (u.2 (f a))) (fiber.mk a idp)) },
+    exact _
   end
 
   omit H
@@ -77,7 +77,7 @@ namespace is_equiv
 
   theorem is_prop_is_equiv [instance] : is_prop (is_equiv f) :=
   is_prop_of_imp_is_contr
-    (λ(H : is_equiv f), is_trunc_equiv_closed -2 (equiv.symm !is_equiv.sigma_char'))
+    (λ(H : is_equiv f), is_contr_equiv_closed (equiv.symm !is_equiv.sigma_char') _)
 
   definition inv_eq_inv {A B : Type} {f f' : A → B} {Hf : is_equiv f} {Hf' : is_equiv f'}
     (p : f = f') : f⁻¹ = f'⁻¹ :=
@@ -209,7 +209,7 @@ namespace is_equiv
   begin
     intro a,
     apply is_equiv_of_is_contr_fun, intro q,
-    apply @is_contr_equiv_closed _ _ (fiber_total_equiv f q)
+    exact is_contr_equiv_closed (fiber_total_equiv f q) _
   end
 
 end is_equiv

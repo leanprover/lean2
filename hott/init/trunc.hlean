@@ -271,8 +271,11 @@ namespace is_trunc
     : (is_contr B) :=
   is_contr.mk (f (center A)) (λp, eq_of_eq_inv !center_eq)
 
-  definition is_contr_equiv_closed (H : A ≃ B) [HA: is_contr A] : is_contr B :=
+  definition is_contr_equiv_closed (H : A ≃ B) (HA : is_contr A) : is_contr B :=
   is_contr_is_equiv_closed (to_fun H)
+
+  definition is_contr_equiv_closed_rev (H : A ≃ B) (HB : is_contr B) : is_contr A :=
+  is_contr_equiv_closed H⁻¹ᵉ HB
 
   definition equiv_of_is_contr_of_is_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
   equiv.mk
@@ -292,12 +295,10 @@ namespace is_trunc
     [HA : is_trunc n B] : is_trunc n A :=
   is_trunc_is_equiv_closed n f⁻¹
 
-  definition is_trunc_equiv_closed (n : ℕ₋₂) (f : A ≃ B) [HA : is_trunc n A]
-    : is_trunc n B :=
+  definition is_trunc_equiv_closed (n : ℕ₋₂) (f : A ≃ B) (HA : is_trunc n A) : is_trunc n B :=
   is_trunc_is_equiv_closed n (to_fun f)
 
-  definition is_trunc_equiv_closed_rev (n : ℕ₋₂) (f : A ≃ B) [HA : is_trunc n B]
-    : is_trunc n A :=
+  definition is_trunc_equiv_closed_rev (n : ℕ₋₂) (f : A ≃ B) (HA : is_trunc n B) : is_trunc n A :=
   is_trunc_is_equiv_closed n (to_inv f)
 
   definition is_equiv_of_is_prop [constructor] [HA : is_prop A] [HB : is_prop B]
@@ -318,7 +319,7 @@ namespace is_trunc
   /- truncatedness of lift -/
   definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : ℕ₋₂)
     [H : is_trunc n A] : is_trunc n (lift A) :=
-  is_trunc_equiv_closed _ !equiv_lift
+  is_trunc_equiv_closed _ !equiv_lift _
 
   end
 
@@ -341,7 +342,7 @@ namespace is_trunc
 
   definition is_trunc_pathover [instance]
     (n : ℕ₋₂) [H : is_trunc (n.+1) (C a)] : is_trunc n (c =[p] c₂) :=
-  is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr
+  is_trunc_equiv_closed_rev n !pathover_equiv_eq_tr _
 
   definition is_prop.elimo [H : is_prop (C a)] : c =[p] c₂ :=
   pathover_of_eq_tr !is_prop.elim

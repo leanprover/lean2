@@ -84,7 +84,7 @@ namespace group
       { intro v, induction v, reflexivity},
       { intro φ, induction φ, reflexivity}
     end,
-    apply is_trunc_equiv_closed_rev, exact H
+    exact is_trunc_equiv_closed_rev 0 H _
   end
 
   variables {G₁ G₂}
@@ -297,7 +297,7 @@ namespace group
       { intro v, induction v, reflexivity },
       { intro φ, induction φ, reflexivity }
     end,
-    apply is_trunc_equiv_closed_rev, exact H
+    exact is_trunc_equiv_closed_rev _ H _
   end
 
   definition trivial_homomorphism (A B : Group) : A →g B :=
@@ -345,7 +345,7 @@ namespace group
       mul_one      := group_equiv_mul_one,
       inv          := group_equiv_inv,
       mul_left_inv := group_equiv_mul_left_inv,
-    is_set_carrier := is_trunc_equiv_closed 0 f⦄
+    is_set_carrier := is_trunc_equiv_closed 0 f _ ⦄
 
   end
 

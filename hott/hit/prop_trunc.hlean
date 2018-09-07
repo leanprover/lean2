@@ -119,7 +119,7 @@ namespace one_step_tr
     { have q : trunc -1 ((tr_eq a a) = idp),
       begin
         refine to_fun !tr_eq_tr_equiv _,
-        refine @is_prop.elim _ _ _ _, apply is_trunc_equiv_closed, apply tr_eq_tr_equiv
+        refine @is_prop.elim _ _ _ _, exact is_trunc_equiv_closed -1 !tr_eq_tr_equiv _
       end,
       refine trunc.elim_on q _, clear q, intro p, exact !tr_eq_ne_idp p},
     { apply is_prop.elim}

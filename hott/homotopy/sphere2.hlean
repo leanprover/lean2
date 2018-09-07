@@ -43,7 +43,7 @@ namespace sphere
     { fapply equiv.mk,
       { exact cc_to_fn (LES_of_homotopy_groups complex_hopf) (n+3, 0)},
       { have H : is_trunc 1 (pfiber complex_hopf),
-        from @(is_trunc_equiv_closed_rev _ pfiber_complex_hopf) is_trunc_circle,
+        from is_trunc_equiv_closed_rev _ pfiber_complex_hopf is_trunc_circle,
         refine LES_is_equiv_of_trivial complex_hopf (n+3) 0 _ _,
         { have H2 : 1 ≤[ℕ] n + 1, from !one_le_succ,
           exact @trivial_ghomotopy_group_of_is_trunc _ _ _ H H2 },
@@ -78,7 +78,7 @@ namespace sphere
   begin
     intro H,
     note H2 := trivial_ghomotopy_group_of_is_trunc (S (n+1)) n n !le.refl,
-    have H3 : is_contr ℤ, from is_trunc_equiv_closed _ (equiv_of_isomorphism (πnSn (n+1))),
+    have H3 : is_contr ℤ, from is_trunc_equiv_closed _ (equiv_of_isomorphism (πnSn (n+1))) _,
     have H4 : (0 : ℤ) ≠ (1 : ℤ), from dec_star,
     apply H4,
     apply is_prop.elim,

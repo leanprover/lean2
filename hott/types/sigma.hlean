@@ -526,11 +526,9 @@ namespace sigma
   begin
   revert A B HA HB,
   induction n with n IH,
-  { intro A B HA HB, fapply is_trunc_equiv_closed_rev, apply sigma_equiv_of_is_contr_left},
+  { intro A B HA HB, exact is_contr_equiv_closed_rev !sigma_equiv_of_is_contr_left _ },
   { intro A B HA HB, apply is_trunc_succ_intro, intro u v,
-    apply is_trunc_equiv_closed_rev,
-      apply sigma_eq_equiv,
-      exact IH _ _ _ _}
+    exact is_trunc_equiv_closed_rev n !sigma_eq_equiv (IH _ _ _ _) }
   end
 
   theorem is_trunc_subtype (B : A → Prop) (n : trunc_index)

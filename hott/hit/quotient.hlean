@@ -212,96 +212,68 @@ namespace quotient
   end flattening
 
   section
-  open is_equiv equiv prod prod.ops
-  variables {A : Type} (R : A → A → Type)
-             {B : Type} (Q : B → B → Type)
-             (f : A → B) (k : Πa a' : A, R a a' → Q (f a) (f a'))
-  include f k
+  open is_equiv equiv prod function
+  variables {A : Type} {R : A → A → Type}
+            {B : Type} {Q : B → B → Type}
+            {C : Type} {S : C → C → Type}
+            (f : A → B) (k : Πa a' : A, R a a' → Q (f a) (f a'))
+            (g : B → C) (l : Πb b' : B, Q b b' → S (g b) (g b'))
 
-  protected definition functor [reducible] : quotient R → quotient Q :=
+  protected definition functor : quotient R → quotient Q :=
   quotient.elim (λa, class_of Q (f a)) (λa a' r, eq_of_rel Q (k a a' r))
+
+  definition functor_class_of (a : A) :
+    quotient.functor f k (class_of R a) = class_of Q (f a) :=
+  by reflexivity
+
+  definition functor_eq_of_rel {a a' : A} (r : R a a') :
+    ap (quotient.functor f k) (eq_of_rel R r) = eq_of_rel Q (k a a' r) :=
+  elim_eq_of_rel _ _ r
+
+  protected definition functor_compose :
+    quotient.functor (g ∘ f) (λa a' r, l (f a) (f a') (k a a' r)) ~
+    quotient.functor g l ∘ quotient.functor f k :=
+  begin
+    intro x, induction x,
+    { reflexivity },
+    { apply eq_pathover, refine hdeg_square _ ⬝hp (ap_compose (quotient.functor g l) _ _)⁻¹,
+      refine !functor_eq_of_rel ⬝ !functor_eq_of_rel⁻¹ ⬝ ap02 _ !functor_eq_of_rel⁻¹ }
+  end
+
+  protected definition functor_homotopy {f f' : A → B} {k : Πa a' : A, R a a' → Q (f a) (f a')}
+    {k' : Πa a' : A, R a a' → Q (f' a) (f' a')} (h : f ~ f')
+    (h2 : Π(a a' : A) (r : R a a'), transport11 Q (h a) (h a') (k a a' r) = k' a a' r) :
+    quotient.functor f k ~ quotient.functor f' k' :=
+  begin
+    intro x, induction x with a a a' r,
+    { exact ap (class_of Q) (h a) },
+    { apply eq_pathover, refine !functor_eq_of_rel ⬝ph _ ⬝hp !functor_eq_of_rel⁻¹,
+      apply transpose, apply natural_square2 (eq_of_rel Q), apply h2 }
+  end
+
+  protected definition functor_id (x : quotient R) :
+    quotient.functor id (λa a' r, r) x = x :=
+  begin
+    induction x,
+    { reflexivity },
+    { apply eq_pathover_id_right, apply hdeg_square, apply functor_eq_of_rel }
+  end
 
   variables [F : is_equiv f] [K : Πa a', is_equiv (k a a')]
   include F K
 
-  protected definition functor_inv [reducible] : quotient Q → quotient R :=
-  quotient.elim (λb, class_of R (f⁻¹ b))
-                (λb b' q, eq_of_rel R ((k (f⁻¹ b) (f⁻¹ b'))⁻¹
-                          ((right_inv f b)⁻¹ ▸ (right_inv f b')⁻¹ ▸ q)))
-
-  protected definition is_equiv [instance]
-    : is_equiv (quotient.functor R Q f k):=
+  protected definition is_equiv [instance] : is_equiv (quotient.functor f k) :=
   begin
-    fapply adjointify _ (quotient.functor_inv R Q f k),
-    { intro qb, induction qb with b b b' q,
-      { apply ap (class_of Q), apply right_inv },
-      { apply eq_pathover, rewrite [ap_id,ap_compose' (quotient.elim _ _)],
-        do 2 krewrite elim_eq_of_rel, rewrite (right_inv (k (f⁻¹ b) (f⁻¹ b'))),
-        have H1 : pathover (λz : B × B, Q z.1 z.2)
-          ((right_inv f b)⁻¹ ▸ (right_inv f b')⁻¹ ▸ q)
-          (prod_eq (right_inv f b) (right_inv f b')) q,
-        begin apply pathover_of_eq_tr, krewrite [prod_eq_inv,prod_eq_transport] end,
-        have H2 : square
-          (ap (λx : (Σz : B × B, Q z.1 z.2), class_of Q x.1.1)
-            (sigma_eq (prod_eq (right_inv f b) (right_inv f b')) H1))
-          (ap (λx : (Σz : B × B, Q z.1 z.2), class_of Q x.1.2)
-            (sigma_eq (prod_eq (right_inv f b) (right_inv f b')) H1))
-          (eq_of_rel Q ((right_inv f b)⁻¹ ▸ (right_inv f b')⁻¹ ▸ q))
-          (eq_of_rel Q q),
-        from
-          natural_square_tr (λw : (Σz : B × B, Q z.1 z.2), eq_of_rel Q w.2)
-          (sigma_eq (prod_eq (right_inv f b) (right_inv f b')) H1),
-        krewrite (ap_compose' (class_of Q)) at H2,
-        krewrite (ap_compose' (λz : B × B, z.1)) at H2,
-        rewrite sigma.ap_pr1 at H2, rewrite sigma_eq_pr1 at H2,
-        krewrite prod.ap_pr1 at H2, krewrite prod_eq_pr1 at H2,
-        krewrite (ap_compose' (class_of Q) (λx : (Σz : B × B, Q z.1 z.2), x.1.2)) at H2,
-        krewrite (ap_compose' (λz : B × B, z.2)) at H2,
-        rewrite sigma.ap_pr1 at H2, rewrite sigma_eq_pr1 at H2,
-        krewrite prod.ap_pr2 at H2, krewrite prod_eq_pr2 at H2,
-        apply H2 } },
-    { intro qa, induction qa with a a a' r,
-      { apply ap (class_of R), apply left_inv },
-      { apply eq_pathover, rewrite [ap_id,(ap_compose' (quotient.elim _ _))],
-        do 2 krewrite elim_eq_of_rel,
-        have H1 : pathover (λz : A × A, R z.1 z.2)
-          ((left_inv f a)⁻¹ ▸ (left_inv f a')⁻¹ ▸ r)
-          (prod_eq (left_inv f a) (left_inv f a')) r,
-        begin apply pathover_of_eq_tr, krewrite [prod_eq_inv,prod_eq_transport] end,
-        have H2 : square
-          (ap (λx : (Σz : A × A, R z.1 z.2), class_of R x.1.1)
-            (sigma_eq (prod_eq (left_inv f a) (left_inv f a')) H1))
-          (ap (λx : (Σz : A × A, R z.1 z.2), class_of R x.1.2)
-            (sigma_eq (prod_eq (left_inv f a) (left_inv f a')) H1))
-          (eq_of_rel R ((left_inv f a)⁻¹ ▸ (left_inv f a')⁻¹ ▸ r))
-          (eq_of_rel R r),
-        begin
-          exact
-          natural_square_tr (λw : (Σz : A × A, R z.1 z.2), eq_of_rel R w.2)
-          (sigma_eq (prod_eq (left_inv f a) (left_inv f a')) H1)
-        end,
-        krewrite (ap_compose' (class_of R)) at H2,
-        krewrite (ap_compose' (λz : A × A, z.1)) at H2,
-        rewrite sigma.ap_pr1 at H2, rewrite sigma_eq_pr1 at H2,
-        krewrite prod.ap_pr1 at H2, krewrite prod_eq_pr1 at H2,
-        krewrite (ap_compose' (class_of R) (λx : (Σz : A × A, R z.1 z.2), x.1.2)) at H2,
-        krewrite (ap_compose' (λz : A × A, z.2)) at H2,
-        rewrite sigma.ap_pr1 at H2, rewrite sigma_eq_pr1 at H2,
-        krewrite prod.ap_pr2 at H2, krewrite prod_eq_pr2 at H2,
-        have H3 :
-          (k (f⁻¹ (f a)) (f⁻¹ (f a')))⁻¹
-          ((right_inv f (f a))⁻¹ ▸ (right_inv f (f a'))⁻¹ ▸ k a a' r)
-          = (left_inv f a)⁻¹ ▸ (left_inv f a')⁻¹ ▸ r,
-        begin
-          rewrite [adj f a,adj f a',ap_inv',ap_inv'],
-          rewrite [-(tr_compose _ f (left_inv f a')⁻¹ (k a a' r)),
-                   -(tr_compose _ f (left_inv f a)⁻¹)],
-          rewrite [-(fn_tr_eq_tr_fn (left_inv f a')⁻¹ (λx, k a x) r),
-                   -(fn_tr_eq_tr_fn (left_inv f a)⁻¹
-                     (λx, k x (f⁻¹ (f a')))),
-                   left_inv (k _ _)]
-        end,
-        rewrite H3, apply H2 } }
+    apply adjointify _ (quotient.functor f⁻¹ᶠ
+      (λb b' q, (k (f⁻¹ᶠ b) (f⁻¹ᶠ b'))⁻¹ᶠ (transport11 Q (right_inv f b)⁻¹ (right_inv f b')⁻¹ q))),
+    exact abstract begin intro x, refine (quotient.functor_compose _ _ _ _ x)⁻¹ ⬝ _ ⬝ quotient.functor_id x,
+      apply quotient.functor_homotopy (right_inv f), intros a a' r,
+      rewrite [right_inv (k _ _), -transport11_con, con.left_inv, con.left_inv] end end,
+    exact abstract begin intro x, refine (quotient.functor_compose _ _ _ _ x)⁻¹ ⬝ _ ⬝ quotient.functor_id x,
+      apply quotient.functor_homotopy (left_inv f), intros a a' r,
+      rewrite [adj f, adj f, -ap_inv, -ap_inv, transport11_ap,
+           -fn_transport11_eq_transport11_fn _ _ _ _ k, left_inv (k _ _), -transport11_con,
+           con.left_inv, con.left_inv] end end
   end
 end
 
@@ -313,7 +285,7 @@ section
 
   /- This could also be proved using ua, but then it wouldn't compute -/
   protected definition equiv : quotient R ≃ quotient Q :=
-  equiv.mk (quotient.functor R Q f k) _
+  equiv.mk (quotient.functor f k) _
 end
 
 

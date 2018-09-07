@@ -185,7 +185,7 @@ namespace functor
     local attribute trunctype.struct [instance] [priority 1] -- remove after #842 is closed
     protected theorem is_set_functor [instance]
       [HD : is_set D] : is_set (functor C D) :=
-    by apply is_trunc_equiv_closed; apply functor.sigma_char
+    is_trunc_equiv_closed 0 !functor.sigma_char _
   end
 
   /- higher equalities in the functor type -/

@@ -170,7 +170,7 @@ namespace fiber
     fapply pequiv_of_equiv, esimp,
     refine transport_fiber_equiv (g ∘* f) (respect_pt g)⁻¹ ⬝e fiber.equiv_postcompose f g (Point B),
     esimp, apply (ap (fiber.mk (Point A))), refine !con.assoc ⬝ _, apply inv_con_eq_of_eq_con,
-    rewrite [▸*, con.assoc, con.right_inv, con_idp, -ap_compose'],
+    rewrite [▸*, con.assoc, con.right_inv, con_idp, ap_compose'],
     exact ap_con_eq_con (λ x, ap g⁻¹ᵉ* (ap g (pleft_inv' g x)⁻¹) ⬝ ap g⁻¹ᵉ* (pright_inv g (g x)) ⬝
       pleft_inv' g x) (respect_pt f)
   end
@@ -291,7 +291,7 @@ namespace fiber
   -- this breaks certain proofs if it is an instance
   definition is_trunc_fiber (n : ℕ₋₂) {A B : Type} (f : A → B) (b : B)
     [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (fiber f b) :=
-  is_trunc_equiv_closed_rev n !fiber.sigma_char
+  is_trunc_equiv_closed_rev n !fiber.sigma_char _
 
   definition is_trunc_pfiber (n : ℕ₋₂) {A B : Type*} (f : A →* B)
     [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (pfiber f) :=

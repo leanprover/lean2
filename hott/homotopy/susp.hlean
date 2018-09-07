@@ -180,14 +180,14 @@ namespace susp
   abstract begin
     intro sb, induction sb with b, do 2 reflexivity,
     apply eq_pathover,
-    rewrite [ap_id,ap_compose' (susp_functor' f) (susp_functor' f⁻¹)],
+    rewrite [ap_id,-ap_compose' (susp_functor' f) (susp_functor' f⁻¹)],
     krewrite [susp.elim_merid,susp.elim_merid], apply transpose,
     apply susp.merid_square (right_inv f b)
   end end
   abstract begin
     intro sa, induction sa with a, do 2 reflexivity,
     apply eq_pathover,
-    rewrite [ap_id,ap_compose' (susp_functor' f⁻¹) (susp_functor' f)],
+    rewrite [ap_id,-ap_compose' (susp_functor' f⁻¹) (susp_functor' f)],
     krewrite [susp.elim_merid,susp.elim_merid], apply transpose,
     apply susp.merid_square (left_inv f a)
   end end
@@ -302,7 +302,7 @@ namespace susp
        { reflexivity },
       { reflexivity },
       { esimp, apply eq_pathover, apply hdeg_square,
-        xrewrite [ap_compose' f, ap_compose' (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*],
+        xrewrite [-ap_compose' f, -ap_compose' (susp.elim (f x) (f x) (λ (a : f x = f x), a)),▸*],
         xrewrite [+elim_merid, ap1_gen_idp_left] }},
     { reflexivity }
   end
@@ -330,7 +330,7 @@ namespace susp
       { reflexivity },
       { exact merid pt },
       { apply eq_pathover,
-        xrewrite [▸*, ap_id, ap_compose' (susp.elim north north (λa, a)), +elim_merid,▸*],
+        xrewrite [▸*, ap_id, -ap_compose' (susp.elim north north (λa, a)), +elim_merid,▸*],
         apply square_of_eq, exact !idp_con ⬝ !inv_con_cancel_right⁻¹ }},
     { reflexivity }
   end

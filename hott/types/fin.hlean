@@ -30,8 +30,8 @@ end
 
 definition is_set_fin [instance] : is_set (fin n) :=
 begin
-  assert H : Πa, is_set (a < n), exact _, -- I don't know why this is necessary
-  apply is_trunc_equiv_closed_rev, apply fin.sigma_char,
+  assert H : Πa, is_set (a < n), exact _,
+  apply is_trunc_equiv_closed_rev 0 !fin.sigma_char _,
 end
 
 definition eq_of_veq : Π {i j : fin n}, (val i) = j → i = j :=

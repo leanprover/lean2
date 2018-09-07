@@ -14,7 +14,7 @@ open function eq
 /- Path equality -/
 
 namespace eq
-  variables {A B C : Type} {P : A → Type} {a a' x y z t : A} {b b' : B}
+  variables {A A' B B' C : Type} {P : A → Type} {a a' a'' x y z t : A} {b b' b'' : B}
 
   --notation a = b := eq a b
   notation x = y `:>`:50 A:49 := @eq A x y
@@ -364,7 +364,7 @@ namespace eq
 
   -- Sometimes we don't have the actual function [compose].
   definition ap_compose' [unfold 8] (g : B → C) (f : A → B) {x y : A} (p : x = y) :
-    ap (λa, g (f a)) p = ap g (ap f p) :=
+    ap g (ap f p) = ap (λa, g (f a)) p :=
   by induction p; reflexivity
 
   -- The action of constant maps.
@@ -403,7 +403,6 @@ namespace eq
     (r ⬝ ap f q) ⬝ p y = (r ⬝ p x) ⬝ ap g q :=
   by induction q; reflexivity
 
-  -- TODO: try this using the simplifier, and compare proofs
   definition ap_con_con_eq_con_ap_con {f g : A → B} (p : f ~ g) {x y : A} (q : x = y)
       {z : B} (s : g y = z) :
     ap f q ⬝ (p y ⬝ s) = p x ⬝ (ap g q ⬝ s) :=
@@ -559,6 +558,28 @@ namespace eq
   definition transport11 {A B : Type} (P : A → B → Type) {a a' : A} {b b' : B}
     (p : a = a') (q : b = b') (z : P a b) : P a' b' :=
   transport (P a') q (p ▸ z)
+
+  definition transport11_con (P : A → B → Type) (p : a = a') (p' : a' = a'') (q : b = b')
+    (q' : b' = b'') (z : P a b) :
+    transport11 P (p ⬝ p') (q ⬝ q') z = transport11 P p' q' (transport11 P p q z) :=
+  begin induction p', induction q', reflexivity end
+
+  definition transport11_compose (P : A' → B' → Type) (f : A → A') (g : B → B')
+    (p : a = a') (q : b = b') (z : P (f a) (g b)) :
+    transport11 (λa b, P (f a) (g b)) p q z = transport11 P (ap f p) (ap g q) z :=
+  by induction p; induction q; reflexivity
+
+  definition transport11_ap (P : A' → B' → Type) (f : A → A') (g : B → B')
+    (p : a = a') (q : b = b') (z : P (f a) (g b)) :
+     transport11 P (ap f p) (ap g q) z =
+     transport11 (λ(a : A) (b : B), P (f a) (g b)) p q z :=
+  (transport11_compose P f g p q z)⁻¹
+
+  definition fn_transport11_eq_transport11_fn (P : A → B → Type)
+    (Q : A → B → Type) (p : a = a') (q : b = b')
+    (f : Πa b, P a b → Q a b) (z : P a b) :
+    f a' b' (transport11 P p q z) = transport11 Q p q (f a b z) :=
+  by induction p; induction q; reflexivity
 
   -- Transporting along higher-dimensional paths
   definition transport2 [unfold 7] (P : A → Type) {x y : A} {p q : x = y} (r : p = q) (z : P x) :
