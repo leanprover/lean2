@@ -161,22 +161,21 @@ namespace eq
   @(is_equiv_trunc_functor 0 _) (is_equiv_apn n f H)
 
   definition homotopy_group_succ_in_natural (n : ℕ) {A B : Type*} (f : A →* B) :
-    homotopy_group_succ_in n B ∘* π→[n + 1] f ~*
-    π→[n] (Ω→ f) ∘* homotopy_group_succ_in n A :=
+    psquare (homotopy_group_succ_in n A) (homotopy_group_succ_in n B)
+            (π→[n + 1] f) (π→[n] (Ω→ f)) :=
   begin
-    refine !ptrunc_functor_pcompose⁻¹* ⬝* _ ⬝* !ptrunc_functor_pcompose,
-    exact ptrunc_functor_phomotopy 0 (apn_succ_phomotopy_in n f)
+    exact ptrunc_functor_psquare 0 (loopn_succ_in_natural n f),
   end
 
   definition homotopy_group_succ_in_natural_unpointed (n : ℕ) {A B : Type*} (f : A →* B) :
     hsquare (homotopy_group_succ_in n A) (homotopy_group_succ_in n B) (π→[n+1] f) (π→[n] (Ω→ f)) :=
-  (homotopy_group_succ_in_natural n f)⁻¹*
+  homotopy_group_succ_in_natural n f
 
   definition is_equiv_homotopy_group_functor_ap1 (n : ℕ) {A B : Type*} (f : A →* B)
     [is_equiv (π→[n + 1] f)] : is_equiv (π→[n] (Ω→ f)) :=
   have is_equiv (π→[n] (Ω→ f) ∘ homotopy_group_succ_in n A),
   from is_equiv_of_equiv_of_homotopy (equiv.mk (π→[n+1] f) _ ⬝e homotopy_group_succ_in n B)
-                                     (homotopy_group_succ_in_natural n f),
+                                     (homotopy_group_succ_in_natural n f)⁻¹*,
   is_equiv.cancel_right (homotopy_group_succ_in n A) _
 
   definition tinverse [constructor] {X : Type*} : π[1] X →* π[1] X :=

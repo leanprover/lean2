@@ -272,7 +272,7 @@ namespace chain_complex
 
   definition pid_or_pinverse_add4_rev (n : ℕ) :
     pid_or_pinverse (n + 4) ~* !pinverse ∘* Ω→(pid_or_pinverse (n + 1)) :=
-  !ap1_pcompose_pinverse
+  !pinverse_natural
 
   theorem fiber_sequence_phomotopy_loop_spaces : Π(n : ℕ),
     fiber_sequence_pequiv_loop_spaces n ∘* fiber_sequence_fun n ~*
@@ -300,7 +300,7 @@ namespace chain_complex
       xrewrite [loop_spaces_fun_add3, pid_or_pinverse_add4, to_pmap_pequiv_trans],
       refine _ ⬝* !passoc⁻¹*,
       refine _ ⬝* pwhisker_left _ !passoc⁻¹*,
-      refine _ ⬝* pwhisker_left _ (pwhisker_left _ !ap1_pcompose_pinverse),
+      refine _ ⬝* pwhisker_left _ (pwhisker_left _ !pinverse_natural),
       refine !passoc⁻¹* ⬝* _ ⬝* !passoc ⬝* !passoc,
       apply pwhisker_right,
       refine !ap1_pcompose⁻¹* ⬝* _ ⬝* !ap1_pcompose ⬝* pwhisker_right _ !ap1_pcompose,
@@ -345,7 +345,7 @@ namespace chain_complex
       apply pwhisker_left,
       refine !ap1_pcompose ⬝* _ ⬝* !passoc ⬝* !passoc,
       apply pwhisker_right,
-      refine _ ⬝* pwhisker_right _ !ap1_pcompose_pinverse,
+      refine _ ⬝* pwhisker_right _ !pinverse_natural,
       refine _ ⬝* !passoc⁻¹*,
       refine !pcompose_pid⁻¹* ⬝* pwhisker_left _ _,
       symmetry, apply pinverse_pinverse
@@ -364,7 +364,7 @@ namespace chain_complex
       replace (k + 4) with (k + 1 + 3),
       rewrite [loop_spaces_fun_add3],
       refine !passoc⁻¹* ⬝* _ ⬝* !passoc⁻¹*,
-      refine _ ⬝* pwhisker_left _ !ap1_pcompose_pinverse,
+      refine _ ⬝* pwhisker_left _ !pinverse_natural,
       refine _ ⬝* !passoc,
       apply pwhisker_right,
       refine !ap1_pcompose⁻¹* ⬝* _ ⬝* !ap1_pcompose,

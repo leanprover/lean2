@@ -309,13 +309,6 @@ namespace pointed
     : pinverse X p⁻¹ = (pinverse X p)⁻¹ :=
   idp
 
-  definition ap1_pcompose_pinverse [constructor] {X Y : Type*} (f : X →* Y) :
-    Ω→ f ∘* pinverse X ~* pinverse Y ∘* Ω→ f :=
-  phomotopy.mk (ap1_gen_inv f (respect_pt f) (respect_pt f))
-    abstract begin
-      induction Y with Y y₀, induction f with f f₀, esimp at * ⊢, induction f₀, reflexivity
-    end end
-
   definition is_equiv_pcast [instance] {A B : Type*} (p : A = B) : is_equiv (pcast p) :=
   !is_equiv_cast
 
@@ -580,6 +573,8 @@ namespace pointed
   definition ap1_phomotopy {f g : A →* B} (p : f ~* g) : Ω→ f ~* Ω→ g :=
   pap Ω→ p
 
+  notation `Ω⇒`:(max+5) := ap1_phomotopy
+
   definition ap1_phomotopy_refl {X Y : Type*} (f : X →* Y) :
     ap1_phomotopy (phomotopy.refl f) = phomotopy.refl (Ω→ f) :=
   !pap_refl
@@ -676,11 +671,6 @@ namespace pointed
     (r : p = q) : ptransport B p ~* ptransport B q :=
   phomotopy.mk (λb, ap (λp, transport B p b) r) begin induction r, apply idp_con end
 
-  definition pnatural_square {A B : Type} (X : B → Type*) {f g : A → B}
-    (h : Πa, X (f a) →* X (g a)) {a a' : A} (p : a = a') :
-    h a' ∘* ptransport X (ap f p) ~* ptransport X (ap g p) ∘* h a :=
-  by induction p; exact !pcompose_pid ⬝* !pid_pcompose⁻¹*
-
   definition apn_pid [constructor] {A : Type*} (n : ℕ) : apn n (pid A) ~* pid (Ω[n] A) :=
   begin
     induction n with n IH,
@@ -729,12 +719,6 @@ namespace pointed
     { intro a, esimp, apply idp_con},
     { reflexivity}
   end
-
-  definition pcast_commute [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
-    {a₁ a₂ : A} (p : a₁ = a₂) : pcast (ap C p) ∘* f a₁ ~* f a₂ ∘* pcast (ap B p) :=
-  phomotopy.mk
-    begin induction p, reflexivity end
-    begin induction p, esimp, refine !idp_con ⬝ !idp_con ⬝ !ap_id⁻¹ end
 
   /- pointed equivalences -/
 
@@ -867,11 +851,6 @@ namespace pointed
 
   definition peap {A B : Type*} (F : Type* → Type*) (p : A ≃* B) : F A ≃* F B :=
   pequiv_of_pmap (pcast (ap F (eq_of_pequiv p))) begin cases eq_of_pequiv p, apply is_equiv_id end
-
-  -- rename pequiv_of_eq_natural
-  definition pequiv_of_eq_commute [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
-    {a₁ a₂ : A} (p : a₁ = a₂) : pequiv_of_eq (ap C p) ∘* f a₁ ~* f a₂ ∘* pequiv_of_eq (ap B p) :=
-  pcast_commute f p
 
   -- definition pequiv.eta_expand [constructor] {A B : Type*} (f : A ≃* B) : A ≃* B :=
   -- pequiv.mk' f (to_pinv f) (pequiv.to_pinv2 f) (pright_inv f) _
@@ -1178,27 +1157,6 @@ namespace pointed
       ... = Ω[2+n] A                                 : eq_of_pequiv !loopn_add
       ... = Ω[n+2] A                                 : by rewrite [algebra.add.comm]
 
-  definition apn_succ_phomotopy_in (n : ℕ) (f : A →* B) :
-    loopn_succ_in n B ∘* Ω→[n + 1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in n A :=
-  begin
-    induction n with n IH,
-    { reflexivity},
-    { exact !ap1_pcompose⁻¹* ⬝* ap1_phomotopy IH ⬝* !ap1_pcompose}
-  end
-
-  definition loopn_succ_in_natural {A B : Type*} (n : ℕ) (f : A →* B) :
-    loopn_succ_in n B ∘* Ω→[n+1] f ~* Ω→[n] (Ω→ f) ∘* loopn_succ_in n A :=
-  !apn_succ_phomotopy_in
-
-  definition loopn_succ_in_inv_natural {A B : Type*} (n : ℕ) (f : A →* B) :
-    Ω→[n + 1] f ∘* (loopn_succ_in n A)⁻¹ᵉ* ~* (loopn_succ_in n B)⁻¹ᵉ* ∘* Ω→[n] (Ω→ f):=
-  begin
-    apply pinv_right_phomotopy_of_phomotopy,
-    refine _ ⬝* !passoc⁻¹*,
-    apply phomotopy_pinv_left_of_phomotopy,
-    apply apn_succ_phomotopy_in
-  end
-
   section psquare
   /-
     Squares of pointed maps
@@ -1206,7 +1164,7 @@ namespace pointed
     We treat expressions of the form
       psquare f g h k :≡ k ∘* f ~* g ∘* h
     as squares, where f is the top, g is the bottom, h is the left face and k is the right face.
-    Then the following are operations on squares
+    These squares are very useful for naturality squares
   -/
 
   variables {A' A₀₀ A₂₀ A₄₀ A₀₂ A₂₂ A₄₂ A₀₄ A₂₄ A₄₄ : Type*}
@@ -1226,6 +1184,9 @@ namespace pointed
   definition phomotopy_of_psquare (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : f₂₁ ∘* f₁₀ ~* f₁₂ ∘* f₀₁ :=
   p
 
+  definition hsquare_of_psquare (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : hsquare f₁₀ f₁₂ f₀₁ f₂₁ :=
+  to_homotopy p
+
   definition phdeg_square {f f' : A →* A'} (p : f ~* f') : psquare !pid !pid f f' :=
   !pcompose_pid ⬝* p⁻¹* ⬝* !pid_pcompose⁻¹*
   definition pvdeg_square {f f' : A →* A'} (p : f ~* f') : psquare f f' !pid !pid :=
@@ -1233,15 +1194,18 @@ namespace pointed
 
 
   variables (f₁₀ f₁₂ f₀₁ f₂₁)
-  definition hpconst_square : psquare !pconst !pconst f₀₁ f₂₁ :=
+  definition phconst_square : psquare !pconst !pconst f₀₁ f₂₁ :=
   !pcompose_pconst ⬝* !pconst_pcompose⁻¹*
-  definition vpconst_square : psquare f₁₀ f₁₂ !pconst !pconst :=
+  definition pvconst_square : psquare f₁₀ f₁₂ !pconst !pconst :=
   !pconst_pcompose ⬝* !pcompose_pconst⁻¹*
   definition phrefl : psquare !pid !pid f₀₁ f₀₁ := phdeg_square phomotopy.rfl
   definition pvrefl : psquare f₁₀ f₁₀ !pid !pid := pvdeg_square phomotopy.rfl
   variables {f₁₀ f₁₂ f₀₁ f₂₁}
   definition phrfl : psquare !pid !pid f₀₁ f₀₁ := phrefl f₀₁
   definition pvrfl : psquare f₁₀ f₁₀ !pid !pid := pvrefl f₁₀
+
+  definition ptranspose (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) : psquare f₀₁ f₂₁ f₁₀ f₁₂ :=
+  p⁻¹*
 
   definition phconcat (p : psquare f₁₀ f₁₂ f₀₁ f₂₁) (q : psquare f₃₀ f₃₂ f₂₁ f₄₁) :
     psquare (f₃₀ ∘* f₁₀) (f₃₂ ∘* f₁₂) f₀₁ f₄₁ :=
@@ -1299,5 +1263,41 @@ namespace pointed
   !apn_pcompose⁻¹* ⬝* apn_phomotopy n p ⬝* !apn_pcompose
 
   end psquare
+
+  definition pinverse_natural [constructor] {X Y : Type*} (f : X →* Y) :
+    psquare (pinverse X) (pinverse Y) (Ω→ f) (Ω→ f) :=
+  phomotopy.mk (ap1_gen_inv f (respect_pt f) (respect_pt f))
+    abstract begin
+      induction Y with Y y₀, induction f with f f₀, esimp at * ⊢, induction f₀, reflexivity
+    end end
+
+  definition pcast_natural [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
+    {a₁ a₂ : A} (p : a₁ = a₂) : psquare (pcast (ap B p)) (pcast (ap C p)) (f a₁) (f a₂) :=
+  phomotopy.mk
+    begin induction p, reflexivity end
+    begin induction p, exact whisker_left idp !ap_id end
+
+  definition pequiv_of_eq_natural [constructor] {A : Type} {B C : A → Type*} (f : Πa, B a →* C a)
+    {a₁ a₂ : A} (p : a₁ = a₂) :
+    psquare (pequiv_of_eq (ap B p)) (pequiv_of_eq (ap C p)) (f a₁) (f a₂) :=
+  pcast_natural f p
+
+  definition loopn_succ_in_natural {A B : Type*} (n : ℕ) (f : A →* B) :
+    psquare (loopn_succ_in n A) (loopn_succ_in n B) (Ω→[n+1] f) (Ω→[n] (Ω→ f)) :=
+  begin
+    induction n with n IH,
+    { exact phomotopy.rfl },
+    { exact ap1_psquare IH }
+  end
+
+  definition loopn_succ_in_inv_natural {A B : Type*} (n : ℕ) (f : A →* B) :
+    psquare (loopn_succ_in n A)⁻¹ᵉ* (loopn_succ_in n B)⁻¹ᵉ* (Ω→[n] (Ω→ f)) (Ω→[n + 1] f) :=
+  (loopn_succ_in_natural n f)⁻¹ʰ*
+
+  definition pnatural_square {A B : Type} (X : B → Type*) {f g : A → B}
+    (h : Πa, X (f a) →* X (g a)) {a a' : A} (p : a = a') :
+   psquare (ptransport X (ap f p)) (ptransport X (ap g p)) (h a) (h a') :=
+  by induction p; exact !pcompose_pid ⬝* !pid_pcompose⁻¹*
+
 
 end pointed

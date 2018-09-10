@@ -213,6 +213,8 @@ namespace susp
     { reflexivity }
   end
 
+  notation `⅀→`:(max+5) := susp_functor
+
   definition is_equiv_susp_functor [constructor] (f : X →* Y) [Hf : is_equiv f]
     : is_equiv (susp_functor f) :=
   susp.is_equiv_functor f
@@ -245,6 +247,8 @@ namespace susp
     { reflexivity },
   end
 
+  notation `⅀⇒`:(max+5) := susp_functor_phomotopy
+
   definition susp_functor_pid (A : Type*) : susp_functor (pid A) ~* pid (susp A) :=
   begin
     fapply phomotopy.mk,
@@ -266,8 +270,9 @@ namespace susp
   end
 
   definition loop_susp_unit_natural (f : X →* Y)
-    : loop_susp_unit Y ∘* f ~* Ω→ (susp_functor f) ∘* loop_susp_unit X :=
+    : psquare (loop_susp_unit X) (loop_susp_unit Y) f (Ω→ (susp_functor f)) :=
   begin
+    apply ptranspose,
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fapply phomotopy.mk,
     { intro x', symmetry,
@@ -294,7 +299,7 @@ namespace susp
   end
 
   definition loop_susp_counit_natural (f : X →* Y)
-    : f ∘* loop_susp_counit X ~* loop_susp_counit Y ∘* (susp_functor (ap1 f)) :=
+    : psquare (loop_susp_counit X) (loop_susp_counit Y) (⅀→ (Ω→ f)) f :=
   begin
     induction X with X x, induction Y with Y y, induction f with f pf, esimp at *, induction pf,
     fconstructor,
@@ -360,7 +365,7 @@ namespace susp
 
   definition loop_susp_intro_natural {X Y Z : Type*} (g : susp Y →* Z) (f : X →* Y) :
     loop_susp_intro (g ∘* susp_functor f) ~* loop_susp_intro g ∘* f :=
-  pwhisker_right _ !ap1_pcompose ⬝* !passoc ⬝* pwhisker_left _ !loop_susp_unit_natural⁻¹* ⬝*
+  pwhisker_right _ !ap1_pcompose ⬝* !passoc ⬝* pwhisker_left _ !loop_susp_unit_natural ⬝*
   !passoc⁻¹*
 
   definition susp_adjoint_loop_right_inv {X Y : Type*} (g : X →* Ω Y) :
@@ -368,7 +373,7 @@ namespace susp
   begin
     refine !pwhisker_right !ap1_pcompose ⬝* _,
     refine !passoc ⬝* _,
-    refine !pwhisker_left !loop_susp_unit_natural⁻¹* ⬝* _,
+    refine !pwhisker_left !loop_susp_unit_natural ⬝* _,
     refine !passoc⁻¹* ⬝* _,
     refine !pwhisker_right !loop_susp_counit_unit ⬝* _,
     apply pid_pcompose
@@ -403,7 +408,8 @@ namespace susp
     { apply eq_pathover, refine !elim_merid ⬝ph _ ⬝hp !ap_constant⁻¹, exact square_of_eq !con.right_inv⁻¹ }
   end
 
-  definition susp_functor_pconst [constructor] (X Y : Type*) : susp_functor (pconst X Y) ~* pconst (susp X) (susp Y) :=
+  definition susp_functor_pconst [constructor] (X Y : Type*) :
+    susp_functor (pconst X Y) ~* pconst (susp X) (susp Y) :=
   begin
     fapply phomotopy.mk,
     { exact susp_functor_pconst_homotopy },
@@ -422,7 +428,7 @@ namespace susp
   definition loop_susp_pintro_natural_left (f : X' →* X) :
     psquare (loop_susp_pintro X Y) (loop_susp_pintro X' Y)
             (ppcompose_right (susp_functor f)) (ppcompose_right f) :=
-  !pap1_natural_left ⬝h* ppcompose_right_psquare (loop_susp_unit_natural f)⁻¹*
+  !pap1_natural_left ⬝h* ppcompose_right_psquare (loop_susp_unit_natural f)
 
   definition loop_susp_pintro_natural_right (f : Y →* Y') :
     psquare (loop_susp_pintro X Y) (loop_susp_pintro X Y')
