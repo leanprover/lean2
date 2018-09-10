@@ -248,16 +248,6 @@ namespace group
   theorem to_respect_neg' {H₁ H₂ : AddGroup} (χ : H₁ →a H₂) (g : H₁) : χ (-g) = -(χ g) :=
   respect_neg χ g
 
-  definition homomorphism_add [constructor] {G H : AddAbGroup} (φ ψ : G →a H) : G →a H :=
-  add_homomorphism.mk (λg, φ g + ψ g)
-    abstract begin
-      intro g g', refine ap011 add !to_respect_add' !to_respect_add' ⬝ _,
-      refine !add.assoc ⬝ ap (add _) (!add.assoc⁻¹ ⬝ ap (λx, x + _) !add.comm ⬝ !add.assoc) ⬝ !add.assoc⁻¹
-    end end
-
-  definition homomorphism_mul [constructor] {G H : AbGroup} (φ ψ : G →g H) : G →g H :=
-  homomorphism.mk (λg, φ g * ψ g) (to_respect_add (homomorphism_add φ ψ))
-
   definition pmap_of_homomorphism_gid (G : Group) : pmap_of_homomorphism (gid G) ~* pid G :=
   begin
     fapply phomotopy_of_homotopy, reflexivity
@@ -306,6 +296,38 @@ namespace group
   definition trivial_add_homomorphism (A B : AddGroup) : A →a B :=
   homomorphism.mk (λa, 0) (λa a', (add_zero 0)⁻¹)
 
+  /- the group structure on homomorphisms between two abelian groups -/
+
+  definition homomorphism_add [constructor] {G H : AddAbGroup} (φ ψ : G →a H) : G →a H :=
+  add_homomorphism.mk (λg, φ g + ψ g)
+    abstract begin
+      intro g g', refine ap011 add !to_respect_add' !to_respect_add' ⬝ _,
+      refine !add.assoc ⬝ ap (add _) (!add.assoc⁻¹ ⬝ ap (λx, x + _) !add.comm ⬝ !add.assoc) ⬝
+        !add.assoc⁻¹
+    end end
+
+  definition homomorphism_mul [constructor] {G H : AbGroup} (φ ψ : G →g H) : G →g H :=
+  homomorphism.mk (λg, φ g * ψ g) (to_respect_add (homomorphism_add φ ψ))
+
+  definition homomorphism_inv [constructor] {G H : AbGroup} (φ : G →g H) : G →g H :=
+  begin
+    apply homomorphism.mk (λg, (φ g)⁻¹),
+    intro g h,
+    refine ap (λx, x⁻¹) (to_respect_mul φ g h) ⬝ !mul_inv ⬝ !mul.comm,
+  end
+
+  definition ab_group_homomorphism [constructor] (G H : AbGroup) : ab_group (G →g H) :=
+  begin
+    refine ab_group.mk _ homomorphism_mul _ (trivial_homomorphism G H) _ _ homomorphism_inv _ _,
+    { intros φ₁ φ₂ φ₃, apply homomorphism_eq, intro g, apply mul.assoc },
+    { intro φ, apply homomorphism_eq, intro g, apply one_mul },
+    { intro φ, apply homomorphism_eq, intro g, apply mul_one },
+    { intro φ, apply homomorphism_eq, intro g, apply mul.left_inv },
+    { intro φ ψ, apply homomorphism_eq, intro g, apply mul.comm }
+  end
+
+  definition aghomomorphism [constructor] (G H : AbGroup) : AbGroup :=
+  AbGroup.mk (G →g H) (ab_group_homomorphism G H)
 
   /- given an equivalence A ≃ B we can transport a group structure on A to a group structure on B -/
 
