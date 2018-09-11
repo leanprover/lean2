@@ -37,7 +37,7 @@ section
   begin
     apply is_conn_fun.elim -1 (is_conn_fun_from_unit -1 A 1)
                            (λa, trunctype.mk' -1 (is_equiv (λx, a * x))),
-    intro z, change is_equiv (λx : A, 1 * x), apply is_equiv.homotopy_closed id,
+    intro z, change is_equiv (λx : A, 1 * x), refine is_equiv.homotopy_closed id _ _,
     intro x, apply inverse, apply one_mul
   end
 
@@ -45,7 +45,7 @@ section
   begin
     apply is_conn_fun.elim -1 (is_conn_fun_from_unit -1 A 1)
                            (λa, trunctype.mk' -1 (is_equiv (λx, x * a))),
-    intro z, change is_equiv (λx : A, x * 1), apply is_equiv.homotopy_closed id,
+    intro z, change is_equiv (λx : A, x * 1), refine is_equiv.homotopy_closed id _ _,
     intro x, apply inverse, apply mul_one
   end
 end

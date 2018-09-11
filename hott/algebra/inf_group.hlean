@@ -1,8 +1,7 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jeremy Avigad, Leonardo de Moura
-
+Authors: Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 -/
 
 import algebra.binary algebra.priority
@@ -326,6 +325,9 @@ section inf_group
 end inf_group
 
 structure ab_inf_group [class] (A : Type) extends inf_group A, comm_inf_monoid A
+
+theorem mul.comm4 [s : ab_inf_group A] (a b c d : A) : (a * b) * (c * d) = (a * c) * (b * d) :=
+binary.comm4 mul.comm mul.assoc a b c d
 
 /- additive inf_group -/
 

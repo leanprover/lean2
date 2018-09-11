@@ -9,7 +9,7 @@ The basic definitions are in init.pointed
 See also .pointed2
 -/
 
-import .nat.basic ..arity ..prop_trunc
+import .nat.basic ..prop_trunc
 open is_trunc eq prod sigma nat equiv option is_equiv bool unit sigma.ops sum algebra function
 
 namespace pointed
@@ -201,6 +201,8 @@ namespace pointed
   definition ppmap [constructor] (A B : Type*) : Type* :=
   @pppi A (λa, B)
 
+  infixr ` →** `:29 := ppmap
+
   definition pcast [constructor] {A B : Type*} (p : A = B) : A →* B :=
   pmap.mk (cast (ap pType.carrier p)) (by induction p; reflexivity)
 
@@ -297,7 +299,7 @@ namespace pointed
   definition is_equiv_ap1 (f : A →* B) [is_equiv f] : is_equiv (ap1 f) :=
   begin
     induction B with B b, induction f with f pf, esimp at *, cases pf, esimp,
-    apply is_equiv.homotopy_closed (ap f),
+    refine is_equiv.homotopy_closed (ap f) _ _,
     intro p, exact !idp_con⁻¹
   end
 
@@ -830,7 +832,7 @@ namespace pointed
   pequiv_of_pmap (ptransport B p) !is_equiv_tr
 
   definition pequiv_change_fun [constructor] (f : A ≃* B) (f' : A →* B) (Heq : f ~ f') : A ≃* B :=
-  pequiv_of_pmap f' (is_equiv.homotopy_closed f Heq)
+  pequiv_of_pmap f' (is_equiv.homotopy_closed f Heq _)
 
   definition pequiv_change_inv [constructor] (f : A ≃* B) (f' : B →* A) (Heq : to_pinv f ~ f')
     : A ≃* B :=
@@ -1155,7 +1157,7 @@ namespace pointed
     Ω[succ n](pointed.Mk p) = Ω[n](Ω (pointed.Mk p)) : eq_of_pequiv !loopn_succ_in
       ... = Ω[n] (Ω[2] A)                            : loopn_loop_irrel
       ... = Ω[2+n] A                                 : eq_of_pequiv !loopn_add
-      ... = Ω[n+2] A                                 : by rewrite [algebra.add.comm]
+      ... = Ω[n+2] A                                 : by rewrite [nat.add_comm]
 
   section psquare
   /-

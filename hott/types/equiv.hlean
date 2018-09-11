@@ -98,7 +98,7 @@ namespace is_equiv
   @is_equiv_of_is_contr_fun _ _ f (λb, @is_contr_fiber_of_is_equiv _ _ _ (H b) _)
 
   definition is_equiv_equiv_is_contr_fun : is_equiv f ≃ is_contr_fun f :=
-  equiv_of_is_prop _ (λH, !is_equiv_of_is_contr_fun)
+  equiv_of_is_prop _ (λH, !is_equiv_of_is_contr_fun) _ _
 
   theorem inv_commute'_fn {A : Type} {B C : A → Type} (f : Π{a}, B a → C a) [H : Πa, is_equiv (@f a)]
     {g : A → A} (h : Π{a}, B a → B (g a)) (h' : Π{a}, C a → C (g a))
@@ -300,16 +300,17 @@ namespace equiv
 
   definition is_contr_equiv (A B : Type) [HA : is_contr A] [HB : is_contr B] : is_contr (A ≃ B) :=
   begin
-    apply @is_contr_of_inhabited_prop, apply is_prop.mk,
-    intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy,
-    apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_prop.elim ▸ rfl),
-    apply equiv_of_is_contr_of_is_contr
+    refine is_contr_of_inhabited_prop _ _,
+    { exact equiv_of_is_contr_of_is_contr _ _ },
+    { apply is_prop.mk,
+      intro x y, cases x with fx Hx, cases y with fy Hy, generalize Hy,
+      apply (eq_of_homotopy (λ a, !eq_of_is_contr)) ▸ (λ Hy, !is_prop.elim ▸ rfl) }
   end
 
   definition is_trunc_succ_equiv (n : trunc_index) (A B : Type)
   [HA : is_trunc n.+1 A] [HB : is_trunc n.+1 B] : is_trunc n.+1 (A ≃ B) :=
   @is_trunc_equiv_closed _ _ n.+1 (equiv.symm !equiv.sigma_char)
-  (@is_trunc_sigma _ _ _ _ (λ f, !is_trunc_succ_of_is_prop))
+  (@is_trunc_sigma _ _ _ _ (λ f, is_trunc_succ_of_is_prop _ _ _))
 
   definition is_trunc_equiv (n : trunc_index) (A B : Type)
   [HA : is_trunc n A] [HB : is_trunc n B] : is_trunc n (A ≃ B) :=

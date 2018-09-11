@@ -129,59 +129,56 @@ namespace EM
   is_conn_EM1' G
 
   variable {G}
-  definition EM1_map [unfold 6] {G : Group} {X : Type*} (e : G → Ω X)
-    (r : Πg h, e (g * h) = e g ⬝ e h) [is_trunc 1 X] : EM1 G → X :=
+  open infgroup
+  definition EM1_map [unfold 6] {G : Group} {X : Type*} (e : G →∞g Ωg X) [is_trunc 1 X] :
+    EM1 G → X :=
   begin
     intro x, induction x using EM.elim,
     { exact Point X },
     { exact e g },
-    { exact r g h }
+    { exact to_respect_mul_inf e g h }
   end
 
   /- Uniqueness of K(G, 1) -/
 
-  definition EM1_pmap [constructor] {G : Group} {X : Type*} (e : G → Ω X)
-    (r : Πg h, e (g * h) = e g ⬝ e h) [is_trunc 1 X] : EM1 G →* X :=
-  pmap.mk (EM1_map e r) idp
+  definition EM1_pmap [constructor] {G : Group} {X : Type*} (e : G →∞g Ωg X) [is_trunc 1 X] :
+    EM1 G →* X :=
+  pmap.mk (EM1_map e) idp
 
   variable (G)
   definition loop_EM1 [constructor] : G ≃* Ω (EM1 G) :=
   (pequiv_of_equiv (base_eq_base_equiv G) idp)⁻¹ᵉ*
 
   variable {G}
-  definition loop_EM1_pmap {G : Group} {X : Type*} (e : G →* Ω X)
-    (r : Πg h, e (g * h) = e g ⬝ e h) [is_trunc 1 X] : Ω→(EM1_pmap e r) ∘* loop_EM1 G ~* e :=
+  definition loop_EM1_pmap {G : Group} {X : Type*} (e : G →∞g Ωg X) [is_trunc 1 X] :
+    Ω→(EM1_pmap e) ∘* loop_EM1 G ~* pmap_of_inf_homomorphism e :=
   begin
     fapply phomotopy.mk,
-    { intro g, refine !idp_con ⬝ elim_pth r g },
+    { intro g, refine !idp_con ⬝ elim_pth (to_respect_mul_inf e) g },
     { apply is_set.elim }
   end
 
-  definition EM1_pequiv'.{u} {G : Group.{u}} {X : pType.{u}} (e : G ≃* Ω X)
-    (r : Πg h, e (g * h) = e g ⬝ e h) [is_conn 0 X] [is_trunc 1 X] : EM1 G ≃* X :=
+  definition EM1_pequiv'.{u} {G : Group.{u}} {X : pType.{u}} (e : G ≃∞g Ωg X)
+    [is_conn 0 X] [is_trunc 1 X] : EM1 G ≃* X :=
   begin
-    apply pequiv_of_pmap (EM1_pmap e r),
+    apply pequiv_of_pmap (EM1_pmap e),
     apply whitehead_principle_pointed 1,
     intro k, cases k with k,
     { apply @is_equiv_of_is_contr,
       all_goals (esimp; exact _)},
     { cases k with k,
       { apply is_equiv_trunc_functor, esimp,
-        apply is_equiv.homotopy_closed, rotate 1,
-        { symmetry, exact phomotopy_pinv_right_of_phomotopy (loop_EM1_pmap _ _) },
-        apply is_equiv_compose e, apply pequiv.to_is_equiv },
+        apply is_equiv.homotopy_closed,
+        { symmetry, exact phomotopy_pinv_right_of_phomotopy (loop_EM1_pmap e) },
+        refine is_equiv_compose e _ _ _, apply inf_isomorphism.is_equiv_to_hom },
       { apply @is_equiv_of_is_contr,
         do 2 exact trivial_homotopy_group_of_is_trunc _ (succ_lt_succ !zero_lt_succ)}}
   end
 
   definition EM1_pequiv.{u} {G : Group.{u}} {X : pType.{u}} (e : G ≃g π₁ X)
     [is_conn 0 X] [is_trunc 1 X] : EM1 G ≃* X :=
-  begin
-    apply EM1_pequiv' (pequiv_of_isomorphism e ⬝e* ptrunc_pequiv 0 (Ω X)),
-    refine equiv.preserve_binary_of_inv_preserve _ mul concat _,
-    intro p q,
-    exact to_respect_mul e⁻¹ᵍ (tr p) (tr q)
-  end
+  have is_set (Ωg X), from !is_trunc_loop,
+  EM1_pequiv' (inf_isomorphism_of_isomorphism e ⬝∞g gtrunc_isomorphism (Ωg X))
 
   definition EM1_pequiv_type (X : Type*) [is_conn 0 X] [is_trunc 1 X] : EM1 (π₁ X) ≃* X :=
   EM1_pequiv !isomorphism.refl
@@ -282,41 +279,30 @@ namespace EM
     !loopn_succ_in⁻¹ᵉ* ∘* apn (succ n) !loop_EMadd1 ∘* loopn_EMadd1 G n :=
   by reflexivity
 
-  definition EM_up {G : AbGroup} {X : Type*} {n : ℕ} (e : G →* Ω[succ (succ n)] X)
-    : G →* Ω[succ n] (Ω X) :=
-  !loopn_succ_in ∘* e
-
-  definition is_homomorphism_EM_up {G : AbGroup} {X : Type*} {n : ℕ}
-    (e : G →* Ω[succ (succ n)] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h)
-    (g h : G) : EM_up e (g * h) = EM_up e g ⬝ EM_up e h :=
-  begin
-    refine ap !loopn_succ_in !r ⬝ _, apply apn_con,
-  end
+  definition EM_up {G : AbGroup} {X : Type*} {n : ℕ}
+    (e : AbInfGroup_of_AbGroup G →∞g Ωg[succ (succ n)] X) :
+    AbInfGroup_of_AbGroup G →∞g Ωg[succ n] (Ω X) :=
+  gloopn_succ_in (succ n) X ∘∞g e
 
   definition EMadd1_pmap [unfold 8] {G : AbGroup} {X : Type*} (n : ℕ)
-    (e : G →* Ω[succ n] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h)
-    [H : is_trunc (n.+1) X] : EMadd1 G n →* X :=
+    (e : AbInfGroup_of_AbGroup G →∞g Ωg[succ n] X) [H : is_trunc (n.+1) X] : EMadd1 G n →* X :=
   begin
-    revert X e r H, induction n with n f: intro X e r H,
-    { exact EM1_pmap e r },
+    revert X e H, induction n with n f: intro X e H,
+    { exact EM1_pmap e },
     rewrite [EMadd1_succ],
     apply ptrunc.elim ((succ n).+1),
     apply susp_elim,
-    exact f _ (EM_up e) (is_homomorphism_EM_up e r) _
+    exact f _ (EM_up e) _
   end
 
-  definition EMadd1_pmap_succ {G : AbGroup} {X : Type*} (n : ℕ) (e : G →* Ω[succ (succ n)] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h) [H2 : is_trunc ((succ n).+1) X] :
-    EMadd1_pmap (succ n) e r =
-    ptrunc.elim ((succ n).+1) (susp_elim (EMadd1_pmap n (EM_up e) (is_homomorphism_EM_up e r))) :=
+  definition EMadd1_pmap_succ {G : AbGroup} {X : Type*} (n : ℕ)
+    (e : AbInfGroup_of_AbGroup G →∞g Ωg[succ (succ n)] X) [H2 : is_trunc ((succ n).+1) X] :
+    EMadd1_pmap (succ n) e = ptrunc.elim ((succ n).+1) (susp_elim (EMadd1_pmap n (EM_up e))) :=
   by reflexivity
 
-  definition loop_EMadd1_pmap {G : AbGroup} {X : Type*} {n : ℕ} (e : G →* Ω[succ (succ n)] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h) [H : is_trunc ((succ n).+1) X] :
-    Ω→(EMadd1_pmap (succ n) e r) ∘* loop_EMadd1 G n ~*
-    EMadd1_pmap n (EM_up e) (is_homomorphism_EM_up e r) :=
+  definition loop_EMadd1_pmap {G : AbGroup} {X : Type*} {n : ℕ}
+    (e : AbInfGroup_of_AbGroup G →∞g Ωg[succ (succ n)] X) [H : is_trunc ((succ n).+1) X] :
+    Ω→(EMadd1_pmap (succ n) e) ∘* loop_EMadd1 G n ~* EMadd1_pmap n (EM_up e) :=
   begin
     cases n with n,
     { apply hopf_delooping_elim },
@@ -329,11 +315,11 @@ namespace EM
       reflexivity }
   end
 
-  definition loopn_EMadd1_pmap' {G : AbGroup} {X : Type*} {n : ℕ} (e : G →* Ω[succ n] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h) [H : is_trunc (n.+1) X] :
-    Ω→[succ n](EMadd1_pmap n e r) ∘* loopn_EMadd1 G n ~* e :=
+  definition loopn_EMadd1_pmap' {G : AbGroup} {X : Type*} {n : ℕ}
+    (e : AbInfGroup_of_AbGroup G →∞g Ωg[succ n] X) [H : is_trunc (n.+1) X] :
+    Ω→[succ n](EMadd1_pmap n e) ∘* loopn_EMadd1 G n ~* pmap_of_inf_homomorphism e :=
   begin
-    revert X e r H, induction n with n IH: intro X e r H,
+    revert X e H, induction n with n IH: intro X e H,
     { apply loop_EM1_pmap },
     refine pwhisker_left _ !loopn_EMadd1_succ ⬝* _,
     refine !passoc⁻¹* ⬝* _,
@@ -341,14 +327,16 @@ namespace EM
     refine !passoc ⬝* _,
     refine pwhisker_left _ (!passoc⁻¹* ⬝*
              pwhisker_right _ (!apn_pcompose⁻¹* ⬝* apn_phomotopy _ !loop_EMadd1_pmap) ⬝* !IH) ⬝* _,
-    apply pinv_pcompose_cancel_left
+    refine _ ⬝* pinv_pcompose_cancel_left !loopn_succ_in (pmap_of_inf_homomorphism e),
+    apply pwhisker_left,
+    apply phomotopy_of_homotopy, reflexivity, intro g, apply is_set_loopn,
   end
 
-  definition EMadd1_pequiv' {G : AbGroup} {X : Type*} (n : ℕ) (e : G ≃* Ω[succ n] X)
-    (r : Π(g h : G), e (g * h) = e g ⬝ e h)
-    [H1 : is_conn n X] [H2 : is_trunc (n.+1) X] : EMadd1 G n ≃* X :=
+  definition EMadd1_pequiv' {G : AbGroup} {X : Type*} (n : ℕ)
+    (e : AbInfGroup_of_AbGroup G ≃∞g Ωg[succ n] X) [H1 : is_conn n X] [H2 : is_trunc (n.+1) X] :
+    EMadd1 G n ≃* X :=
   begin
-    apply pequiv_of_pmap (EMadd1_pmap n e r),
+    apply pequiv_of_pmap (EMadd1_pmap n e),
     have is_conn 0 (EMadd1 G n), from is_conn_of_le _ (zero_le_of_nat n),
     have is_trunc (n.+1) (EMadd1 G n), from !is_trunc_EMadd1,
     refine whitehead_principle_pointed (n.+1) _ _,
@@ -356,9 +344,9 @@ namespace EM
     { apply @is_equiv_of_is_contr,
       do 2 exact trivial_homotopy_group_of_is_conn _ (le_of_lt_succ H)},
     { cases H, esimp, apply is_equiv_trunc_functor, esimp,
-      apply is_equiv.homotopy_closed, rotate 1,
-      { symmetry, exact phomotopy_pinv_right_of_phomotopy (loopn_EMadd1_pmap' _ _) },
-      apply is_equiv_compose e, apply pequiv.to_is_equiv },
+      apply is_equiv.homotopy_closed,
+      { symmetry, exact phomotopy_pinv_right_of_phomotopy (loopn_EMadd1_pmap' _) },
+      refine is_equiv_compose e _ _ _, apply inf_isomorphism.is_equiv_to_hom },
     { apply @is_equiv_of_is_contr,
       do 2 exact trivial_homotopy_group_of_is_trunc _ H}
   end
@@ -366,13 +354,9 @@ namespace EM
   definition EMadd1_pequiv {G : AbGroup} {X : Type*} (n : ℕ) (e : G ≃g πg[n+1] X)
     [H1 : is_conn n X] [H2 : is_trunc (n.+1) X] : EMadd1 G n ≃* X :=
   begin
-    have is_set (Ω[succ n] X), from !is_set_loopn,
-    fapply EMadd1_pequiv' n,
-    refine pequiv_of_isomorphism e ⬝e* !ptrunc_pequiv,
-    refine preserve_binary_of_inv_preserve (pequiv_of_isomorphism e ⬝e* !ptrunc_pequiv) _ _ _,
-    -- apply EMadd1_pequiv' n ((ptrunc_pequiv _ _)⁻¹ᵉ* ⬝e* pequiv_of_isomorphism e⁻¹ᵍ),
---    apply inv_con
-    esimp, intro p q, exact to_respect_mul e⁻¹ᵍ (tr p) (tr q)
+    have is_set (Ωg[succ n] X), from is_set_loopn (succ n) X,
+    apply EMadd1_pequiv' n,
+    refine inf_isomorphism_of_isomorphism e ⬝∞g gtrunc_isomorphism (Ωg[succ n] X),
   end
 
   definition EMadd1_pequiv_succ {G : AbGroup} {X : Type*} (n : ℕ) (e : G ≃g πag[n+2] X)

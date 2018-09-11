@@ -49,8 +49,7 @@ section add_group_A_B
   by rewrite [*sub_eq_add_neg, *(respect_add f), (respect_neg f)]
 
   definition is_embedding_of_is_add_hom [add_group B] (f : A → B) [is_add_hom f]
-      (H : ∀ x, f x = 0 → x = 0) :
-    is_embedding f :=
+      (H : ∀ x, f x = 0 → x = 0) : is_embedding f :=
   is_embedding_of_is_injective
     (take x₁ x₂,
       suppose f x₁ = f x₂,

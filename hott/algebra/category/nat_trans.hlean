@@ -93,7 +93,7 @@ namespace nat_trans
   end
 
   definition is_set_nat_trans [instance] : is_set (F ⟹ G) :=
-  by apply is_trunc_is_equiv_closed; apply (equiv.to_is_equiv !nat_trans.sigma_char)
+  is_trunc_equiv_closed _ !nat_trans.sigma_char _
 
   definition change_natural_map [constructor] (η : F ⟹ G) (f : Π (a : C), F a ⟶ G a)
     (p : Πa, η a = f a) : F ⟹ G :=

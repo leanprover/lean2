@@ -98,9 +98,9 @@ namespace set_quotient
   definition is_trunc_set_quotient [instance] (n : ℕ₋₂) {A : Type} (R : A → A → Prop) [is_trunc n A] :
     is_trunc n (set_quotient R) :=
   begin
-    cases n with n, { apply is_contr_of_inhabited_prop, exact class_of !center },
+    cases n with n, { refine is_contr_of_inhabited_prop _ _, exact class_of !center },
     cases n with n, { apply _ },
-    apply is_trunc_succ_succ_of_is_set
+    exact is_trunc_succ_succ_of_is_set _ _ _
   end
 
   definition is_equiv_class_of [constructor] {A : Type} [is_set A] (R : A → A → Prop)
@@ -135,10 +135,8 @@ namespace set_quotient
     : Prop :=
   set_quotient.elim_on x (R a)
     begin
-      intros a' a'' H1,
-      refine to_inv !trunctype_eq_equiv _, esimp,
-      apply ua,
-      apply equiv_of_is_prop,
+      intros a' a'' H1, apply tua,
+      refine equiv_of_is_prop _ _ _ _,
       { intro H2, exact is_transitive.trans R H2 H1},
       { intro H2, apply is_transitive.trans R H2, exact is_symmetric.symm R H1}
     end

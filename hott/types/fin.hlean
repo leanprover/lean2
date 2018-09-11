@@ -532,7 +532,7 @@ begin
 end
 
 definition fin_two_equiv_bool : fin 2 ≃ bool :=
-let H := equiv_unit_of_is_contr (fin 1) in
+let H := equiv_unit_of_is_contr (fin 1) _ in
 calc
   fin 2 ≃ fin (1 + 1)   : equiv.refl
    ...  ≃ fin 1 + fin 1 : fin_sum_equiv
@@ -540,7 +540,7 @@ calc
    ...  ≃ bool          : bool_equiv_unit_sum_unit
 
 definition fin_sum_unit_equiv (n : nat) : fin n + unit ≃ fin (nat.succ n) :=
-let H := equiv_unit_of_is_contr (fin 1) in
+let H := equiv_unit_of_is_contr (fin 1) _ in
 calc
   fin n + unit ≃ fin n + fin 1 : H
           ...  ≃ fin (nat.succ n)     : fin_sum_equiv

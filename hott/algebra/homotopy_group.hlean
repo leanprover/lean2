@@ -10,24 +10,9 @@ import .trunc_group types.trunc .group_theory types.nat.hott
 
 open nat eq pointed trunc is_trunc algebra group function equiv unit is_equiv nat
 
+/- todo: prove more properties of homotopy groups using gtrunc and agtrunc -/
+
 namespace eq
-
-  definition inf_pgroup_loop [constructor] [instance] (A : Type*) : inf_pgroup (Ω A) :=
-  inf_pgroup.mk concat con.assoc inverse idp_con con_idp con.left_inv
-
-  definition inf_group_loop [constructor] (A : Type*) : inf_group (Ω A) := _
-
-  definition ab_inf_group_loop [constructor] [instance] (A : Type*) : ab_inf_group (Ω (Ω A)) :=
-  ⦃ab_inf_group, inf_group_loop _, mul_comm := eckmann_hilton⦄
-
-  definition inf_group_loopn (n : ℕ) (A : Type*) [H : is_succ n] : inf_group (Ω[n] A) :=
-  by induction H; exact _
-
-  definition ab_inf_group_loopn (n : ℕ) (A : Type*) [H : is_at_least_two n] : ab_inf_group (Ω[n] A) :=
-  by induction H; exact _
-
-  definition gloop [constructor] (A : Type*) : InfGroup :=
-  InfGroup.mk (Ω A) (inf_group_loop A)
 
   definition homotopy_group [reducible] [constructor] (n : ℕ) (A : Type*) : Set* :=
   ptrunc 0 (Ω[n] A)
@@ -36,9 +21,9 @@ namespace eq
 
   section
   local attribute inf_group_loopn [instance]
-  definition group_homotopy_group [instance] [constructor] [reducible] (n : ℕ) [is_succ n] (A : Type*)
-    : group (π[n] A) :=
-  trunc_group (Ω[n] A)
+  definition group_homotopy_group [instance] [constructor] [reducible] (n : ℕ) [is_succ n]
+    (A : Type*) : group (π[n] A) :=
+  group_trunc (Ω[n] A)
   end
 
   definition group_homotopy_group2 [instance] (k : ℕ) (A : Type*) :
@@ -47,26 +32,25 @@ namespace eq
 
   section
   local attribute ab_inf_group_loopn [instance]
-  definition ab_group_homotopy_group [constructor] [reducible] (n : ℕ) [is_at_least_two n] (A : Type*)
-    : ab_group (π[n] A) :=
-  trunc_ab_group (Ω[n] A)
+  definition ab_group_homotopy_group [constructor] [reducible] (n : ℕ) [is_at_least_two n]
+    (A : Type*) : ab_group (π[n] A) :=
+  ab_group_trunc (Ω[n] A)
   end
 
   local attribute ab_group_homotopy_group [instance]
 
   definition ghomotopy_group [constructor] (n : ℕ) [is_succ n] (A : Type*) : Group :=
-  Group.mk (π[n] A) _
+  gtrunc (Ωg[n] A)
 
   definition aghomotopy_group [constructor] (n : ℕ) [is_at_least_two n] (A : Type*) : AbGroup :=
-  AbGroup.mk (π[n] A) _
-
-  definition fundamental_group [constructor] (A : Type*) : Group :=
-  ghomotopy_group 1 A
+  agtrunc (Ωag[n] A)
 
   notation `πg[`:95  n:0 `]`:0 := ghomotopy_group n
   notation `πag[`:95 n:0 `]`:0 := aghomotopy_group n
 
-  notation `π₁` := fundamental_group -- should this be notation for the group or pointed type?
+  definition fundamental_group [constructor] (A : Type*) : Group := πg[1] A
+
+  notation `π₁` := fundamental_group
 
   definition tr_mul_tr {n : ℕ} {A : Type*} (p q : Ω[n + 1] A) :
     tr p *[πg[n+1] A] tr q = tr (p ⬝ q) :=
@@ -105,8 +89,8 @@ namespace eq
   begin
     apply trivial_group_of_is_contr,
     apply is_trunc_trunc_of_is_trunc,
-    apply is_contr_loop_of_is_trunc,
-    apply is_trunc_succ_succ_of_is_set
+    apply is_contr_loop_of_is_trunc (n+1),
+    exact is_trunc_succ_succ_of_is_set _ _ _
   end
 
   definition homotopy_group_succ_out (n : ℕ) (A : Type*) : π[n + 1] A = π₁ (Ω[n] A) := idp
@@ -136,7 +120,7 @@ namespace eq
   begin
     apply is_trunc_trunc_of_is_trunc,
     apply is_contr_loop_of_is_trunc,
-    apply is_trunc_of_is_contr
+    exact is_trunc_of_is_contr _ _ _
   end
 
   definition homotopy_group_functor [constructor] (n : ℕ) {A B : Type*} (f : A →* B)
@@ -192,6 +176,11 @@ namespace eq
     { reflexivity}
   end
 
+  /- maybe rename: ghomotopy_group_functor -/
+  definition homotopy_group_homomorphism [constructor] (n : ℕ) [H : is_succ n] {A B : Type*}
+    (f : A →* B) : πg[n] A →g πg[n] B :=
+  gtrunc_functor (Ωg→[n] f)
+
   definition homotopy_group_functor_mul [constructor] (n : ℕ) {A B : Type*} (g : A →* B)
     (p q : πg[n+1] A) :
     (π→[n + 1] g) (p *[πg[n+1] A] q) = (π→[n+1] g) p *[πg[n+1] B] (π→[n + 1] g) q :=
@@ -202,14 +191,7 @@ namespace eq
     apply ap tr, apply apn_con
   end
 
-  definition homotopy_group_homomorphism [constructor] (n : ℕ) [H : is_succ n] {A B : Type*}
-    (f : A →* B) : πg[n] A →g πg[n] B :=
-  begin
-    induction H with n, fconstructor,
-    { exact homotopy_group_functor (n+1) f},
-    { apply homotopy_group_functor_mul}
-  end
-
+  /- todo: rename πg→ -/
   notation `π→g[`:95 n:0 `]`:0 := homotopy_group_homomorphism n
 
   definition homotopy_group_homomorphism_pcompose (n : ℕ) [H : is_succ n] {A B C : Type*} (g : B →* C)
@@ -218,12 +200,10 @@ namespace eq
     induction H with n, exact to_homotopy (homotopy_group_functor_pcompose (succ n) g f)
   end
 
+  /- todo: use is_succ -/
   definition homotopy_group_isomorphism_of_pequiv [constructor] (n : ℕ) {A B : Type*} (f : A ≃* B)
     : πg[n+1] A ≃g πg[n+1] B :=
-  begin
-    apply isomorphism.mk (homotopy_group_homomorphism (succ n) f),
-    exact is_equiv_homotopy_group_functor _ _ _,
-  end
+  gtrunc_isomorphism_gtrunc (gloopn_isomorphism (n+1) f)
 
   definition homotopy_group_add (A : Type*) (n m : ℕ) :
     πg[n+m+1] A ≃g πg[n+1] (Ω[m] A) :=

@@ -40,20 +40,16 @@ namespace is_trunc
   begin
     induction n,
     { intro A,
-      apply is_trunc_is_equiv_closed,
-      { apply equiv.to_is_equiv, apply is_contr.sigma_char},
+      apply is_trunc_equiv_closed _ !is_contr.sigma_char,
       apply is_prop.mk, intros,
       fapply sigma_eq, apply x.2,
-      apply is_prop.elimo},
-    { intro A,
-      apply is_trunc_is_equiv_closed,
-      apply equiv.to_is_equiv,
-      apply is_trunc.pi_char},
+      apply is_prop.elimo },
+    { intro A, exact is_trunc_equiv_closed _ !is_trunc.pi_char _ },
   end
 
   local attribute is_prop_is_trunc [instance]
   definition is_trunc_succ_is_trunc [instance] (n m : ℕ₋₂) (A : Type) :
     is_trunc (n.+1) (is_trunc m A) :=
-  !is_trunc_succ_of_is_prop
+  is_trunc_succ_of_is_prop _ _ _
 
 end is_trunc

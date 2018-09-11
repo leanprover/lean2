@@ -110,6 +110,16 @@ namespace sigma
     : (u = v) ≃ (Σ(p : u.1 = v.1),  u.2 =[p] v.2) :=
   (equiv.mk sigma_eq_unc _)⁻¹ᵉ
 
+  /- induction principle for a path between pairs -/
+  definition eq.rec_sigma {A : Type} {B : A → Type} {a : A} {b : B a}
+    (P : Π⦃a'⦄ {b' : B a'}, ⟨a, b⟩ = ⟨a', b'⟩ → Type)
+    (IH : P idp) ⦃a' : A⦄ {b' : B a'} (p : ⟨a, b⟩ = ⟨a', b'⟩) : P p :=
+  begin
+    apply transport (λp, P p) (to_left_inv !sigma_eq_equiv p),
+    generalize !sigma_eq_equiv p, esimp, intro q,
+    induction q with q₁ q₂, induction q₂, exact IH
+  end
+
   definition dpair_eq_dpair_con (p1 : a  = a' ) (q1 : b  =[p1] b' )
                                 (p2 : a' = a'') (q2 : b' =[p2] b'') :
     dpair_eq_dpair (p1 ⬝ p2) (q1 ⬝o q2) = dpair_eq_dpair p1 q1 ⬝ dpair_eq_dpair  p2 q2 :=
@@ -120,8 +130,13 @@ namespace sigma
     sigma_eq (p1 ⬝ p2) (q1 ⬝o q2) = sigma_eq p1 q1 ⬝ sigma_eq p2 q2 :=
   by induction u; induction v; induction w; apply dpair_eq_dpair_con
 
-  definition dpair_eq_dpair_inv {A : Type} {B : A → Type} {a a' : A} {b : B a} {b' : B a'} (p : a = a')
-    (q : b =[p] b') : (dpair_eq_dpair p q)⁻¹ = dpair_eq_dpair p⁻¹ q⁻¹ᵒ :=
+  definition sigma_eq_concato_eq {b : B a} {b₁ b₂ : B a'}
+    (p : a = a') (q : b =[p] b₁) (q' : b₁ = b₂) :
+    sigma_eq p (q ⬝op q') = sigma_eq p q ⬝ ap (dpair a') q' :=
+  by induction q'; reflexivity
+
+  definition dpair_eq_dpair_inv (p : a = a') (q : b =[p] b') :
+    (dpair_eq_dpair p q)⁻¹ = dpair_eq_dpair p⁻¹ q⁻¹ᵒ :=
   begin induction q, reflexivity end
 
   local attribute dpair_eq_dpair [reducible]
@@ -129,6 +144,23 @@ namespace sigma
     dpair_eq_dpair p q = dpair_eq_dpair p !pathover_tr ⬝
     dpair_eq_dpair idp (pathover_idp_of_eq (tr_eq_of_pathover q)) :=
   by induction q; reflexivity
+
+  definition ap_sigma_pr1 {A B : Type} {C : B → Type} {a₁ a₂ : A} (f : A → B) (g : Πa, C (f a))
+    (p : a₁ = a₂) : (ap (λa, ⟨f a, g a⟩) p)..1 = ap f p :=
+  by induction p; reflexivity
+
+  definition ap_sigma_pr2 {A B : Type} {C : B → Type} {a₁ a₂ : A} (f : A → B) (g : Πa, C (f a))
+    (p : a₁ = a₂) : (ap (λa, ⟨f a, g a⟩) p)..2 =
+    change_path (ap_sigma_pr1 f g p)⁻¹ (pathover_ap C f (apd g p)) :=
+  by induction p; reflexivity
+
+  definition sigma_eq_pr2_constant {A B : Type} {a a' : A} {b b' : B} (p : a = a')
+    (q : b =[p] b') : ap pr2 (sigma_eq p q) = (eq_of_pathover q) :=
+  by induction q; reflexivity
+
+  definition sigma_eq_pr2_constant2 {A B : Type} {a a' : A} {b b' : B} (p : a = a')
+    (q : b = b') : ap pr2 (sigma_eq p (pathover_of_eq p q)) = q :=
+  by induction p; induction q; reflexivity
 
   /- eq_pr1 commutes with the groupoid structure. -/
 
@@ -165,8 +197,14 @@ namespace sigma
   definition sigma_eq2_unc {p q : u = v} (rs : Σ(r : p..1 = q..1), p..2 =[r] q..2) : p = q :=
   destruct rs sigma_eq2
 
+  /- two equalities about applying a function to a pair of equalities. These two functions are not
+    definitionally equal (but they are equal on all pairs) -/
   definition ap_dpair_eq_dpair (f : Πa, B a → A') (p : a = a') (q : b =[p] b')
     : ap (sigma.rec f) (dpair_eq_dpair p q) = apd011 f p q :=
+  by induction q; reflexivity
+
+  definition ap_dpair_eq_dpair_pr (f : Πa, B a → A') (p : a = a') (q : b =[p] b') :
+    ap (λx, f x.1 x.2) (dpair_eq_dpair p q) = apd011 f p q :=
   by induction q; reflexivity
 
   /- Transport -/
@@ -255,6 +293,41 @@ namespace sigma
   definition total [reducible] [unfold 5] {B' : A → Type} (g : Πa, B a → B' a) : (Σa, B a) → (Σa, B' a) :=
   sigma_functor id g
 
+  definition sigma_functor_compose {A A' A'' : Type} {B : A → Type} {B' : A' → Type}
+    {B'' : A'' → Type} {f' : A' → A''} {f : A → A'} (g' : Πa, B' a → B'' (f' a))
+    (g : Πa, B a → B' (f a)) (x : Σa, B a) :
+    sigma_functor f' g' (sigma_functor f g x) = sigma_functor (f' ∘ f) (λa, g' (f a) ∘ g a) x :=
+  begin
+    reflexivity
+  end
+
+  definition sigma_functor_homotopy {A A' : Type} {B : A → Type} {B' : A' → Type}
+    {f f' : A → A'} {g : Πa, B a → B' (f a)} {g' : Πa, B a → B' (f' a)} (h : f ~ f')
+    (k : Πa b, g a b =[h a] g' a b) (x : Σa, B a) : sigma_functor f g x = sigma_functor f' g' x :=
+  sigma_eq (h x.1) (k x.1 x.2)
+
+  section hsquare
+  variables {A₀₀ A₂₀ A₀₂ A₂₂ : Type}
+            {B₀₀ : A₀₀ → Type} {B₂₀ : A₂₀ → Type} {B₀₂ : A₀₂ → Type} {B₂₂ : A₂₂ → Type}
+            {f₁₀ : A₀₀ → A₂₀} {f₁₂ : A₀₂ → A₂₂} {f₀₁ : A₀₀ → A₀₂} {f₂₁ : A₂₀ → A₂₂}
+            {g₁₀ : Πa, B₀₀ a → B₂₀ (f₁₀ a)} {g₁₂ : Πa, B₀₂ a → B₂₂ (f₁₂ a)}
+            {g₀₁ : Πa, B₀₀ a → B₀₂ (f₀₁ a)} {g₂₁ : Πa, B₂₀ a → B₂₂ (f₂₁ a)}
+
+  definition sigma_functor_hsquare (h : hsquare f₁₀ f₁₂ f₀₁ f₂₁)
+    (k : Πa (b : B₀₀ a), g₂₁ _ (g₁₀ _ b) =[h a] g₁₂ _ (g₀₁ _ b)) :
+    hsquare (sigma_functor f₁₀ g₁₀) (sigma_functor f₁₂ g₁₂)
+            (sigma_functor f₀₁ g₀₁) (sigma_functor f₂₁ g₂₁) :=
+  λx, sigma_functor_compose g₂₁ g₁₀ x ⬝
+      sigma_functor_homotopy h k x ⬝
+      (sigma_functor_compose g₁₂ g₀₁ x)⁻¹
+  end hsquare
+
+  definition sigma_functor2 [constructor] {A₁ A₂ A₃ : Type}
+    {B₁ : A₁ → Type} {B₂ : A₂ → Type} {B₃ : A₃ → Type}
+    (f : A₁ → A₂ → A₃) (g : Π⦃a₁ a₂⦄, B₁ a₁ → B₂ a₂ → B₃ (f a₁ a₂))
+      (x₁ : Σa₁, B₁ a₁) (x₂ : Σa₂, B₂ a₂) : Σa₃, B₃ a₃ :=
+  ⟨f x₁.1 x₂.1, g x₁.2 x₂.2⟩
+
   /- Equivalences -/
   definition is_equiv_sigma_functor [constructor] [H1 : is_equiv f] [H2 : Π a, is_equiv (g a)]
       : is_equiv (sigma_functor f g) :=
@@ -295,8 +368,14 @@ namespace sigma
   definition sigma_equiv_sigma_left' [constructor] (Hf : A' ≃ A) : (Σa, B (Hf a)) ≃ (Σa', B a') :=
   sigma_equiv_sigma Hf (λa, erfl)
 
-  definition ap_sigma_functor_eq_dpair (p : a = a') (q : b =[p] b') :
-    ap (sigma_functor f g) (sigma_eq p q) = sigma_eq (ap f p) (pathover.rec_on q idpo) :=
+  definition ap_sigma_functor_sigma_eq {A A' : Type} {B : A → Type} {B' : A' → Type} {a a' : A}
+    {b : B a} {b' : B a'} (f : A → A') (g : Πa, B a → B' (f a)) (p : a = a') (q : b =[p] b') :
+    ap (sigma_functor f g) (sigma_eq p q) = sigma_eq (ap f p) (pathover_ap B' f (apo g q)) :=
+  by induction q; reflexivity
+
+  definition ap_sigma_functor_id_sigma_eq {A : Type} {B B' : A → Type}
+    {a a' : A} {b : B a} {b' : B a'} (g : Πa, B a → B' a) (p : a = a') (q : b =[p] b') :
+    ap (sigma_functor id g) (sigma_eq p q) = sigma_eq p (apo g q) :=
   by induction q; reflexivity
 
   definition sigma_ua {A B : Type} (C : A ≃ B → Type) :
@@ -499,7 +578,7 @@ namespace sigma
 
   definition is_equiv_subtype_eq [constructor] [H : Πa, is_prop (B a)] (u v : {a | B a})
       : is_equiv (subtype_eq : u.1 = v.1 → u = v) :=
-  !is_equiv_compose
+  is_equiv_compose _ _ _ _
   local attribute is_equiv_subtype_eq [instance]
 
   definition equiv_subtype [constructor] [H : Πa, is_prop (B a)] (u v : {a | B a}) :
@@ -520,7 +599,7 @@ namespace sigma
   _
 
   /- truncatedness -/
-  theorem is_trunc_sigma (B : A → Type) (n : trunc_index)
+  theorem is_trunc_sigma (B : A → Type) (n : ℕ₋₂)
       [HA : is_trunc n A] [HB : Πa, is_trunc n (B a)] : is_trunc n (Σa, B a) :=
   begin
   revert A B HA HB,
@@ -530,9 +609,9 @@ namespace sigma
     exact is_trunc_equiv_closed_rev n !sigma_eq_equiv (IH _ _ _ _) }
   end
 
-  theorem is_trunc_subtype (B : A → Prop) (n : trunc_index)
+  theorem is_trunc_subtype (B : A → Prop) (n : ℕ₋₂)
       [HA : is_trunc (n.+1) A] : is_trunc (n.+1) (Σa, B a) :=
-  @(is_trunc_sigma B (n.+1)) _ (λa, !is_trunc_succ_of_is_prop)
+  @(is_trunc_sigma B (n.+1)) _ (λa, is_trunc_succ_of_is_prop _ _ _)
 
   /- if the total space is a mere proposition, you can equate two points in the base type by
      finding points in their fibers -/

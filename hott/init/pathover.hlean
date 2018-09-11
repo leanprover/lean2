@@ -13,7 +13,7 @@ open equiv is_equiv function
 
 variables {A A' : Type} {B B' : A → Type} {B'' : A' → Type} {C : Π⦃a⦄, B a → Type}
           {a a₂ a₃ a₄ : A} {p p' : a = a₂} {p₂ : a₂ = a₃} {p₃ : a₃ = a₄} {p₁₃ : a = a₃}
-          {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
+          {a' a₂' a₃' : A'} {b b' : B a} {b₂ b₂' : B a₂} {b₃ : B a₃} {b₄ : B a₄}
           {c : C b} {c₂ : C b₂}
 
 namespace eq
@@ -127,10 +127,10 @@ namespace eq
   definition cono.left_inv (r : b =[p] b₂) : r⁻¹ᵒ ⬝o r =[!con.left_inv] idpo :=
   by induction r; constructor
 
-  definition eq_of_pathover {a' a₂' : A'} (q : a' =[p] a₂') : a' = a₂' :=
+  definition eq_of_pathover (q : a' =[p] a₂') : a' = a₂' :=
   by cases q;reflexivity
 
-  definition pathover_of_eq [unfold 5 8] (p : a = a₂) {a' a₂' : A'} (q : a' = a₂') : a' =[p] a₂' :=
+  definition pathover_of_eq [unfold 5 8] (p : a = a₂) (q : a' = a₂') : a' =[p] a₂' :=
   by cases p;cases q;constructor
 
   definition pathover_constant [constructor] (p : a = a₂) (a' a₂' : A') : a' =[p] a₂' ≃ a' = a₂' :=
@@ -159,8 +159,8 @@ namespace eq
            (to_right_inv !pathover_equiv_tr_eq)
            (to_left_inv !pathover_equiv_tr_eq)
 
-  definition eq_of_pathover_idp_pathover_of_eq {A X : Type} (x : X) {a a' : A} (p : a = a') :
-    eq_of_pathover_idp (pathover_of_eq (idpath x) p) = p :=
+  definition eq_of_pathover_idp_pathover_of_eq (a' : A') (p : a = a₂) :
+    eq_of_pathover_idp (pathover_of_eq (idpath a') p) = p :=
   by induction p; reflexivity
 
   variable (B)
@@ -327,6 +327,7 @@ namespace eq
   definition apd_inv (f : Πa, B a) (p : a = a₂) : apd f p⁻¹ = (apd f p)⁻¹ᵒ :=
   by cases p; reflexivity
 
+  /- probably more useful: apd_eq_ap -/
   definition apd_eq_pathover_of_eq_ap (f : A → A') (p : a = a₂) :
     apd f p = pathover_of_eq p (ap f p) :=
   eq.rec_on p idp
@@ -465,5 +466,33 @@ namespace eq
     : apd0111 (λa b c, f (m c)) p q (pathover_tro q c) ⬝ ap (@f _ _) (fn_tro_eq_tro_fn2 q m c) =
       apd0111 f (ap k p) (pathover_ap B k (apo l q)) (pathover_tro _ (m c)) :=
   by induction q; reflexivity
+
+  /- some properties about eq_of_pathover -/
+  definition apd_eq_ap (f : A → A') (p : a = a₂) : eq_of_pathover (apd f p) = ap f p :=
+  begin induction p, reflexivity end
+
+  definition eq_of_pathover_idp_constant (p : a' =[idpath a] a₂') :
+    eq_of_pathover_idp p = eq_of_pathover p :=
+  begin induction p using idp_rec_on, reflexivity end
+
+  definition eq_of_pathover_change_path (r : p = p') (q : a' =[p] a₂') :
+    eq_of_pathover (change_path r q) = eq_of_pathover q :=
+  begin induction r, reflexivity end
+
+  definition eq_of_pathover_cono (q : a' =[p] a₂') (q₂ : a₂' =[p₂] a₃') :
+    eq_of_pathover (q ⬝o q₂) = eq_of_pathover q ⬝ eq_of_pathover q₂ :=
+  begin induction q₂, reflexivity end
+
+  definition eq_of_pathover_invo (q : a' =[p] a₂') :
+    eq_of_pathover q⁻¹ᵒ = (eq_of_pathover q)⁻¹ :=
+  begin induction q, reflexivity end
+
+  definition eq_of_pathover_concato_eq (q : a' =[p] a₂') (q₂ : a₂' = a₃') :
+    eq_of_pathover (q ⬝op q₂) = eq_of_pathover q ⬝ q₂ :=
+  begin induction q₂, reflexivity end
+
+  definition eq_of_pathover_eq_concato (q : a' = a₂') (q₂ : a₂' =[p₂] a₃') :
+    eq_of_pathover (q ⬝po q₂) = q ⬝ eq_of_pathover q₂ :=
+  begin induction q, induction q₂, reflexivity end
 
 end eq

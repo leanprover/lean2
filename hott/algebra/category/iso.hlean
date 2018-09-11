@@ -201,10 +201,7 @@ namespace iso
 
   -- The type of isomorphisms between two objects is a set
   definition is_set_iso [instance] : is_set (a ≅ b) :=
-  begin
-    apply is_trunc_is_equiv_closed,
-      apply equiv.to_is_equiv (!iso.sigma_char),
-  end
+  is_trunc_equiv_closed _ !iso.sigma_char _
 
   definition iso_of_eq [unfold 5] (p : a = b) : a ≅ b :=
   eq.rec_on p (iso.refl a)

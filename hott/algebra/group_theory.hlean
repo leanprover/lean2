@@ -6,9 +6,10 @@ Authors: Floris van Doorn
 Basic group theory
 -/
 
-import algebra.category.category algebra.bundled .homomorphism types.pointed2
+import algebra.category.category algebra.inf_group_theory .homomorphism types.pointed2
+       algebra.trunc_group
 
-open eq algebra pointed function is_trunc pi equiv is_equiv
+open eq algebra pointed function is_trunc pi equiv is_equiv sigma sigma.ops trunc
 set_option class.force_new true
 
 namespace group
@@ -155,6 +156,10 @@ namespace group
   infixr ` ∘g `:75 := homomorphism_compose
   notation 1       := homomorphism_id _
 
+  definition homomorphism_compose_eq (ψ : G₂ →g G₃) (φ : G₁ →g G₂) (g : G₁) :
+    (ψ ∘g φ) g = ψ (φ g) :=
+  by reflexivity
+
   structure isomorphism (A B : Group) :=
     (to_hom : A →g B)
     (is_equiv_to_hom : is_equiv to_hom)
@@ -175,9 +180,9 @@ namespace group
     (p : Πg₁ g₂, φ (g₁ * g₂) = φ g₁ * φ g₂) : G₁ ≃g G₂ :=
   isomorphism.mk (homomorphism.mk φ p) !to_is_equiv
 
-  definition isomorphism_of_eq [constructor] {G₁ G₂ : Group} (φ : G₁ = G₂) : G₁ ≃g G₂ :=
-  isomorphism_of_equiv (equiv_of_eq (ap Group.carrier φ))
-    begin intros, induction φ, reflexivity end
+  definition isomorphism.MK [constructor] (φ : G₁ →g G₂) (ψ : G₂ →g G₁)
+    (p : φ ∘g ψ ~ gid G₂) (q : ψ ∘g φ ~ gid G₁) : G₁ ≃g G₂ :=
+  isomorphism.mk φ (adjointify φ ψ p q)
 
   definition to_ginv [constructor] (φ : G₁ ≃g G₂) : G₂ →g G₁ :=
   homomorphism.mk φ⁻¹
@@ -185,6 +190,13 @@ namespace group
     intro g₁ g₂, apply inj' φ,
     rewrite [respect_mul φ, +right_inv φ]
     end end
+
+  definition isomorphism_of_eq [constructor] {G₁ G₂ : Group} (φ : G₁ = G₂) : G₁ ≃g G₂ :=
+  isomorphism_of_equiv (equiv_of_eq (ap Group.carrier φ))
+    begin intros, induction φ, reflexivity end
+
+  definition isomorphism_ap {A : Type} (F : A → Group) {a b : A} (p : a = b) : F a ≃g F b :=
+  isomorphism_of_eq (ap F p)
 
   variable (G)
   definition isomorphism.refl [refl] [constructor] : G ≃g G :=
@@ -195,7 +207,7 @@ namespace group
   isomorphism.mk (to_ginv φ) !is_equiv_inv
 
   definition isomorphism.trans [trans] [constructor] (φ : G₁ ≃g G₂) (ψ : G₂ ≃g G₃) : G₁ ≃g G₃ :=
-  isomorphism.mk (ψ ∘g φ) !is_equiv_compose
+  isomorphism.mk (ψ ∘g φ) (is_equiv_compose ψ φ _ _)
 
   definition isomorphism.eq_trans [trans] [constructor]
      {G₁ G₂ : Group} {G₃ : Group} (φ : G₁ = G₂) (ψ : G₂ ≃g G₃) : G₁ ≃g G₃ :=
@@ -271,6 +283,45 @@ namespace group
     apply phomotopy_of_homotopy, reflexivity
   end
 
+  protected definition homomorphism.sigma_char [constructor]
+    (A B : Group) : (A →g B) ≃ Σ(f : A → B), is_mul_hom f :=
+  begin
+    fapply equiv.MK,
+      {intro F, exact ⟨F, _⟩ },
+      {intro p, cases p with f H, exact (homomorphism.mk f H) },
+      {intro p, cases p, reflexivity },
+      {intro F, cases F, reflexivity },
+  end
+
+  definition homomorphism_pathover {A : Type} {a a' : A} (p : a = a')
+    {B : A → Group} {C : A → Group} (f : B a →g C a) (g : B a' →g C a')
+    (r : homomorphism.φ f =[p] homomorphism.φ g) : f =[p] g :=
+  begin
+    fapply pathover_of_fn_pathover_fn,
+    { intro a, apply homomorphism.sigma_char },
+    { fapply sigma_pathover, exact r, apply is_prop.elimo }
+  end
+
+  protected definition isomorphism.sigma_char [constructor]
+    (A B : Group) : (A ≃g B) ≃ Σ(f : A →g B), is_equiv f :=
+  begin
+    fapply equiv.MK,
+      {intro F, exact ⟨F, _⟩ },
+      {intro p, exact (isomorphism.mk p.1 p.2) },
+      {intro p, cases p, reflexivity },
+      {intro F, cases F, reflexivity },
+  end
+
+  definition isomorphism_pathover {A : Type} {a a' : A} (p : a = a')
+    {B : A → Group} {C : A → Group} (f : B a ≃g C a) (g : B a' ≃g C a')
+    (r : pathover (λa, B a → C a) f p g) : f =[p] g :=
+  begin
+    fapply pathover_of_fn_pathover_fn,
+    { intro a, apply isomorphism.sigma_char },
+    { fapply sigma_pathover, apply homomorphism_pathover, exact r, apply is_prop.elimo }
+  end
+
+
   definition isomorphism_eq {G H : Group} {φ ψ : G ≃g H} (p : φ ~ ψ) : φ = ψ :=
   begin
     induction φ with φ φe, induction ψ with ψ ψe,
@@ -328,6 +379,30 @@ namespace group
 
   definition aghomomorphism [constructor] (G H : AbGroup) : AbGroup :=
   AbGroup.mk (G →g H) (ab_group_homomorphism G H)
+
+  infixr ` →gg `:56 := aghomomorphism
+
+  /- some properties of binary homomorphisms -/
+  definition pmap_of_homomorphism2 [constructor] {G H K : AbGroup} (φ : G →g H →gg K) :
+    G →* H →** K :=
+  pmap.mk (λg, pmap_of_homomorphism (φ g))
+    (eq_of_phomotopy (phomotopy_of_homotopy (ap010 group_fun (to_respect_one φ))))
+
+  definition homomorphism_apply [constructor] (G H : AbGroup) (g : G) :
+    (G →gg H) →g H :=
+  begin
+    fapply homomorphism.mk,
+    { intro φ, exact φ g },
+    { intros φ φ', reflexivity }
+  end
+
+  definition homomorphism_swap [constructor] {G H K : AbGroup} (φ : G →g H →gg K) :
+    H →g G →gg K :=
+  begin
+    fapply homomorphism.mk,
+    { intro h, exact homomorphism_apply H K h ∘g φ },
+    { intro h h', apply homomorphism_eq, intro g, exact to_respect_mul (φ g) h h' }
+  end
 
   /- given an equivalence A ≃ B we can transport a group structure on A to a group structure on B -/
 
@@ -409,22 +484,25 @@ namespace group
     fapply AbGroup_of_Group trivial_group, intro x y, reflexivity
   end
 
-  definition trivial_group_of_is_contr [H : is_contr G] : G ≃g G0 :=
+  definition trivial_group_of_is_contr (H : is_contr G) : G ≃g G0 :=
   begin
     fapply isomorphism_of_equiv,
-    { apply equiv_unit_of_is_contr},
-    { intros, reflexivity}
+    { exact equiv_unit_of_is_contr _ _ },
+    { intros, reflexivity }
   end
 
-  definition ab_group_of_is_contr (A : Type) [is_contr A] : ab_group A :=
-  have ab_group unit, from ab_group_unit,
-  ab_group_equiv_closed (equiv_unit_of_is_contr A)⁻¹ᵉ
+  definition isomorphism_of_is_contr {G H : Group} (hG : is_contr G) (hH : is_contr H) : G ≃g H :=
+  trivial_group_of_is_contr G _ ⬝g (trivial_group_of_is_contr H _)⁻¹ᵍ
 
-  definition group_of_is_contr (A : Type) [is_contr A] : group A :=
-  have ab_group A, from ab_group_of_is_contr A, by apply _
+  definition ab_group_of_is_contr (A : Type) (H : is_contr A) : ab_group A :=
+  have ab_group unit, from ab_group_unit,
+  ab_group_equiv_closed (equiv_unit_of_is_contr A _)⁻¹ᵉ
+
+  definition group_of_is_contr (A : Type) (H : is_contr A) : group A :=
+  have ab_group A, from ab_group_of_is_contr A H, by apply _
 
   definition ab_group_lift_unit : ab_group (lift unit) :=
-  ab_group_of_is_contr (lift unit)
+  ab_group_of_is_contr (lift unit) _
 
   definition trivial_ab_group_lift : AbGroup :=
   AbGroup.mk _ ab_group_lift_unit
@@ -472,44 +550,14 @@ namespace group
             mul_left_inv_pt := mul.left_inv⦄
   end
 
+  definition pgroup_of_Group (X : Group) : pgroup X :=
+  pgroup_of_group _ idp
+
   definition Group_of_pgroup (G : Type*) [pgroup G] : Group :=
   Group.mk G _
 
   definition pgroup_Group [instance] (G : Group) : pgroup G :=
   ⦃ pgroup, Group.struct G,
-    pt_mul := one_mul,
-    mul_pt := mul_one,
-    mul_left_inv_pt := mul.left_inv ⦄
-
-  -- infinity pgroups
-
-  structure inf_pgroup [class] (X : Type*) extends inf_semigroup X, has_inv X :=
-    (pt_mul : Πa, mul pt a = a)
-    (mul_pt : Πa, mul a pt = a)
-    (mul_left_inv_pt : Πa, mul (inv a) a = pt)
-
-  definition inf_group_of_inf_pgroup [reducible] [instance] (X : Type*) [H : inf_pgroup X]
-    : inf_group X :=
-  ⦃inf_group, H,
-          one := pt,
-          one_mul := inf_pgroup.pt_mul ,
-          mul_one := inf_pgroup.mul_pt,
-          mul_left_inv := inf_pgroup.mul_left_inv_pt⦄
-
-  definition inf_pgroup_of_inf_group (X : Type*) [H : inf_group X] (p : one = pt :> X) : inf_pgroup X :=
-  begin
-    cases X with X x, esimp at *, induction p,
-    exact ⦃inf_pgroup, H,
-            pt_mul := one_mul,
-            mul_pt := mul_one,
-            mul_left_inv_pt := mul.left_inv⦄
-  end
-
-  definition inf_Group_of_inf_pgroup (G : Type*) [inf_pgroup G] : InfGroup :=
-  InfGroup.mk G _
-
-  definition inf_pgroup_InfGroup [instance] (G : InfGroup) : inf_pgroup G :=
-  ⦃ inf_pgroup, InfGroup.struct G,
     pt_mul := one_mul,
     mul_pt := mul_one,
     mul_left_inv_pt := mul.left_inv ⦄
@@ -610,7 +658,7 @@ namespace group
   end
 
   definition trivial_group_of_is_contr' (G : Group) [H : is_contr G] : G = G0 :=
-  eq_of_isomorphism (trivial_group_of_is_contr G)
+  eq_of_isomorphism (trivial_group_of_is_contr G _)
 
   definition pequiv_of_isomorphism_of_eq {G₁ G₂ : Group} (p : G₁ = G₂) :
     pequiv_of_isomorphism (isomorphism_of_eq p) = pequiv_of_eq (ap pType_of_Group p) :=
@@ -621,5 +669,39 @@ namespace group
     { intro g, reflexivity },
     { apply is_prop.elim }
   end
+
+  /- relation with infgroups -/
+  -- todo: define homomorphism in terms of inf_homomorphism and similar for isomorphism?
+  open infgroup
+
+  definition homomorphism_of_inf_homomorphism [constructor] {G H : Group} (φ : G →∞g H) : G →g H :=
+  homomorphism.mk φ (inf_homomorphism.struct φ)
+
+  definition inf_homomorphism_of_homomorphism [constructor] {G H : Group} (φ : G →g H) : G →∞g H :=
+  inf_homomorphism.mk φ (homomorphism.struct φ)
+
+  definition isomorphism_of_inf_isomorphism [constructor] {G H : Group} (φ : G ≃∞g H) : G ≃g H :=
+  isomorphism.mk (homomorphism_of_inf_homomorphism φ) (inf_isomorphism.is_equiv_to_hom φ)
+
+  definition inf_isomorphism_of_isomorphism [constructor] {G H : Group} (φ : G ≃g H) : G ≃∞g H :=
+  inf_isomorphism.mk (inf_homomorphism_of_homomorphism φ) (isomorphism.is_equiv_to_hom φ)
+
+  definition gtrunc_functor {A B : InfGroup} (f : A →∞g B) : gtrunc A →g gtrunc B :=
+  begin
+    apply homomorphism.mk (trunc_functor 0 f),
+    intros x x', induction x with a, induction x' with a', apply ap tr, exact respect_mul f a a'
+  end
+
+  definition gtrunc_isomorphism_gtrunc {A B : InfGroup} (f : A ≃∞g B) : gtrunc A ≃g gtrunc B :=
+  isomorphism_of_equiv (trunc_equiv_trunc 0 (equiv_of_inf_isomorphism f))
+                       (to_respect_mul (gtrunc_functor f))
+
+  definition gtr [constructor] (X : InfGroup) : X →∞g gtrunc X :=
+  inf_homomorphism.mk tr homotopy2.rfl
+
+  definition gtrunc_isomorphism [constructor] (X : InfGroup) [H : is_set X] : gtrunc X ≃∞g X :=
+  (inf_isomorphism_of_equiv (trunc_equiv 0 X)⁻¹ᵉ homotopy2.rfl)⁻¹ᵍ⁸
+
+  definition is_set_group_inf [instance] (G : Group) : group G := Group.struct G
 
 end group

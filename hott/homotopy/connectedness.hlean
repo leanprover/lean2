@@ -218,7 +218,7 @@ namespace is_conn
     : is_surjective f → is_conn_fun -1 f :=
   begin
     intro H, intro b,
-    exact @is_contr_of_inhabited_prop (∥fiber f b∥) (is_trunc_trunc -1 (fiber f b)) (H b),
+    exact is_contr_of_inhabited_prop (H b) _,
   end
 
   definition is_surjection_of_minus_one_conn {A B : Type} (f : A → B)
@@ -232,7 +232,7 @@ namespace is_conn
   λH, @center (∥A∥) H
 
   definition minus_one_conn_of_merely {A : Type} : ∥A∥ → is_conn -1 A :=
-  @is_contr_of_inhabited_prop (∥A∥) (is_trunc_trunc -1 A)
+  λx, is_contr_of_inhabited_prop x _
 
   section
     open arrow
@@ -289,6 +289,9 @@ namespace is_conn
     is_conn_fun k f :=
   _
 
+  definition is_conn_fun_id (k : ℕ₋₂) (A : Type) : is_conn_fun k (@id A) :=
+  λa, _
+
   -- Lemma 7.5.14
   theorem is_equiv_trunc_functor_of_is_conn_fun [instance] {A B : Type} (n : ℕ₋₂) (f : A → B)
     [H : is_conn_fun n f] : is_equiv (trunc_functor n f) :=
@@ -308,7 +311,7 @@ namespace is_conn
     [H2 : is_conn_fun k f] : is_conn_fun k (trunc_functor n f) :=
   begin
     apply is_conn_fun.intro,
-    intro P, have Πb, is_trunc n (P b), from (λb, is_trunc_of_le _ H),
+    intro P, have Πb, is_trunc n (P b), from (λb, is_trunc_of_le _ H _),
     fconstructor,
     { intro f' b,
       induction b with b,
@@ -366,11 +369,11 @@ namespace is_conn
   definition is_conn_succ_intro {n : ℕ₋₂} {A : Type} (a : trunc (n.+1) A)
     (H2 : Π(a a' : A), is_conn n (a = a')) : is_conn (n.+1) A :=
   begin
-    apply @is_contr_of_inhabited_prop,
+    refine is_contr_of_inhabited_prop _ _,
+    { exact a },
     { apply is_trunc_succ_intro,
       refine trunc.rec _, intro a, refine trunc.rec _, intro a',
-      exact is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ _ },
-    exact a
+      exact is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ _ }
   end
 
   definition is_conn_pathover (n : ℕ₋₂) {A : Type} {B : A → Type} {a a' : A} (p : a = a') (b : B a)
@@ -414,7 +417,7 @@ namespace is_conn
     (H : k ≤ n) [H2 : is_conn_fun k f] : is_conn_fun k (trunc.elim f : trunc n A → B) :=
   begin
     apply is_conn_fun.intro,
-    intro P, have Πb, is_trunc n (P b), from (λb, is_trunc_of_le _ H),
+    intro P, have Πb, is_trunc n (P b), from (λb, is_trunc_of_le _ H _),
     fconstructor,
     { intro f' b,
       refine is_conn_fun.elim k H2 _ _ b, intro a, exact f' (tr a) },

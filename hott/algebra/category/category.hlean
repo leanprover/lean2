@@ -78,9 +78,7 @@ namespace category
   definition is_trunc_1_ob : is_trunc 1 ob :=
   begin
     apply is_trunc_succ_intro, intro a b,
-    fapply is_trunc_is_equiv_closed,
-          exact (@eq_of_iso _ _ a b),
-        apply is_equiv_inv,
+    exact is_trunc_equiv_closed_rev _ (eq_equiv_iso a b) _
   end
   end basic
 

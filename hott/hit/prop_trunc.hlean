@@ -144,7 +144,7 @@ namespace one_step_tr
 
   theorem trunc_0_one_step_tr_equiv (A : Type) : trunc 0 (one_step_tr A) ≃ ∥ A ∥ :=
   begin
-    apply equiv_of_is_prop,
+    refine equiv_of_is_prop _ _ _ _,
     { intro x, refine trunc.rec _ x, clear x, intro x, induction x,
       { exact trunc.tr a},
       { apply is_prop.elim}},

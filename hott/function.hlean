@@ -20,6 +20,8 @@ definition image [constructor] (f : A → B) (b : B) : Prop := Prop.mk (image' f
 
 definition total_image {A B : Type} (f : A → B) : Type := sigma (image f)
 
+/- properties of functions -/
+
 definition is_embedding [class] (f : A → B) := Π(a a' : A), is_equiv (ap f : a = a' → f a = f a')
 
 definition is_surjective [class] (f : A → B) := Π(b : B), image f b
@@ -308,9 +310,9 @@ namespace function
   definition is_embedding_compose (g : B → C) (f : A → B)
     (H₁ : is_embedding g) (H₂ : is_embedding f) : is_embedding (g ∘ f) :=
   begin
-    intros, apply @(is_equiv.homotopy_closed (ap g ∘ ap f)),
-    { apply is_equiv_compose},
-    symmetry, exact ap_compose g f
+    intros, apply is_equiv.homotopy_closed (ap g ∘ ap f),
+    { symmetry, exact ap_compose g f },
+    { exact is_equiv_compose _ _ _ _ }
   end
 
   definition is_surjective_compose (g : B → C) (f : A → B)
@@ -361,7 +363,7 @@ namespace function
     {a a' : A} {b b' : B} (q : f a = b) (q' : f a' = b') : is_equiv (ap1_gen f q q') :=
   begin
     induction q, induction q',
-    exact is_equiv.homotopy_closed _ (ap1_gen_idp_left f)⁻¹ʰᵗʸ,
+    exact is_equiv.homotopy_closed _ (ap1_gen_idp_left f)⁻¹ʰᵗʸ _,
   end
 
   definition is_equiv_ap1_of_is_embedding {A B : Type*} (f : A →* B) [is_embedding f] :

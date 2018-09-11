@@ -232,3 +232,9 @@ attribute Ring.carrier [coercion]
 attribute Ring.struct [instance]
 
 end algebra
+open algebra
+
+namespace infgroup
+attribute [coercion] InfGroup_of_Group
+attribute [coercion] AbInfGroup_of_AbGroup
+end infgroup

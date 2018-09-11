@@ -6,7 +6,7 @@ Author: Floris van Doorn
 Theorems about the natural numbers specific to HoTT
 -/
 
-import .order types.pointed .sub
+import .sub
 
 open is_trunc unit empty eq equiv algebra pointed is_equiv equiv function
 
@@ -30,9 +30,9 @@ namespace nat
   definition is_prop_lt [instance] (n m : ℕ) : is_prop (n < m) := !is_prop_le
 
   definition le_equiv_succ_le_succ (n m : ℕ) : (n ≤ m) ≃ (succ n ≤ succ m) :=
-  equiv_of_is_prop succ_le_succ le_of_succ_le_succ
+  equiv_of_is_prop succ_le_succ le_of_succ_le_succ _ _
   definition le_succ_equiv_pred_le (n m : ℕ) : (n ≤ succ m) ≃ (pred n ≤ m) :=
-  equiv_of_is_prop pred_le_pred le_succ_of_pred_le
+  equiv_of_is_prop pred_le_pred le_succ_of_pred_le _ _
 
   theorem lt_by_cases_lt {a b : ℕ} {P : Type} (H1 : a < b → P) (H2 : a = b → P)
     (H3 : a > b → P) (H : a < b) : lt.by_cases H1 H2 H3 = H1 H :=
@@ -267,7 +267,7 @@ namespace nat
 
   definition iterate_equiv {A : Type} (f : A ≃ A) (n : ℕ) : A ≃ A :=
   equiv.mk (iterate f n)
-           (by induction n with n IH; apply is_equiv_id; exact is_equiv_compose f (iterate f n))
+           (by induction n with n IH; apply is_equiv_id; exact is_equiv_compose f (iterate f n) _ _)
 
   definition iterate_equiv2 {A : Type} {C : A → Type} (f : A → A) (h : Πa, C a ≃ C (f a))
     (k : ℕ) (a : A) : C a ≃ C (f^[k] a) :=

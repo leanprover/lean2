@@ -36,11 +36,11 @@ namespace trunc
 
   local attribute is_trunc_eq [instance]
 
-  variables {A n}
+  variables {n A}
   definition untrunc_of_is_trunc [reducible] [unfold 4] [H : is_trunc n A] : trunc n A → A :=
   trunc.rec id
 
-  variables (A n)
+  variables (n A)
   definition is_equiv_tr [instance] [constructor] [H : is_trunc n A] : is_equiv (@tr n A) :=
   adjointify _
              (untrunc_of_is_trunc)
@@ -51,7 +51,7 @@ namespace trunc
   (equiv.mk tr _)⁻¹ᵉ
 
   definition is_trunc_of_is_equiv_tr [H : is_equiv (@tr n A)] : is_trunc n A :=
-  is_trunc_is_equiv_closed n (@tr n _)⁻¹
+  is_trunc_is_equiv_closed n (@tr n _)⁻¹ᶠ _ _
 
   /- Functoriality -/
   definition trunc_functor [unfold 5] (f : X → Y) : trunc n X → trunc n Y :=
@@ -131,7 +131,7 @@ namespace trunc
   trunc.elim (sigma.rec H') H
 
   definition is_contr_of_merely_prop [H : is_prop A] (aa : merely A) : is_contr A :=
-  is_contr_of_inhabited_prop (trunc.rec_on aa id)
+  is_contr_of_inhabited_prop (trunc.rec_on aa id) _
 
   section
   open sigma.ops

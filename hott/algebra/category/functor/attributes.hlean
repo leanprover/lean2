@@ -143,7 +143,7 @@ namespace category
 
   definition fully_faithful_equiv (F : C ⇒ D) : fully_faithful F ≃ (faithful F × full F) :=
   equiv_of_is_prop (λH, (faithful_of_fully_faithful F, full_of_fully_faithful F))
-                    (λH, fully_faithful_of_full_of_faithful (pr1 H) (pr2 H))
+                    (λH, fully_faithful_of_full_of_faithful (pr1 H) (pr2 H)) _ _
 
 /- alternative proof using direct calculation with equivalences
 
@@ -165,7 +165,7 @@ namespace category
 
   definition fully_faithful_compose (G : D ⇒ E) (F : C ⇒ D) [fully_faithful G] [fully_faithful F] :
     fully_faithful (G ∘f F) :=
-  λc c', is_equiv_compose (to_fun_hom G) (to_fun_hom F)
+  λc c', is_equiv_compose (to_fun_hom G) (to_fun_hom F) _ _
 
   definition full_compose (G : D ⇒ E) (F : C ⇒ D) [full G] [full F] : full (G ∘f F) :=
   λc c', is_surjective_compose (to_fun_hom G) (to_fun_hom F) _ _

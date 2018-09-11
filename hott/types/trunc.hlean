@@ -285,7 +285,7 @@ namespace is_trunc
     induction n with n,
       {exfalso, exact not_succ_le_minus_two Hn},
       {apply is_trunc_succ_intro, intro a a',
-         fapply @is_trunc_is_equiv_closed_rev _ _ n (ap f)}
+         exact is_trunc_is_equiv_closed_rev n (ap f) _ _ }
   end
 
   theorem is_trunc_is_retraction_closed (f : A → B) [Hf : is_retraction f]
@@ -336,9 +336,9 @@ namespace is_trunc
     apply is_trunc_equiv_closed_rev _ !trunctype_eq_equiv,
     apply is_trunc_equiv_closed_rev _ !eq_equiv_equiv,
     induction n,
-    { apply @is_contr_of_inhabited_prop,
-      { apply is_trunc_equiv },
-      { apply equiv_of_is_contr_of_is_contr}},
+    { apply is_contr_of_inhabited_prop,
+      { exact equiv_of_is_contr_of_is_contr _ _ },
+      { apply is_trunc_equiv }},
     { apply is_trunc_equiv }
   end
 
@@ -411,7 +411,7 @@ namespace is_trunc
     (mere : Π(a b : A), is_prop (R a b)) (refl : Π(a : A), R a a)
     (imp : Π{a b : A}, R a b → a = b) (a b : A) : R a b ≃ a = b :=
   have is_set A, from is_set_of_relation R mere refl @imp,
-  equiv_of_is_prop imp (λp, p ▸ refl a)
+  equiv_of_is_prop imp (λp, p ▸ refl a) _ _
 
   local attribute not [reducible]
   theorem is_set_of_double_neg_elim {A : Type} (H : Π(a b : A), ¬¬a = b → a = b)
@@ -468,7 +468,7 @@ namespace is_trunc
   begin
     induction n with n,
     { esimp [sub_two,loopn], apply iff.intro,
-        intro H a, exact is_contr_of_inhabited_prop a,
+        intro H a, exact is_contr_of_inhabited_prop a _,
         intro H, apply is_prop_of_imp_is_contr, exact H},
     { apply is_trunc_iff_is_contr_loop_succ},
   end
@@ -512,7 +512,7 @@ namespace is_trunc
   transport (λk, is_trunc k A) p H
 
   definition pequiv_punit_of_is_contr [constructor] (A : Type*) (H : is_contr A) : A ≃* punit :=
-  pequiv_of_equiv (equiv_unit_of_is_contr A) (@is_prop.elim unit _ _ _)
+  pequiv_of_equiv (equiv_unit_of_is_contr A _) (@is_prop.elim unit _ _ _)
 
   definition pequiv_punit_of_is_contr' [constructor] (A : Type) (H : is_contr A)
     : pointed.MK A (center A) ≃* punit :=
@@ -522,9 +522,9 @@ namespace is_trunc
     (b : B) [is_trunc n A] [is_trunc n B] : is_trunc n (is_contr (fiber f b)) :=
   begin
     cases n,
-    { apply is_contr_of_inhabited_prop, apply is_contr_fun_of_is_equiv,
-      apply is_equiv_of_is_contr },
-    { apply is_trunc_succ_of_is_prop }
+    { refine is_contr_of_inhabited_prop _ _, apply is_contr_fun_of_is_equiv,
+      exact is_equiv_of_is_contr _ _ _ },
+    { exact is_trunc_succ_of_is_prop _ _ _ }
   end
 
 end is_trunc open is_trunc
@@ -650,12 +650,12 @@ namespace trunc
   begin
     revert A m H, eapply (trunc_index.rec_on n),
     { clear n, intro A m H, refine is_contr_equiv_closed_rev _ H,
-      { apply trunc_equiv, apply (@is_trunc_of_le _ -2), apply minus_two_le} },
+      { apply trunc_equiv, exact is_trunc_of_is_contr _ _ _ } },
     { clear n, intro n IH A m H, induction m with m,
-      { apply (@is_trunc_of_le _ -2), apply minus_two_le},
+      { exact is_trunc_of_is_contr _ _ _ },
       { apply is_trunc_succ_intro, intro aa aa',
-        apply (@trunc.rec_on _ _ _ aa  (λy, !is_trunc_succ_of_is_prop)),
-        eapply (@trunc.rec_on _ _ _ aa' (λy, !is_trunc_succ_of_is_prop)),
+        apply (@trunc.rec_on _ _ _ aa  (λy, is_trunc_succ_of_is_prop _ _ _)),
+        eapply (@trunc.rec_on _ _ _ aa' (λy, is_trunc_succ_of_is_prop _ _ _)),
         intro a a', apply is_trunc_equiv_closed_rev _ !tr_eq_tr_equiv (IH _ _ _) }}
   end
 
@@ -663,7 +663,7 @@ namespace trunc
   definition trunc_trunc_equiv_left [constructor] (A : Type) {n m : ℕ₋₂} (H : n ≤ m)
     : trunc n (trunc m A) ≃ trunc n A :=
   begin
-    note H2 := is_trunc_of_le (trunc n A) H,
+    note H2 := is_trunc_of_le (trunc n A) H _,
     fapply equiv.MK,
     { intro x, induction x with x, induction x with x, exact tr x },
     { exact trunc_functor n tr },
@@ -675,7 +675,7 @@ namespace trunc
     : trunc m (trunc n A) ≃ trunc n A :=
   begin
     apply trunc_equiv,
-    exact is_trunc_of_le _ H,
+    exact is_trunc_of_le _ H _,
   end
 
   definition trunc_equiv_trunc_of_le {n m : ℕ₋₂} {A B : Type} (H : n ≤ m)
@@ -734,7 +734,7 @@ namespace trunc
   begin
     cases n with n: intro b,
     { exact tr (fiber.mk !center !is_prop.elim)},
-    { refine @trunc.rec _ _ _ _ _ b, {intro x, exact is_trunc_of_le _ !minus_one_le_succ},
+    { refine @trunc.rec _ _ _ _ _ b, {intro x, exact is_trunc_of_le _ !minus_one_le_succ _ },
       clear b, intro b, induction H b with a p,
       exact tr (fiber.mk (tr a) (ap tr p))}
   end
@@ -748,7 +748,7 @@ namespace trunc
   is_trunc_trunc_of_is_trunc A n m
 
   definition is_contr_ptrunc_minus_one (A : Type*) : is_contr (ptrunc -1 A) :=
-  is_contr_of_inhabited_prop pt
+  is_contr_of_inhabited_prop pt _
 
   /- pointed maps involving ptrunc -/
   definition ptrunc_functor [constructor] {X Y : Type*} (n : ℕ₋₂) (f : X →* Y)
@@ -767,7 +767,7 @@ namespace trunc
 
   definition ptrunc_functor_le {k l : ℕ₋₂} (p : l ≤ k) (X : Type*)
     : ptrunc k X →* ptrunc l X :=
-  have is_trunc k (ptrunc l X), from is_trunc_of_le _ p,
+  have is_trunc k (ptrunc l X), from is_trunc_of_le _ p _,
   ptrunc.elim _ (ptr l X)
 
   /- pointed equivalences involving ptrunc -/
@@ -879,6 +879,14 @@ namespace trunc
     { esimp, refine !ap_con⁻¹ ⬝ _, exact ap02 tr !to_homotopy_pt},
   end
 
+  definition ptrunc_functor_pconst [constructor] (n : ℕ₋₂) (X Y : Type*) :
+    ptrunc_functor n (pconst X Y) ~* pconst (ptrunc n X) (ptrunc n Y) :=
+  begin
+    fapply phomotopy.mk,
+    { intro x, induction x with x, reflexivity },
+    { reflexivity }
+  end
+
   definition pcast_ptrunc [constructor] (n : ℕ₋₂) {A B : Type*} (p : A = B) :
     pcast (ap (ptrunc n) p) ~* ptrunc_functor n (pcast p) :=
   begin
@@ -886,6 +894,7 @@ namespace trunc
     { intro a, induction p, esimp, exact !trunc_functor_id⁻¹},
     { induction p, reflexivity}
   end
+
 
   definition ptrunc_elim_ptr [constructor] (n : ℕ₋₂) {X Y : Type*} [is_trunc n Y] (f : X →* Y) :
     ptrunc.elim n f ∘* ptr n X ~* f :=
@@ -991,8 +1000,8 @@ namespace trunc
   -- The following pointed equivalence can be defined more easily, but now we get the right maps definitionally
   definition ptrunc_pequiv_ptrunc_of_is_trunc {n m k : ℕ₋₂} {A : Type*}
     (H1 : n ≤ m) (H2 : n ≤ k) (H : is_trunc n A) : ptrunc m A ≃* ptrunc k A :=
-  have is_trunc m A, from is_trunc_of_le A H1,
-  have is_trunc k A, from is_trunc_of_le A H2,
+  have is_trunc m A, from is_trunc_of_le A H1 _,
+  have is_trunc k A, from is_trunc_of_le A H2 _,
   pequiv.MK (ptrunc.elim _ (ptr k A)) (ptrunc.elim _ (ptr m A))
     abstract begin
       refine !ptrunc_elim_pcompose⁻¹* ⬝* _,
@@ -1046,7 +1055,7 @@ namespace trunc
   equiv.mk _ (is_embedding_ptrunctype_to_pType n X Y) ⬝e pType_eq_equiv X Y
 
   definition Prop_eq {P Q : Prop} (H : P ↔ Q) : P = Q :=
-  tua (equiv_of_is_prop (iff.mp H) (iff.mpr H))
+  tua (equiv_of_is_prop (iff.mp H) (iff.mpr H) _ _)
 
 end trunc open trunc
 
@@ -1085,7 +1094,8 @@ namespace function
   definition is_equiv_equiv_is_embedding_times_is_surjective [constructor] (f : A → B)
     : is_equiv f ≃ (is_embedding f × is_surjective f) :=
   equiv_of_is_prop (λH, (_, _))
-                    (λP, prod.rec_on P (λH₁ H₂, !is_equiv_of_is_surjective_of_is_embedding))
+                   (λP, prod.rec_on P (λH₁ H₂, !is_equiv_of_is_surjective_of_is_embedding))
+                   _ _
 
   /-
     Theorem 8.8.1:
@@ -1119,7 +1129,7 @@ namespace function
     note r := @(inj' (trunc_functor 0 f)) _ (tr a) (tr a') q,
     induction (tr_eq_tr_equiv _ _ _ r) with s,
     induction s,
-    apply is_equiv.homotopy_closed (ap1 (pmap_of_map f a)),
+    refine is_equiv.homotopy_closed (ap1 (pmap_of_map f a)) _ (H a),
     intro p, apply idp_con
   end,
   is_equiv_of_is_surjective_trunc_of_is_embedding f
@@ -1202,9 +1212,6 @@ namespace int
     { exact le_of_of_nat_le_of_nat H },
     { exact nat.zero_le m }
   end
-
-  definition not_neg_succ_le_of_nat {n m : ℕ} : ¬m ≤ -[1+n] :=
-  by cases m: exact id
 
   definition maxm2_monotone {n m : ℤ} (H : n ≤ m) : maxm2 n ≤ maxm2 m :=
   begin

@@ -68,14 +68,14 @@ namespace category
     definition is_univalent_Set (A B : set) : is_equiv (iso_of_eq : A = B → A ≅ B) :=
     have H₁ : is_equiv (@iso_of_equiv A B ∘ @equiv_of_eq A B ∘ subtype_eq_inv _ _ ∘
               @ap _ _ (to_fun (trunctype.sigma_char 0)) A B), from
-      @is_equiv_compose _ _ _ _ _
-      (@is_equiv_compose _ _ _ _ _
-         (@is_equiv_compose _ _ _ _ _
+      is_equiv_compose _ _
+      (is_equiv_compose _ _
+         (is_equiv_compose _ _
            _
            (@is_equiv_subtype_eq_inv _ _ _ _ _))
          !univalence)
        !is_equiv_iso_of_equiv,
-    is_equiv.homotopy_closed _ (iso_of_eq_eq_compose A B)⁻¹ʰᵗʸ
+    is_equiv.homotopy_closed _ (iso_of_eq_eq_compose A B)⁻¹ʰᵗʸ _
 
   end set
 

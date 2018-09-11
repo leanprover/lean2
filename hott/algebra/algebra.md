@@ -21,6 +21,7 @@ The following files are [ported](../port.md) from the standard library. If anyth
 Files which are not ported from the standard library:
 
 * [inf_group](inf_group.hlean) : algebraic structures which are not assumes to be sets. No higher coherences are assumed. Truncated algebraic structures extend these structures with the assumption that they are sets.
+* [inf_group_theory](inf_group_theory.hlean) : Some very basic group theory using InfGroups
 * [group_theory](group_theory.hlean) : Basic theorems about group homomorphisms and isomorphisms
 * [trunc_group](trunc_group.hlean) : truncate an infinity-group to a group
 * [homotopy_group](homotopy_group.hlean) : homotopy groups of a pointed type

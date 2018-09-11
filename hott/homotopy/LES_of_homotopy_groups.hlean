@@ -131,12 +131,12 @@ namespace chain_complex
     (q : fiber_sequence_fun (n+1) (fiber.mk x p) = pt)
     : fiber_sequence_carrier_pequiv n (fiber.mk (fiber.mk x p) q)
       = !respect_pt⁻¹ ⬝ ap (fiber_sequence_fun n) q⁻¹ ⬝ p :=
-  fiber_ppoint_equiv_eq p q
+  pfiber_ppoint_equiv_eq p q
 
   definition fiber_sequence_carrier_pequiv_inv_eq (n : ℕ)
     (p : Ω(fiber_sequence_carrier n)) : (fiber_sequence_carrier_pequiv n)⁻¹ᵉ* p =
       fiber.mk (fiber.mk pt (respect_pt (fiber_sequence_fun n) ⬝ p)) idp :=
-  fiber_ppoint_equiv_inv_eq (fiber_sequence_fun n) p
+  pfiber_ppoint_equiv_inv_eq (fiber_sequence_fun n) p
 
   /- TODO: prove naturality of pfiber_ppoint_pequiv in general -/
 

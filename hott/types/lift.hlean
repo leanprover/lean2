@@ -129,9 +129,7 @@ namespace lift
 
   definition is_embedding_lift [instance] : is_embedding lift :=
   begin
-    intro A A', fapply is_equiv.homotopy_closed,
-      exact to_inv !lift_eq_lift_equiv,
-      exact _,
+    intro A A', refine is_equiv_of_equiv_of_homotopy !lift_eq_lift_equiv⁻¹ᵉ _,
     { intro p, induction p,
       esimp [lift_eq_lift_equiv,equiv.trans,equiv.symm,eq_equiv_equiv],
       rewrite [equiv_of_eq_refl, lift_equiv_lift_refl],

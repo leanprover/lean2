@@ -64,7 +64,7 @@ namespace algebra
   end
 
   parameter (A)
-  definition trunc_inf_group [constructor] [instance] : inf_group (trunc n A) :=
+  definition inf_group_trunc [constructor] [instance] : inf_group (trunc n A) :=
   ⦃inf_group,
     mul          := algebra.trunc_mul          n,
     mul_assoc    := algebra.trunc_mul_assoc    n,
@@ -74,10 +74,16 @@ namespace algebra
     inv          := algebra.trunc_inv          n,
     mul_left_inv := algebra.trunc_mul_left_inv n⦄
 
-  definition trunc_group [constructor] : group (trunc 0 A) :=
+  definition group_trunc [constructor] : group (trunc 0 A) :=
   group_of_inf_group _
 
   end
+
+  definition igtrunc [constructor] (n : ℕ₋₂) (A : InfGroup) : InfGroup :=
+  InfGroup.mk (trunc n A) (inf_group_trunc n A)
+
+  definition gtrunc [constructor] (A : InfGroup) : Group :=
+  Group.mk (trunc 0 A) (group_trunc A)
 
   section
   variables (n : trunc_index) {A : Type} [ab_inf_group A]
@@ -90,11 +96,17 @@ namespace algebra
   end
 
   variable (A)
-  definition trunc_ab_inf_group [constructor] [instance] : ab_inf_group (trunc n A) :=
-  ⦃ab_inf_group, trunc_inf_group n A, mul_comm := algebra.trunc_mul_comm n⦄
+  definition ab_inf_group_trunc [constructor] [instance] : ab_inf_group (trunc n A) :=
+  ⦃ab_inf_group, inf_group_trunc n A, mul_comm := algebra.trunc_mul_comm n⦄
 
-  definition trunc_ab_group [constructor] : ab_group (trunc 0 A) :=
+  definition ab_group_trunc [constructor] : ab_group (trunc 0 A) :=
   ab_group_of_ab_inf_group _
+
+  definition aigtrunc [constructor] (n : ℕ₋₂) (A : AbInfGroup) : AbInfGroup :=
+  AbInfGroup.mk (trunc n A) (ab_inf_group_trunc n A)
+
+  definition agtrunc [constructor] (A : AbInfGroup) : AbGroup :=
+  AbGroup.mk (trunc 0 A) (ab_group_trunc A)
 
   end
 

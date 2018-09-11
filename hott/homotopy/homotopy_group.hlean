@@ -17,7 +17,7 @@ namespace is_trunc
   begin
     apply is_trunc_trunc_of_is_trunc,
     apply is_contr_loop_of_is_trunc,
-    apply @is_trunc_of_le A n _,
+    refine @is_trunc_of_le A n _ _ _,
     apply trunc_index.le_of_succ_le_succ,
     rewrite [succ_sub_two_succ k],
     exact of_nat_le_of_nat H,
@@ -84,7 +84,7 @@ namespace is_trunc
       apply homotopy_group_functor_phomotopy, apply plift_functor_phomotopy
     end,
     have π→[k] pdown.{v u} ∘ π→[k] (plift_functor f) ∘ π→[k] pup.{u v} ~ π→[k] f, from this,
-    apply is_equiv.homotopy_closed, rotate 1,
+    apply is_equiv.homotopy_closed,
     { exact this},
     { do 2 apply is_equiv_compose,
       { apply is_equiv_homotopy_group_functor, apply to_is_equiv !equiv_lift},
@@ -112,7 +112,7 @@ namespace is_trunc
     (H : Πa k, is_equiv (π→[k + 1] (pmap_of_map f a))) : is_equiv f :=
   begin
     revert A B HA HB f H' H, induction n with n IH: intros,
-    { apply is_equiv_of_is_contr },
+    { exact is_equiv_of_is_contr _ _ _ },
     have Πa, is_equiv (Ω→ (pmap_of_map f a)),
     begin
       intro a,
@@ -124,7 +124,7 @@ namespace is_trunc
       have Π(b : A) (p : a = b),
         is_equiv (pmap.to_fun (π→[k + 1] (pmap_of_map (ap f) p))),
       begin
-        intro b p, induction p, apply is_equiv.homotopy_closed, exact this,
+        intro b p, induction p, refine is_equiv.homotopy_closed _ _ this,
         refine homotopy_group_functor_phomotopy _ _,
         apply ap1_pmap_of_map
       end,
@@ -135,7 +135,7 @@ namespace is_trunc
         apply is_equiv_compose, exact this a p,
         exact is_equiv_trunc_functor _ _ _
       end,
-      apply is_equiv.homotopy_closed, exact this,
+      refine is_equiv.homotopy_closed _ _ this,
       refine !homotopy_group_functor_pcompose⁻¹* ⬝* _,
       apply homotopy_group_functor_phomotopy,
       fapply phomotopy.mk,
@@ -156,10 +156,10 @@ namespace is_trunc
     begin
       apply is_equiv_compose
               (π→[k + 1] (pointed_eta_pequiv B ⬝e* (pequiv_of_eq_pt (respect_pt f))⁻¹ᵉ*)),
-      apply is_equiv_compose (π→[k + 1] f),
+      refine is_equiv_compose (π→[k + 1] f) _ _ _,
       all_goals exact is_equiv_homotopy_group_functor _ _ _,
     end,
-    refine @(is_equiv.homotopy_closed _) _ this _,
+    refine is_equiv.homotopy_closed _ _ this,
     apply to_homotopy,
     refine pwhisker_left _ !homotopy_group_functor_pcompose⁻¹* ⬝* _,
     refine !homotopy_group_functor_pcompose⁻¹* ⬝* _,
@@ -170,12 +170,12 @@ namespace is_trunc
   definition is_contr_of_trivial_homotopy (n : ℕ₋₂) (A : Type) [is_trunc n A] [is_conn 0 A]
     (H : Πk a, is_contr (π[k] (pointed.MK A a))) : is_contr A :=
   begin
-    fapply is_trunc_is_equiv_closed_rev, { exact λa, ⋆},
+    refine is_trunc_is_equiv_closed_rev _ (λa, ⋆) _ _,
     apply whitehead_principle n,
-    { apply is_equiv_trunc_functor_of_is_conn_fun, apply is_conn_fun_to_unit_of_is_conn},
+    { apply is_equiv_trunc_functor_of_is_conn_fun, apply is_conn_fun_to_unit_of_is_conn },
     intro a k,
-    apply @is_equiv_of_is_contr,
-    refine trivial_homotopy_group_of_is_trunc _ !zero_lt_succ,
+    refine is_equiv_of_is_contr _ _ _,
+    exact trivial_homotopy_group_of_is_trunc _ !zero_lt_succ,
   end
 
   definition is_contr_of_trivial_homotopy_nat (n : ℕ) (A : Type) [is_trunc n A] [is_conn 0 A]
@@ -208,7 +208,7 @@ namespace is_trunc
   definition is_trunc_of_trivial_homotopy {n : ℕ} {m : ℕ₋₂} {A : Type} (H : is_trunc m A)
     (H2 : Πk a, k > n → is_contr (π[k] (pointed.MK A a))) : is_trunc n A :=
   begin
-    fapply is_trunc_is_equiv_closed_rev, { exact @tr n A },
+    refine is_trunc_is_equiv_closed_rev _ (@tr n A) _ _,
     apply whitehead_principle m,
     { apply is_equiv_trunc_functor_of_is_conn_fun,
       note z := is_conn_fun_tr n A,
@@ -249,9 +249,9 @@ namespace is_trunc
   begin
     have is_conn 0 A, from !is_conn_of_is_conn_succ,
     cases n with n,
-    { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
+    { unfold [homotopy_group, ptrunc], exact ab_group_of_is_contr _ _ },
     cases n with n,
-    { unfold [homotopy_group, ptrunc], apply ab_group_of_is_contr },
+    { unfold [homotopy_group, ptrunc], exact ab_group_of_is_contr _ _ },
     exact ab_group_homotopy_group (n+2) A
   end
 

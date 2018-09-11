@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2014 Jeremy Avigad. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Jeremy Avigad, Leonardo de Moura
+Authors: Jeremy Avigad, Leonardo de Moura, Floris van Doorn
 
 Structures with multiplicative and additive components, including semirings, rings, and fields.
 The development is modeled after Isabelle's library.

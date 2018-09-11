@@ -36,6 +36,9 @@ namespace int
 
   end
 
+  definition not_neg_succ_le_of_nat {n m : ℕ} : ¬m ≤ -[1+n] :=
+  by cases m: exact id
+
   definition is_equiv_succ [constructor] [instance] : is_equiv succ :=
   adjointify succ pred (λa, !add_sub_cancel) (λa, !sub_add_cancel)
   definition equiv_succ [constructor] : ℤ ≃ ℤ := equiv.mk succ _
@@ -59,6 +62,15 @@ namespace int
 
   lemma le_of_max0_le {n : ℤ} {m : ℕ} (h : max0 n ≤ m) : n ≤ of_nat m :=
   le.trans (le_max0 n) (of_nat_le_of_nat_of_le h)
+
+  definition max0_monotone {n m : ℤ} (H : n ≤ m) : max0 n ≤ max0 m :=
+  begin
+    induction n with n n,
+    { induction m with m m,
+      { exact le_of_of_nat_le_of_nat H },
+      { exfalso, exact not_neg_succ_le_of_nat H }},
+    { apply zero_le }
+  end
 
   -- definition iterate_trans {A : Type} (f : A ≃ A) (a : ℤ)
   --   : iterate f a ⬝e f = iterate f (a + 1) :=

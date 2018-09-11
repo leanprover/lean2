@@ -173,7 +173,7 @@ namespace is_trunc
   --in the proof the type of H is given explicitly to make it available for class inference
 
   theorem is_trunc_of_le.{l} (A : Type.{l}) {n m : ℕ₋₂} (Hnm : n ≤ m)
-    [Hn : is_trunc n A] : is_trunc m A :=
+    (Hn : is_trunc n A) : is_trunc m A :=
   begin
     induction Hnm with m Hnm IH,
     { exact Hn},
@@ -191,23 +191,21 @@ namespace is_trunc
   end
 
   -- these must be definitions, because we need them to compute sometimes
-  definition is_trunc_of_is_contr (A : Type) (n : ℕ₋₂) [H : is_contr A] : is_trunc n A :=
+  definition is_trunc_of_is_contr (A : Type) (n : ℕ₋₂) (H : is_contr A) : is_trunc n A :=
   trunc_index.rec_on n H (λn H, _)
 
-  definition is_trunc_succ_of_is_prop (A : Type) (n : ℕ₋₂) [H : is_prop A]
-      : is_trunc (n.+1) A :=
-  is_trunc_of_le A (show -1 ≤ n.+1, from succ_le_succ (minus_two_le n))
+  definition is_trunc_succ_of_is_prop (A : Type) (n : ℕ₋₂) (H : is_prop A) : is_trunc (n.+1) A :=
+  is_trunc_of_le A (show -1 ≤ n.+1, from succ_le_succ (minus_two_le n)) _
 
-  definition is_trunc_succ_succ_of_is_set (A : Type) (n : ℕ₋₂) [H : is_set A]
-      : is_trunc (n.+2) A :=
-  is_trunc_of_le A (show 0 ≤ n.+2, from succ_le_succ (succ_le_succ (minus_two_le n)))
+  definition is_trunc_succ_succ_of_is_set (A : Type) (n : ℕ₋₂) (H : is_set A) : is_trunc (n.+2) A :=
+  is_trunc_of_le A (show 0 ≤ n.+2, from succ_le_succ (succ_le_succ (minus_two_le n))) _
 
-  /- props -/
+  /- propositions -/
 
   definition is_prop.elim [H : is_prop A] (x y : A) : x = y :=
   !center
 
-  definition is_contr_of_inhabited_prop {A : Type} [H : is_prop A] (x : A) : is_contr A :=
+  definition is_contr_of_inhabited_prop {A : Type} (x : A) (H : is_prop A) : is_contr A :=
   is_contr.mk x (λy, !is_prop.elim)
 
   theorem is_prop_of_imp_is_contr {A : Type} (H : A → is_contr A) : is_prop A :=
@@ -257,64 +255,68 @@ namespace is_trunc
   local attribute is_contr_unit is_prop_empty [instance]
 
   definition is_trunc_unit [instance] (n : ℕ₋₂) : is_trunc n unit :=
-  !is_trunc_of_is_contr
+  is_trunc_of_is_contr _ _ _
 
   definition is_trunc_empty [instance] (n : ℕ₋₂) : is_trunc (n.+1) empty :=
-  !is_trunc_succ_of_is_prop
+  is_trunc_succ_of_is_prop _ _ _
 
   /- interaction with equivalences -/
 
   section
   open is_equiv equiv
 
-  definition is_contr_is_equiv_closed (f : A → B) [Hf : is_equiv f] [HA: is_contr A]
+  definition is_contr_is_equiv_closed (f : A → B) (Hf : is_equiv f) (HA: is_contr A)
     : (is_contr B) :=
   is_contr.mk (f (center A)) (λp, eq_of_eq_inv !center_eq)
 
   definition is_contr_equiv_closed (H : A ≃ B) (HA : is_contr A) : is_contr B :=
-  is_contr_is_equiv_closed (to_fun H)
+  is_contr_is_equiv_closed (to_fun H) _ _
 
   definition is_contr_equiv_closed_rev (H : A ≃ B) (HB : is_contr B) : is_contr A :=
   is_contr_equiv_closed H⁻¹ᵉ HB
 
-  definition equiv_of_is_contr_of_is_contr [HA : is_contr A] [HB : is_contr B] : A ≃ B :=
+  definition equiv_of_is_contr_of_is_contr (HA : is_contr A) (HB : is_contr B) : A ≃ B :=
   equiv.mk
     (λa, center B)
     (is_equiv.adjointify (λa, center B) (λb, center A) center_eq center_eq)
 
-  theorem is_trunc_is_equiv_closed (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
-    [HA : is_trunc n A] : is_trunc n B :=
+  theorem is_trunc_is_equiv_closed (n : ℕ₋₂) (f : A → B) (H : is_equiv f)
+    (HA : is_trunc n A) : is_trunc n B :=
   begin
     revert A HA B f H, induction n with n IH: intros,
-    { exact is_contr_is_equiv_closed f},
+    { exact is_contr_is_equiv_closed f _ _ },
     { apply is_trunc_succ_intro, intro x y,
-      exact IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv}
+      exact IH (f⁻¹ x = f⁻¹ y) _ (x = y) (ap f⁻¹)⁻¹ !is_equiv_inv }
   end
 
-  definition is_trunc_is_equiv_closed_rev (n : ℕ₋₂) (f : A → B) [H : is_equiv f]
-    [HA : is_trunc n B] : is_trunc n A :=
-  is_trunc_is_equiv_closed n f⁻¹
+  definition is_trunc_is_equiv_closed_rev (n : ℕ₋₂) (f : A → B) (H : is_equiv f)
+    (HA : is_trunc n B) : is_trunc n A :=
+  is_trunc_is_equiv_closed n f⁻¹ᶠ _ _
 
   definition is_trunc_equiv_closed (n : ℕ₋₂) (f : A ≃ B) (HA : is_trunc n A) : is_trunc n B :=
-  is_trunc_is_equiv_closed n (to_fun f)
+  is_trunc_is_equiv_closed n (to_fun f) _ _
 
   definition is_trunc_equiv_closed_rev (n : ℕ₋₂) (f : A ≃ B) (HA : is_trunc n B) : is_trunc n A :=
-  is_trunc_is_equiv_closed n (to_inv f)
+  is_trunc_is_equiv_closed n (to_inv f) _ _
 
-  definition is_equiv_of_is_prop [constructor] [HA : is_prop A] [HB : is_prop B]
-    (f : A → B) (g : B → A) : is_equiv f :=
+  definition is_equiv_of_is_prop [constructor] (f : A → B) (g : B → A)
+    (HA : is_prop A) (HB : is_prop B) : is_equiv f :=
   is_equiv.mk f g (λb, !is_prop.elim) (λa, !is_prop.elim) (λa, !is_set.elim)
 
-  definition is_equiv_of_is_contr [constructor] [HA : is_contr A] [HB : is_contr B]
-    (f : A → B) : is_equiv f :=
+  definition is_equiv_of_is_contr [constructor] (f : A → B)
+    (HA : is_contr A) (HB : is_contr B) : is_equiv f :=
   is_equiv.mk f (λx, !center) (λb, !is_prop.elim) (λa, !is_prop.elim) (λa, !is_set.elim)
 
-  definition equiv_of_is_prop [constructor] [HA : is_prop A] [HB : is_prop B]
-    (f : A → B) (g : B → A) : A ≃ B :=
-  equiv.mk f (is_equiv_of_is_prop f g)
+  definition equiv_of_is_contr [constructor] (HA : is_contr A) (HB : is_contr B) : A ≃ B :=
+  equiv.mk (λa, center B) (is_equiv_of_is_contr _ _ _)
 
-  definition equiv_of_iff_of_is_prop [unfold 5] [HA : is_prop A] [HB : is_prop B] (H : A ↔ B) : A ≃ B :=
-  equiv_of_is_prop (iff.elim_left H) (iff.elim_right H)
+  definition equiv_of_is_prop [constructor] (f : A → B) (g : B → A)
+    (HA : is_prop A) (HB : is_prop B) : A ≃ B :=
+  equiv.mk f (is_equiv_of_is_prop f g _ _)
+
+  definition equiv_of_iff_of_is_prop [unfold 5] (HA : is_prop A) (HB : is_prop B) (H : A ↔ B) :
+    A ≃ B :=
+  equiv_of_is_prop (iff.elim_left H) (iff.elim_right H) _ _
 
   /- truncatedness of lift -/
   definition is_trunc_lift [instance] [priority 1450] (A : Type) (n : ℕ₋₂)
@@ -328,11 +330,8 @@ namespace is_trunc
   open equiv
   /- A contractible type is equivalent to unit. -/
   variable (A)
-  definition equiv_unit_of_is_contr [constructor] [H : is_contr A] : A ≃ unit :=
-  equiv.MK (λ (x : A), ⋆)
-           (λ (u : unit), center A)
-           (λ (u : unit), unit.rec_on u idp)
-           (λ (x : A), center_eq x)
+  definition equiv_unit_of_is_contr [constructor] (H : is_contr A) : A ≃ unit :=
+  equiv_of_is_contr _ _
 
   /- interaction with pathovers -/
   variable {A}

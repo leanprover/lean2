@@ -25,6 +25,7 @@ namespace choice
   equiv_of_is_prop
     (λ H X A P HX HA HP HI, trunc_functor _ (to_fun !sigma_pi_equiv_pi_sigma) (H X A P HX HA HP HI))
     (λ H X A P HX HA HP HI, trunc_functor _ (to_inv !sigma_pi_equiv_pi_sigma) (H X A P HX HA HP HI))
+    _ _
 
   -- AC_cart can be derived from AC' by setting P := λ _ _ , unit.
   definition AC_cart_of_AC' : AC'.{u} -> AC_cart.{u} :=
@@ -39,7 +40,7 @@ namespace choice
 
   -- Which is enough to show AC' ≃ AC_cart, since both are props.
   definition AC'_equiv_AC_cart : AC'.{u} ≃ AC_cart.{u} :=
-  equiv_of_is_prop AC_cart_of_AC'.{u} AC'_of_AC_cart.{u}
+  equiv_of_is_prop AC_cart_of_AC'.{u} AC'_of_AC_cart.{u} _ _
 
   -- 3.8.2. AC ≃ AC_cart follows by transitivity.
   definition AC_equiv_AC_cart : AC.{u} ≃ AC_cart.{u} :=

@@ -49,9 +49,9 @@ namespace freudenthal section
   definition is_equiv_code_merid (a : A) : is_equiv (code_merid a) :=
   begin
     have Πa, is_trunc n.-2.+1 (is_equiv (code_merid a)),
-      from λa, is_trunc_of_le _ !minus_one_le_succ,
+      from λa, is_trunc_of_le _ !minus_one_le_succ _,
     refine is_conn.elim (n.-1) _ _ a,
-    { esimp, exact homotopy_closed id (homotopy.symm (code_merid_β_right))}
+    { esimp, exact homotopy_closed id code_merid_β_right⁻¹ʰᵗʸ _ }
   end
 
   definition code_merid_equiv [constructor] (a : A) : trunc (n + n) A ≃ trunc (n + n) A :=
@@ -60,7 +60,7 @@ namespace freudenthal section
   definition code_merid_inv_pt (x : trunc (n + n) A) : (code_merid_equiv pt)⁻¹ x = x :=
   begin
     refine ap010 @(is_equiv.inv _) _ x ⬝ _,
-    { exact homotopy_closed id (homotopy.symm code_merid_β_right)},
+    { exact homotopy_closed id code_merid_β_right⁻¹ʰᵗʸ _ },
     { apply is_conn.elim_β},
     { reflexivity}
   end
