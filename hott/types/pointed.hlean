@@ -341,6 +341,10 @@ namespace pointed
 
   /- equalities and equivalences relating pointed homotopies -/
 
+  definition to_homotopy_pt_mk {A B : Type*} {f g : A →* B} (h : f ~ g)
+    (p : h pt ⬝ respect_pt g = respect_pt f) : to_homotopy_pt (phomotopy.mk h p) = p :=
+  to_right_inv !eq_con_inv_equiv_con_eq p
+
   definition phomotopy.rec' [recursor] (B : k ~* l → Type)
     (H : Π(h : k ~ l) (p : h pt ⬝ respect_pt l = respect_pt k), B (phomotopy.mk h p))
     (h : k ~* l) : B h :=
@@ -353,8 +357,8 @@ namespace pointed
   definition phomotopy.eta_expand [constructor] (p : k ~* l) : k ~* l :=
   phomotopy.mk p (to_homotopy_pt p)
 
-  definition is_trunc_ppi [instance] (n : ℕ₋₂) {A : Type*} (B : A → Type) (b₀ : B pt) [Πa, is_trunc n (B a)] :
-    is_trunc n (ppi B b₀) :=
+  definition is_trunc_ppi [instance] (n : ℕ₋₂) {A : Type*} (B : A → Type) (b₀ : B pt)
+    [Πa, is_trunc n (B a)] : is_trunc n (ppi B b₀) :=
   is_trunc_equiv_closed_rev _ !ppi.sigma_char _
 
   definition is_trunc_pmap [instance] (n : ℕ₋₂) (A B : Type*) [is_trunc n B] :
@@ -1107,6 +1111,9 @@ namespace pointed
 
   definition pointed_eta_pequiv [constructor] (A : Type*) : A ≃* pointed.MK A pt :=
   pequiv.mk id !is_equiv_id idp
+
+  definition pbool_pequiv_add_point_unit [constructor] : pbool ≃* unit₊ :=
+  pequiv_of_equiv (bool_equiv_option_unit) idp
 
   /- every pointed map is homotopic to one of the form `pmap_of_map _ _`, up to some
      pointed equivalences -/

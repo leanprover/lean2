@@ -314,7 +314,7 @@ namespace is_trunc
     (HA : is_prop A) (HB : is_prop B) : A ≃ B :=
   equiv.mk f (is_equiv_of_is_prop f g _ _)
 
-  definition equiv_of_iff_of_is_prop [unfold 5] (HA : is_prop A) (HB : is_prop B) (H : A ↔ B) :
+  definition equiv_of_iff_of_is_prop [unfold 5] (H : A ↔ B) (HA : is_prop A) (HB : is_prop B) :
     A ≃ B :=
   equiv_of_is_prop (iff.elim_left H) (iff.elim_right H) _ _
 

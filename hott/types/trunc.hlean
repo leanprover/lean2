@@ -1087,6 +1087,7 @@ end eq
 
 /- some consequences for properties about functions (surjectivity etc.) -/
 namespace function
+  open fiber
   variables {A B : Type}
   definition is_surjective_of_is_equiv [instance] (f : A → B) [H : is_equiv f] : is_surjective f :=
   λb, begin esimp, apply center, apply is_trunc_trunc_of_is_trunc end

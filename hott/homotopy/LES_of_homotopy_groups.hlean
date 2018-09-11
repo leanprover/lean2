@@ -724,6 +724,24 @@ namespace chain_complex
     apply LES_is_equiv_of_trivial, apply HX1, apply HX2
   end
 
+  definition LES_is_contr_of_is_embedding_of_is_surjective (n : ℕ)
+    (H : is_embedding (π→[n] f)) (H2 : is_surjective (π→[n+1] f)) : is_contr (π[n] (pfiber f)) :=
+  begin
+    rexact @is_contr_of_is_embedding_of_is_surjective +3ℕ LES_of_homotopy_groups (n, 0)
+      (is_exact_LES_of_homotopy_groups _) proof H qed proof H2 qed
+  end
+
+  definition is_contr_homotopy_group_fiber {n : ℕ}
+    (H1 : is_embedding (π→[n] f)) (H2 : is_surjective (π→g[n+1] f)) : is_contr (π[n] (pfiber f)) :=
+  begin
+    apply @is_contr_of_is_embedding_of_is_surjective +3ℕ LES_of_homotopy_groups (n, 0),
+    exact is_exact_LES_of_homotopy_groups (n, 1), exact H1, exact H2
+  end
+
+  definition is_contr_homotopy_group_fiber_of_is_equiv {n : ℕ}
+    (H1 : is_equiv (π→[n] f)) (H2 : is_equiv (π→g[n+1] f)) : is_contr (π[n] (pfiber f)) :=
+  is_contr_homotopy_group_fiber (is_embedding_of_is_equiv _) (is_surjective_of_is_equiv _)
+
   end
 
   /-

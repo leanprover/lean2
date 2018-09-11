@@ -138,7 +138,8 @@ namespace fiber
     begin intro x, induction x with a p, esimp at p, cases p, reflexivity end
 
   /- the general functoriality between fibers -/
-  -- todo: show that this is an equivalence if g and h are, and use that for the special cases below
+  -- todo: transpose the hsquare in fiber_functor?
+  -- todo: show that the underlying map of fiber_equiv_of_square is fiber_functor
   definition fiber_functor [constructor] {A A' B B' : Type} {f : A → B} {f' : A' → B'}
     {b : B} {b' : B'} (g : A → A') (h : B → B') (H : hsquare g h f f') (p : h b = b')
     (x : fiber f b) : fiber f' b' :=
@@ -175,6 +176,17 @@ namespace fiber
                 ... ≃ Σa b, f a = b : sigma_comm_equiv
                 ... ≃ A             : sigma_equiv_of_is_contr_right
 
+  definition fiber_compose_equiv {A B C : Type} (g : B → C) (f : A → B) (c : C) :
+    fiber (g ∘ f) c ≃ Σ(x : fiber g c), fiber f (point x) :=
+  begin
+    fapply equiv.MK,
+    { intro x, exact ⟨fiber.mk (f (point x)) (point_eq x), fiber.mk (point x) idp⟩ },
+    { intro x, exact fiber.mk (point x.2) (ap g (point_eq x.2) ⬝ point_eq x.1) },
+    { intro x, induction x with x₁ x₂, induction x₁ with b p, induction x₂ with a q,
+      induction p, esimp at q, induction q, reflexivity },
+    { intro x, induction x with a p, induction p, reflexivity }
+  end
+
   -- pre and post composition with equivalences
   variable (f)
   protected definition equiv_postcompose [constructor] {B' : Type} (g : B ≃ B') --[H : is_equiv g]
@@ -198,7 +210,7 @@ namespace fiber
                 ... ≃ fiber f b                : fiber.sigma_char
 
   definition fiber_equiv_of_square {A B C D : Type} {b : B} {d : D} {f : A → B} {g : C → D}
-    (h : A ≃ C) (k : B ≃ D) (s : k ∘ f ~ g ∘ h) (p : k b = d) : fiber f b ≃ fiber g d :=
+    (h : A ≃ C) (k : B ≃ D) (s : hsquare f g h k) (p : k b = d) : fiber f b ≃ fiber g d :=
     calc fiber f b ≃ fiber (k ∘ f) (k b) : fiber.equiv_postcompose
               ... ≃ fiber (k ∘ f) d : fiber_equiv_basepoint (k ∘ f) p
               ... ≃ fiber (g ∘ h) d : fiber_equiv_of_homotopy s d
@@ -207,6 +219,14 @@ namespace fiber
   definition fiber_equiv_of_triangle {A B C : Type} {b : B} {f : A → B} {g : C → B} (h : A ≃ C)
     (s : f ~ g ∘ h) : fiber f b ≃ fiber g b :=
   fiber_equiv_of_square h erfl s idp
+
+  definition is_contr_fiber_equiv [instance] (f : A ≃ B) (b : B) : is_contr (fiber f b) :=
+  is_contr_equiv_closed
+    (fiber_equiv_of_homotopy (to_left_inv f)⁻¹ʰᵗʸ _ ⬝e fiber.equiv_postcompose f f⁻¹ᵉ b)
+    !is_contr_fiber_id
+
+  definition is_contr_fiber_of_is_equiv [instance] [is_equiv f] (b : B) : is_contr (fiber f b) :=
+  is_contr_fiber_equiv (equiv.mk f _) b
 
   definition fiber_star_equiv [constructor] (A : Type) : fiber (λx : A, star) star ≃ A :=
   begin
@@ -435,7 +455,7 @@ namespace fiber
   end
 
   definition is_contr_pfiber_pid (A : Type*) : is_contr (pfiber (pid A)) :=
-  is_contr_fiber_id A pt
+  by exact is_contr_fiber_id A pt
 
   definition pfiber_functor [constructor] {A A' B B' : Type*} {f : A →* B} {f' : A' →* B'}
     (g : A →* A') (h : B →* B') (H : psquare g h f f') : pfiber f →* pfiber f' :=
@@ -470,3 +490,7 @@ definition is_contr_fun [reducible] (f : A → B) := is_trunc_fun -2 f
 
 definition is_trunc_fun_id (k : ℕ₋₂) (A : Type) : is_trunc_fun k (@id A) :=
 λa, is_trunc_of_is_contr _ _ !is_contr_fiber_id
+
+definition is_trunc_fun_compose (k : ℕ₋₂) {A B C : Type} {g : B → C} {f : A → B}
+  (Hg : is_trunc_fun k g) (Hf : is_trunc_fun k f) : is_trunc_fun k (g ∘ f) :=
+λc, is_trunc_equiv_closed_rev k (fiber_compose_equiv g f c) _

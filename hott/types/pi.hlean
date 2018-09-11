@@ -263,6 +263,15 @@ namespace pi
     { intro f, apply eq_of_homotopy, intro b, induction b: reflexivity},
   end
 
+  definition pi_bool_left_natural {A B : bool → Type} (g : Πx, A x → B x) :
+    hsquare (pi_bool_left A) (pi_bool_left B) (pi_functor_right g) (prod_functor (g ff) (g tt)) :=
+  begin intro h, esimp end
+
+  definition pi_bool_left_inv_natural {A B : bool → Type} (g : Πx, A x → B x) :
+    hsquare (pi_bool_left A)⁻¹ᵉ (pi_bool_left B)⁻¹ᵉ
+            (prod_functor (g ff) (g tt)) (pi_functor_right g) :=
+  (pi_bool_left_natural g)⁻¹ʰᵗʸʰ
+
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
   theorem is_trunc_pi (B : A → Type) (n : trunc_index)

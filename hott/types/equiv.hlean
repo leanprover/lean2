@@ -15,19 +15,6 @@ namespace is_equiv
   variables {A B : Type} (f : A → B) [H : is_equiv f]
   include H
   /- is_equiv f is a mere proposition -/
-  definition is_contr_fiber_of_is_equiv [instance] (b : B) : is_contr (fiber f b) :=
-  is_contr.mk
-    (fiber.mk (f⁻¹ b) (right_inv f b))
-    (λz, fiber.rec_on z (λa p,
-      fiber_eq ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) (calc
-        right_inv f b = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ((ap (f ∘ f⁻¹) p) ⬝ right_inv f b)
-                                                           : by rewrite inv_con_cancel_left
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (right_inv f (f a) ⬝ p)   : by rewrite ap_con_eq_con
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ (ap f (left_inv f a) ⬝ p) : by rewrite [adj f]
-      ... = (ap (f ∘ f⁻¹) p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p   : by rewrite con.assoc
-      ... = (ap f (ap f⁻¹ p))⁻¹ ⬝ ap f (left_inv f a) ⬝ p  : by rewrite ap_compose
-      ... = ap f (ap f⁻¹ p)⁻¹ ⬝ ap f (left_inv f a) ⬝ p    : by rewrite ap_inv
-      ... = ap f ((ap f⁻¹ p)⁻¹ ⬝ left_inv f a) ⬝ p         : by rewrite ap_con)))
 
   definition is_contr_right_inverse : is_contr (Σ(g : B → A), f ∘ g ~ id) :=
   begin

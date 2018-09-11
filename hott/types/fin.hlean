@@ -135,12 +135,11 @@ theorem val_lt : Π i : fin n, val i < n
 lemma max_lt (i j : fin n) : max i j < n :=
 max_lt (is_lt i) (is_lt j)
 
-definition lift [constructor] : fin n → Π m : nat, fin (n + m)
-| (mk v h) m := mk v (lt_add_of_lt_right h m)
+definition lift [constructor] (x : fin n) (m : ℕ) : fin (n + m) :=
+fin.mk x (lt_add_of_lt_right (is_lt x) m)
 
-definition lift_succ [constructor] (i : fin n) : fin (nat.succ n) :=
-have r : fin (n+1), from lift i 1,
-r
+definition lift_succ [constructor] ⦃n : ℕ⦄ (x : fin n) : fin (nat.succ n) :=
+fin.mk x (le.step (is_lt x))
 
 definition maxi [reducible] : fin (succ n) :=
 mk n !lt_succ_self
@@ -219,7 +218,7 @@ lemma lift_fun_eq {f : fin n → fin n} {i : fin n} :
   lift_fun f (lift_succ i) = lift_succ (f i) :=
 begin
   rewrite [lift_fun_of_ne_max lift_succ_ne_max], do 2 congruence,
-  apply eq_of_veq, esimp, rewrite -val_lift,
+  apply eq_of_veq, reflexivity
 end
 
 lemma lift_fun_of_inj {f : fin n → fin n} : is_embedding f → is_embedding (lift_fun f) :=
@@ -238,8 +237,8 @@ begin
       rewrite [lift_fun_of_ne_max Pinmax, lift_fun_of_ne_max Pjnmax],
         intro Peq, apply eq_of_veq,
         cases i with i ilt, cases j with j jlt, esimp at *,
-        fapply veq_of_eq, apply is_injective_of_is_embedding,
-        apply @is_injective_of_is_embedding _ _ lift_succ _ _ _ Peq,
+        fapply veq_of_eq, apply @is_injective_of_is_embedding _ _ f,
+        apply @is_injective_of_is_embedding _ _ (@lift_succ _) _ _ _ Peq,
 end
 
 lemma lift_fun_inj : is_embedding (@lift_fun n) :=
@@ -329,9 +328,9 @@ lemma val_succ : Π (i : fin n), val (succ i) = nat.succ (val i)
 
 lemma succ_max : fin.succ maxi = (@maxi (nat.succ n)) := rfl
 
-lemma lift_succ.comm : lift_succ ∘ (@succ n) = succ ∘ lift_succ :=
+lemma lift_succ.comm : @lift_succ _ ∘ (@succ n) = succ ∘ @lift_succ _ :=
 eq_of_homotopy take i,
-  eq_of_veq (begin rewrite [↑lift_succ, -val_lift, *val_succ, -val_lift] end)
+  eq_of_veq (begin rewrite [↑lift_succ, *val_succ] end)
 
 definition elim0 {C : fin 0 → Type} : Π i : fin 0, C i
 | (mk v h) := absurd h !not_lt_zero
@@ -388,9 +387,7 @@ begin
   { intro ilt', esimp[val_inj], apply concat,
     apply ap (λ x, eq.rec_on x _), esimp[eq_of_veq, rfl], reflexivity,
     have H : ilt = ilt', by apply is_prop.elim, cases H,
-    have H' : is_prop.elim (lt_add_of_lt_right ilt 1) (lt_add_of_lt_right ilt 1) = idp,
-      by apply is_prop.elim,
-    krewrite H' },
+    apply ap (λx, eq.rec_on x _), apply ap02, apply is_prop_elim_self },
   { intro a, exact absurd ilt a },
 end
 
@@ -522,7 +519,7 @@ begin
                    ... ≃ fin 0 : fin_zero_equiv_empty },
   { have H : (a + 1) * m = a * m + m, by rewrite [nat.right_distrib, one_mul],
     calc fin (a + 1) × fin m
-         ≃ (fin a + unit) × fin m : prod.prod_equiv_prod_right !fin_succ_equiv
+         ≃ (fin a + unit) × fin m : prod_equiv_prod_left !fin_succ_equiv
      ... ≃ (fin a × fin m) + (unit × fin m) : sum_prod_right_distrib
      ... ≃ (fin a × fin m) + (fin m × unit) : prod_comm_equiv
      ... ≃ fin (a * m) + (fin m × unit) : v_0

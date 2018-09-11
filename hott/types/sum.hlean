@@ -114,6 +114,8 @@ namespace sum
   | sum_functor (inl a) := inl (f a)
   | sum_functor (inr b) := inr (g b)
 
+  infix ` +→ `:62 := sum_functor
+
   /- Equivalences -/
 
   definition is_equiv_sum_functor [constructor] [instance] [Hf : is_equiv f] [Hg : is_equiv g]
@@ -136,6 +138,8 @@ namespace sum
   definition sum_equiv_sum [constructor] (f : A ≃ A') (g : B ≃ B') : A + B ≃ A' + B' :=
   equiv.mk _ (is_equiv_sum_functor f g)
 
+  infix ` +≃ `:62 := sum_equiv_sum
+
   definition sum_equiv_sum_left [constructor] (g : B ≃ B') : A + B ≃ A + B' :=
   sum_equiv_sum equiv.rfl g
 
@@ -146,13 +150,11 @@ namespace sum
   | flip (inl a) := inr a
   | flip (inr b) := inl b
 
+  definition flip_flip (x : A ⊎ B) : flip (flip x) = x :=
+  begin induction x: reflexivity end
+
   definition sum_comm_equiv [constructor] (A B : Type) : A + B ≃ B + A :=
-  begin
-    fapply equiv.MK,
-      exact flip,
-      exact flip,
-      all_goals (intro z; induction z; all_goals reflexivity)
-  end
+  equiv.MK flip flip flip_flip flip_flip
 
   definition sum_assoc_equiv [constructor] (A B C : Type) : A + (B + C) ≃ (A + B) + C :=
   begin
@@ -211,7 +213,7 @@ namespace sum
   variables (H : unit + A ≃ unit + B)
   include H
 
-  open unit decidable sigma.ops
+  open unit sigma.ops
 
   definition unit_sum_equiv_cancel_map : A → B :=
   begin
@@ -306,8 +308,7 @@ namespace sum
 
   /- truncatedness -/
 
-  variables (A B)
-  theorem is_trunc_sum (n : trunc_index) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
+  theorem is_trunc_sum (n : ℕ₋₂) (A B : Type) [HA : is_trunc (n.+2) A]  [HB : is_trunc (n.+2) B]
     : is_trunc (n.+2) (A + B) :=
   begin
     apply is_trunc_succ_intro, intro z z',
@@ -316,7 +317,7 @@ namespace sum
     all_goals exact _,
   end
 
-  theorem is_trunc_sum_excluded (n : trunc_index) [HA : is_trunc n A]  [HB : is_trunc n B]
+  theorem is_trunc_sum_excluded (n : ℕ₋₂) (A B : Type) [HA : is_trunc n A]  [HB : is_trunc n B]
     (H : A → B → empty) : is_trunc n (A + B) :=
   begin
     induction n with n IH,
@@ -328,8 +329,8 @@ namespace sum
       { apply is_trunc_sum}}
   end
 
-  variable {B}
-  definition is_contr_sum_left [HA : is_contr A] (H : ¬B) : is_contr (A + B) :=
+  definition is_contr_sum_left (A : Type) {B : Type} [HA : is_contr A] (H : ¬B) :
+    is_contr (A + B) :=
   is_contr.mk (inl !center)
               (λx, sum.rec_on x (λa, ap inl !center_eq) (λb, empty.elim (H b)))
 
@@ -353,6 +354,35 @@ namespace sum
            begin intro v, induction v with b x, induction b, all_goals reflexivity end
            begin intro z, induction z with a b, all_goals reflexivity end
 
+  variables {A₀₀ A₂₀ A₀₂ A₂₂ B₀₀ B₂₀ B₀₂ B₂₂ C C' : Type}
+    {f₁₀ : A₀₀ → A₂₀} {f₁₂ : A₀₂ → A₂₂} {f₀₁ : A₀₀ → A₀₂} {f₂₁ : A₂₀ → A₂₂}
+    {g₁₀ : B₀₀ → B₂₀} {g₁₂ : B₀₂ → B₂₂} {g₀₁ : B₀₀ → B₀₂} {g₂₁ : B₂₀ → B₂₂}
+    {h₀₁ : B₀₀ → A₀₂} {h₂₁ : B₂₀ → A₂₂}
+  open function
+
+  definition sum_rec_hsquare [unfold 16] (h : hsquare f₁₀ f₁₂ f₀₁ f₂₁)
+    (k : hsquare g₁₀ f₁₂ h₀₁ h₂₁) : hsquare (f₁₀ +→ g₁₀) f₁₂ (sum.rec f₀₁ h₀₁) (sum.rec f₂₁ h₂₁) :=
+  begin intro x, induction x with a b, exact h a, exact k b end
+
+  definition sum_functor_hsquare [unfold 19] (h : hsquare f₁₀ f₁₂ f₀₁ f₂₁)
+    (k : hsquare g₁₀ g₁₂ g₀₁ g₂₁) : hsquare (f₁₀ +→ g₁₀) (f₁₂ +→ g₁₂) (f₀₁ +→ g₀₁) (f₂₁ +→ g₂₁) :=
+  sum_rec_hsquare (λa, ap inl (h a)) (λb, ap inr (k b))
+
+  definition sum_functor_compose (g : B → C) (f : A → B) (g' : B' → C') (f' : A' → B') :
+    (g ∘ f) +→ (g' ∘ f') ~ g +→ g' ∘ f +→ f' :=
+  begin intro x, induction x with a a': reflexivity end
+
+  definition sum_rec_sum_functor (g : B → C) (g' : B' → C) (f : A → B) (f' : A' → B') :
+    sum.rec g g' ∘ sum_functor f f' ~ sum.rec (g ∘ f) (g' ∘ f') :=
+  begin intro x, induction x with a a': reflexivity end
+
+  definition sum_rec_same_compose (g : B → C) (f : A → B) :
+    sum.rec (g ∘ f) (g ∘ f) ~ g ∘ sum.rec f f :=
+  begin intro x, induction x with a a': reflexivity end
+
+  definition sum_rec_same (f : A → B) : sum.rec f f ~ f ∘ sum.rec id id :=
+  by exact sum_rec_same_compose f id
+
   /- pointed sums. We arbitrarily choose (inl pt) as basepoint for the sum -/
 
   open pointed
@@ -367,13 +397,15 @@ open sum pi
 
 namespace decidable
 
+  /- some properties about the inductive type `decidable`
+     decidable A is equivalent to A + ¬A -/
   definition decidable_equiv [constructor] (A : Type) : decidable A ≃ A + ¬A :=
   begin
     fapply equiv.MK:intro a;induction a:try (constructor;assumption;now),
     all_goals reflexivity
   end
 
-  definition is_trunc_decidable [constructor] (A : Type) (n : trunc_index) [H : is_trunc n A] :
+  definition is_trunc_decidable [constructor] (A : Type) (n : ℕ₋₂) [H : is_trunc n A] :
     is_trunc n (decidable A) :=
   begin
     apply is_trunc_equiv_closed_rev,
@@ -383,11 +415,60 @@ namespace decidable
     { apply is_trunc_sum_excluded, exact λa na, na a}
   end
 
+  definition double_neg_elim {A : Type} (H : decidable A) (p : ¬ ¬ A) : A :=
+  begin induction H, assumption, contradiction end
+
+  definition dite_true {C : Type} [H : decidable C] {A : Type}
+    {t : C → A} {e : ¬ C → A} (c : C) (H' : is_prop C) : dite C t e = t c :=
+  begin
+    induction H with H H,
+    exact ap t !is_prop.elim,
+    contradiction
+  end
+
+  definition dite_false {C : Type} [H : decidable C] {A : Type}
+    {t : C → A} {e : ¬ C → A} (c : ¬ C) : dite C t e = e c :=
+  begin
+    induction H with H H,
+    contradiction,
+    exact ap e !is_prop.elim,
+  end
+
+  definition decidable_eq_of_is_prop (A : Type) [is_prop A] : decidable_eq A :=
+  λa a', decidable.inl !is_prop.elim
+
+  definition decidable_eq_sigma [instance] {A : Type} (B : A → Type) [HA : decidable_eq A]
+    [HB : Πa, decidable_eq (B a)] : decidable_eq (Σa, B a) :=
+  begin
+    intro v v', induction v with a b, induction v' with a' b',
+    cases HA a a' with p np,
+    { induction p, cases HB a b b' with q nq,
+        induction q, exact decidable.inl idp,
+        apply decidable.inr, intro p, apply nq, apply @eq_of_pathover_idp A B,
+        exact change_path !is_prop.elim p..2 },
+    { apply decidable.inr, intro p, apply np, exact p..1 }
+  end
+
+  open sum
+  definition decidable_eq_sum [instance] (A B : Type) [HA : decidable_eq A] [HB : decidable_eq B] :
+    decidable_eq (A ⊎ B) :=
+  begin
+    intro v v', induction v with a b: induction v' with a' b',
+    { cases HA a a' with p np,
+      { exact decidable.inl (ap sum.inl p) },
+      { apply decidable.inr, intro p,  apply np, exact down (sum.encode p) }},
+    { apply decidable.inr, intro p, cases p },
+    { apply decidable.inr, intro p, cases p },
+    { cases HB b b' with p np,
+      { exact decidable.inl (ap sum.inr p) },
+      { apply decidable.inr, intro p, apply np, exact down (sum.encode p) }},
+  end
+
 end decidable
 
 attribute sum.is_trunc_sum [instance] [priority 1480]
 
-definition tsum [constructor] {n : trunc_index} (A B : (n.+2)-Type) : (n.+2)-Type :=
+definition tsum [constructor] {n : ℕ₋₂} (A B : (n.+2)-Type) : (n.+2)-Type :=
 trunctype.mk (A + B) _
 
 infixr `+t`:25 := tsum

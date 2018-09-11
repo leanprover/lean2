@@ -10,7 +10,7 @@ Some lemmas are commented out, their proofs need to be repaired when needed
 
 import .pointed .nat .pi
 
-open eq lift nat is_trunc pi pointed sum function prod option sigma algebra
+open eq lift nat is_trunc pi pointed sum function prod option sigma algebra prod.ops unit sigma.ops
 
 inductive list (T : Type) : Type :=
 | nil {} : list T
@@ -19,11 +19,12 @@ inductive list (T : Type) : Type :=
 definition pointed_list [instance] (A : Type) : pointed (list A) :=
 pointed.mk list.nil
 
+universe variable u
+
 namespace list
 notation h :: t  := cons h t
 notation `[` l:(foldr `, ` (h t, cons h t) nil `]`) := l
 
-universe variable u
 variable {T : Type.{u}}
 
 lemma cons_ne_nil (a : T) (l : list T) : a::l ≠ [] :=
@@ -744,7 +745,7 @@ attribute list.has_decidable_eq [instance]
 
 namespace list
 
-variables {A B C : Type}
+variables {A B C X : Type}
 /- map -/
 definition map (f : A → B) : list A → list B
 | []       := []
@@ -923,5 +924,95 @@ theorem foldl_append (f : B → A → B) : Π (b : B) (l₁ l₂ : list A), fold
 theorem foldr_append (f : A → B → B) : Π (b : B) (l₁ l₂ : list A), foldr f b (l₁++l₂) = foldr f (foldr f b l₂) l₁
 | b []      l₂ := rfl
 | b (a::l₁) l₂ := by rewrite [append_cons, *foldr_cons, foldr_append]
+
+definition foldl_homotopy {f g : A → B → A} (h : f ~2 g) (a : A) : foldl f a ~ foldl g a :=
+begin
+  intro bs, revert a, induction bs with b bs p: intro a, reflexivity, esimp [foldl],
+  exact p (f a b) ⬝ ap010 (foldl g) (h a b) bs
+end
+
+definition cons_eq_cons {x x' : X} {l l' : list X} (p : x::l = x'::l') : x = x' × l = l' :=
+begin
+  refine lift.down (list.no_confusion p _), intro q r, split, exact q, exact r
+end
+
+definition concat_neq_nil (x : X) (l : list X) : concat x l ≠ nil :=
+begin
+  intro p, cases l: cases p,
+end
+
+definition concat_eq_singleton {x x' : X} {l : list X} (p : concat x l = [x']) :
+  x = x' × l = [] :=
+begin
+  cases l with x₂ l,
+  { cases cons_eq_cons p with q r, subst q, split: reflexivity },
+  { exfalso, esimp [concat] at p, apply concat_neq_nil x l, revert p, generalize (concat x l),
+    intro l' p, cases cons_eq_cons p with q r, exact r }
+end
+
+definition foldr_concat (f : A → B → B) (b : B) (a : A) (l : list A) :
+  foldr f b (concat a l) = foldr f (f a b) l :=
+begin
+  induction l with a' l p, reflexivity, rewrite [concat_cons, foldr_cons, p]
+end
+
+definition iterated_prod (X : Type.{u}) (n : ℕ) : Type.{u} :=
+iterate (prod X) n (lift unit)
+
+definition is_trunc_iterated_prod {k : ℕ₋₂} {X : Type} {n : ℕ} (H : is_trunc k X) :
+  is_trunc k (iterated_prod X n) :=
+begin
+  induction n with n IH,
+  { apply is_trunc_of_is_contr, apply is_trunc_lift },
+  { exact @is_trunc_prod _ _ _ H IH }
+end
+
+definition list_of_iterated_prod {n : ℕ} (x : iterated_prod X n) : list X :=
+begin
+  induction n with n IH,
+  { exact [] },
+  { exact x.1::IH x.2 }
+end
+
+definition list_of_iterated_prod_succ {n : ℕ} (x : X) (xs : iterated_prod X n) :
+  @list_of_iterated_prod X (succ n) (x, xs) = x::list_of_iterated_prod xs :=
+by reflexivity
+
+definition iterated_prod_of_list (l : list X) : Σn, iterated_prod X n :=
+begin
+  induction l with x l IH,
+  { exact ⟨0, up ⋆⟩ },
+  { exact ⟨succ IH.1, (x, IH.2)⟩ }
+end
+
+definition iterated_prod_of_list_cons (x : X) (l : list X) :
+  iterated_prod_of_list (x::l) =
+  ⟨succ (iterated_prod_of_list l).1, (x, (iterated_prod_of_list l).2)⟩ :=
+by reflexivity
+
+protected definition sigma_char [constructor] (X : Type) : list X ≃ Σ(n : ℕ), iterated_prod X n :=
+begin
+  apply equiv.MK iterated_prod_of_list (λv, list_of_iterated_prod v.2),
+  { intro x, induction x with n x, esimp, induction n with n IH,
+    { induction x with x, induction x, reflexivity },
+    { revert x, change Π(x : X × iterated_prod X n), _, intro xs, cases xs with x xs,
+      rewrite [list_of_iterated_prod_succ, iterated_prod_of_list_cons],
+      apply sigma_eq (ap succ (IH xs)..1),
+      apply pathover_ap, refine prod_pathover _ _ _ _ (IH xs)..2,
+      apply pathover_of_eq, reflexivity }},
+  { intro l, induction l with x l IH,
+    { reflexivity },
+    { exact ap011 cons idp IH }}
+end
+
+local attribute [instance] is_trunc_iterated_prod
+definition is_trunc_list [instance] {n : ℕ₋₂} {X : Type} (H : is_trunc (n.+2) X) :
+  is_trunc (n.+2) (list X) :=
+begin
+  assert H : is_trunc (n.+2) (Σ(k : ℕ), iterated_prod X k),
+  { apply is_trunc_sigma, refine is_trunc_succ_succ_of_is_set _ _ _,
+    intro, exact is_trunc_iterated_prod H },
+  apply is_trunc_equiv_closed_rev _ (list.sigma_char X) _,
+end
 
 end list

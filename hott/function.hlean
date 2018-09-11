@@ -42,6 +42,9 @@ structure is_constant [class] (f : A → B) :=
   (pt : B)
   (eq : Π(a : A), f a = pt)
 
+definition merely_constant {A B : Type} (f : A → B) : Type :=
+Σb, Πa, merely (f a = b)
+
 structure is_conditionally_constant [class] (f : A → B) :=
   (g : ∥A∥ → B)
   (eq : Π(a : A), f a = g (tr a))
@@ -170,6 +173,14 @@ namespace function
     induction H c with a p,
     exact tr (fiber.mk (f a) p)
   end
+
+  definition is_contr_of_is_surjective (f : A → B) (H : is_surjective f) (HA : is_contr A)
+    (HB : is_set B) : is_contr B :=
+  is_contr.mk (f !center) begin intro b, induction H b, exact ap f !is_prop.elim ⬝ p end
+
+  definition is_surjective_of_is_contr [constructor] (f : A → B) (a : A) (H : is_contr B) :
+    is_surjective f :=
+  λb, image.mk a !eq_of_is_contr
 
   definition is_weakly_constant_ap [instance] [H : is_weakly_constant f] (a a' : A) :
     is_weakly_constant (ap f : a = a' → f a = f a') :=
@@ -359,6 +370,20 @@ namespace function
     is_surjective f' :=
   is_surjective_homotopy_closed p⁻¹ʰᵗʸ H
 
+  definition is_surjective_factor {g : B → C} (f : A → B) (h : A → C) (H : g ∘ f ~ h) :
+    is_surjective h → is_surjective g :=
+  begin
+    induction H using homotopy.rec_on_idp,
+    intro S,
+    intro c,
+    note p := S c,
+    induction p,
+    apply tr,
+    fapply fiber.mk,
+    exact f a,
+    exact p
+  end
+
   definition is_equiv_ap1_gen_of_is_embedding {A B : Type} (f : A → B) [is_embedding f]
     {a a' : A} {b b' : B} (q : f a = b) (q' : f a' = b') : is_equiv (ap1_gen f q q') :=
   begin
@@ -381,6 +406,32 @@ namespace function
     exact !loopn_succ_in ⬝e*
       loopn_pequiv_loopn n (loop_pequiv_loop_of_is_embedding f) ⬝e*
       !loopn_succ_in⁻¹ᵉ*
+  end
+
+  definition is_contr_of_is_embedding (f : A → B) (H : is_embedding f) (HB : is_prop B)
+    (a₀ : A) : is_contr A :=
+  is_contr.mk a₀ (λa, is_injective_of_is_embedding (is_prop.elim (f a₀) (f a)))
+
+  definition is_embedding_of_square {A B C D : Type} {f : A → B} {g : C → D} (h : A ≃ C)
+    (k : B ≃ D) (s : k ∘ f ~ g ∘ h) (Hf : is_embedding f) : is_embedding g :=
+  begin
+    apply is_embedding_homotopy_closed, exact inv_homotopy_of_homotopy_pre _ _ _ s,
+    apply is_embedding_compose, apply is_embedding_compose,
+    apply is_embedding_of_is_equiv, exact Hf, apply is_embedding_of_is_equiv
+  end
+
+  definition is_embedding_of_square_rev {A B C D : Type} {f : A → B} {g : C → D} (h : A ≃ C)
+    (k : B ≃ D) (s : k ∘ f ~ g ∘ h) (Hg : is_embedding g) : is_embedding f :=
+  is_embedding_of_square h⁻¹ᵉ k⁻¹ᵉ s⁻¹ʰᵗʸᵛ Hg
+
+  definition is_embedding_factor [is_set A] [is_set B] (g : B → C) (h : A → C) (H : g ∘ f ~ h) :
+    is_embedding h → is_embedding f :=
+  begin
+    induction H using homotopy.rec_on_idp,
+    intro E,
+    fapply is_embedding_of_is_injective,
+    intro x y p,
+    fapply @is_injective_of_is_embedding _ _ _ E _ _ (ap g p)
   end
 
   /-

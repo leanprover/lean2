@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2017 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Floris van Doorn
+Authors: Floris van Doorn, Yuri Sulyma
 
 More results about pointed types.
 
@@ -15,7 +15,7 @@ Contains
 
 import eq2 .unit
 
-open pointed eq unit is_trunc trunc nat is_equiv equiv sigma function bool sigma.ops
+open pointed eq unit is_trunc trunc nat is_equiv equiv sigma function bool sigma.ops fiber
 
 namespace pointed
   variables {A B C : Type*} {P : A → Type} {p₀ : P pt} {k k' l m n : ppi P p₀}
@@ -757,6 +757,24 @@ namespace pointed
     ap (ap1_gen g idp idp) (ap1_gen_const b p) =
     ap1_gen_const (g b) p :=
   begin induction p, reflexivity end
+
+  definition ap1_phomotopy_symm {A B : Type*} {f g : A →* B} (p : f ~* g) : (Ω⇒ p)⁻¹* = Ω⇒ (p⁻¹*) :=
+  begin
+    induction p using phomotopy_rec_idp,
+    rewrite ap1_phomotopy_refl,
+    xrewrite [+refl_symm],
+    rewrite ap1_phomotopy_refl
+  end
+
+  definition ap1_phomotopy_trans {A B : Type*} {f g h : A →* B} (q : g ~* h) (p : f ~* g) :
+    Ω⇒ (p ⬝* q) = Ω⇒ p ⬝* Ω⇒ q :=
+  begin
+    induction p using phomotopy_rec_idp,
+    induction q using phomotopy_rec_idp,
+    rewrite trans_refl,
+    rewrite [+ap1_phomotopy_refl],
+    rewrite trans_refl
+  end
 
   definition ap1_pcompose_pconst_left {A B C : Type*} (f : A →* B) :
     phsquare (ap1_pcompose (pconst B C) f)

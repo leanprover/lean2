@@ -326,5 +326,23 @@ namespace paths
     { exact v_0 ⬝ v_1}
   end
 
+  inductive all (T : Π⦃a₁ a₂ : A⦄, R a₁ a₂ → Type) : Π⦃a₁ a₂ : A⦄, paths R a₁ a₂ → Type :=
+  | nil {} : Π{a : A}, all T (@nil A R a)
+  | cons   : Π{a₁ a₂ a₃ : A} {r : R a₂ a₃} {p : paths R a₁ a₂}, T r → all T p → all T (cons r p)
+
+  inductive Exists (T : Π⦃a₁ a₂ : A⦄, R a₁ a₂ → Type) : Π⦃a₁ a₂ : A⦄, paths R a₁ a₂ → Type :=
+  | base : Π{a₁ a₂ a₃ : A} {r : R a₂ a₃} (p : paths R a₁ a₂), T r → Exists T (cons r p)
+  | cons : Π{a₁ a₂ a₃ : A} (r : R a₂ a₃) {p : paths R a₁ a₂}, Exists T p → Exists T (cons r p)
+
+  inductive mem (l : R a₃ a₄) : Π⦃a₁ a₂ : A⦄, paths R a₁ a₂ → Type :=
+  | base : Π{a₂ : A} (p : paths R a₂ a₃), mem l (cons l p)
+  | cons : Π{a₁ a₂ a₃ : A} (r : R a₂ a₃) {p : paths R a₁ a₂}, mem l p → mem l (cons r p)
+
+  definition len (p : paths R a₁ a₂) : ℕ :=
+  begin
+    induction p with a a₁ a₂ a₃ r p IH,
+    { exact 0 },
+    { exact nat.succ IH }
+  end
 
 end paths

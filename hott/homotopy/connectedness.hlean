@@ -27,6 +27,13 @@ namespace is_conn
     exact is_contr_equiv_closed (trunc_equiv_trunc n H) C,
   end
 
+  definition is_conn_equiv_closed_rev (n : ℕ₋₂) {A B : Type} (f : A ≃ B) (H : is_conn n B) :
+    is_conn n A :=
+  is_conn_equiv_closed n f⁻¹ᵉ _
+
+  definition is_conn_of_eq {n m : ℕ₋₂} (p : n = m) {A : Type} (H : is_conn n A) : is_conn m A :=
+  transport (λk, is_conn k A) p H
+
   theorem is_conn_of_le (A : Type) {n k : ℕ₋₂} (H : n ≤ k) [is_conn k A] : is_conn n A :=
   is_contr_equiv_closed (trunc_trunc_equiv_left _ H) _
 
@@ -256,6 +263,7 @@ namespace is_conn
   @retract_of_conn_is_conn _ _
     (arrow.arrow_hom_of_homotopy p) (arrow.is_retraction_arrow_hom_of_homotopy p) n H
 
+  /- introduction rules for connectedness -/
   -- all types are -2-connected
   definition is_conn_minus_two (A : Type) : is_conn -2 A :=
   _
@@ -267,6 +275,26 @@ namespace is_conn
   definition is_conn_minus_one_pointed [instance] (A : Type*) : is_conn -1 A :=
   is_conn_minus_one A (tr pt)
 
+  definition is_conn_succ_intro {n : ℕ₋₂} {A : Type} (a : trunc (n.+1) A)
+    (H2 : Π(a a' : A), is_conn n (a = a')) : is_conn (n.+1) A :=
+  begin
+    refine is_contr_of_inhabited_prop _ _,
+    { exact a },
+    { apply is_trunc_succ_intro,
+      refine trunc.rec _, intro a, refine trunc.rec _, intro a',
+      exact is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ _ }
+  end
+
+  definition is_conn_zero {A : Type} (a₀ : trunc 0 A) (p : Πa a' : A, ∥ a = a' ∥) : is_conn 0 A :=
+  is_conn_succ_intro a₀ (λa a', is_conn_minus_one _ (p a a'))
+
+  definition is_conn_zero_pointed {A : Type*} (p : Πa a' : A, ∥ a = a' ∥) : is_conn 0 A :=
+  is_conn_zero (tr pt) p
+
+  definition is_conn_zero_pointed' {A : Type*} (p : Πa : A, ∥ a = pt ∥) : is_conn 0 A :=
+  is_conn_zero_pointed (λa a', tconcat (p a) (tinverse (p a')))
+
+  /- connectedness of certain types -/
   definition is_conn_trunc [instance] (A : Type) (n k : ℕ₋₂) [H : is_conn n A]
     : is_conn n (trunc k A) :=
   is_contr_equiv_closed !trunc_trunc_equiv_trunc_trunc _
@@ -283,14 +311,70 @@ namespace is_conn
     : is_conn n (ptrunc k A) :=
   is_conn_trunc A n k
 
-  -- the following trivial cases are solved by type class inference
+  definition is_conn_pathover (n : ℕ₋₂) {A : Type} {B : A → Type} {a a' : A} (p : a = a') (b : B a)
+    (b' : B a') [is_conn (n.+1) (B a')] : is_conn n (b =[p] b') :=
+  is_conn_equiv_closed_rev n !pathover_equiv_tr_eq _
+
+  open sigma
+  lemma is_conn_sigma [instance] {A : Type} (B : A → Type) (n : ℕ₋₂)
+    [HA : is_conn n A] [HB : Πa, is_conn n (B a)] : is_conn n (Σa, B a) :=
+  begin
+    revert A B HA HB, induction n with n IH: intro A B HA HB,
+    { apply is_conn_minus_two },
+    apply is_conn_succ_intro,
+    { induction center (trunc (n.+1) A) with a, induction center (trunc (n.+1) (B a)) with b,
+      exact tr ⟨a, b⟩ },
+    intro a a', refine is_conn_equiv_closed_rev n !sigma_eq_equiv _,
+    apply IH, apply is_conn_eq, intro p, apply is_conn_pathover
+    /- an alternative proof of the successor case -/
+    -- induction center (trunc (n.+1) A) with a₀,
+    -- induction center (trunc (n.+1) (B a₀)) with b₀,
+    -- apply is_contr.mk (tr ⟨a₀, b₀⟩),
+    -- intro ab, induction ab with ab, induction ab with a b,
+    -- induction tr_eq_tr_equiv n a₀ a !is_prop.elim with p, induction p,
+    -- induction tr_eq_tr_equiv n b₀ b !is_prop.elim with q, induction q,
+    -- reflexivity
+  end
+
+  lemma is_conn_prod [instance] (A B : Type) (n : ℕ₋₂) [is_conn n A] [is_conn n B] :
+    is_conn n (A × B) :=
+  is_conn_equiv_closed n !sigma.equiv_prod _
+
+  lemma is_conn_fun_of_is_conn {A B : Type} (n : ℕ₋₂) (f : A → B)
+    [HA : is_conn n A] [HB : is_conn (n.+1) B] : is_conn_fun n f :=
+  λb, is_conn_equiv_closed_rev n !fiber.sigma_char _
+
+  definition is_conn_fiber_of_is_conn (n : ℕ₋₂) {A B : Type} (f : A → B) (b : B) [is_conn n A]
+    [is_conn (n.+1) B] : is_conn n (fiber f b) :=
+  is_conn_fun_of_is_conn n f b
+
+  lemma is_conn_pfiber_of_is_conn {A B : Type*} (n : ℕ₋₂) (f : A →* B)
+    [HA : is_conn n A] [HB : is_conn (n.+1) B] : is_conn n (pfiber f) :=
+  is_conn_fun_of_is_conn n f pt
+
   definition is_conn_of_is_contr (k : ℕ₋₂) (A : Type) [is_contr A] : is_conn k A := _
+
+  definition is_conn_succ_of_is_conn_loop {n : ℕ₋₂} {A : Type*}
+    (H : is_conn 0 A) (H2 : is_conn n (Ω A)) : is_conn (n.+1) A :=
+  begin
+    apply is_conn_succ_intro, exact tr pt,
+    intros a a',
+    induction merely_of_minus_one_conn (is_conn_eq -1 a a') with p, induction p,
+    induction merely_of_minus_one_conn (is_conn_eq -1 pt a) with p, induction p,
+    exact H2
+  end
+
+  /- connected functions -/
   definition is_conn_fun_of_is_equiv (k : ℕ₋₂) {A B : Type} (f : A → B) [is_equiv f] :
     is_conn_fun k f :=
   _
 
   definition is_conn_fun_id (k : ℕ₋₂) (A : Type) : is_conn_fun k (@id A) :=
   λa, _
+
+  definition is_conn_fun_compose (k : ℕ₋₂) {A B C : Type} {g : B → C} {f : A → B}
+    (Hg : is_conn_fun k g) (Hf : is_conn_fun k f) : is_conn_fun k (g ∘ f) :=
+  λc, is_conn_equiv_closed_rev k (fiber_compose_equiv g f c) _
 
   -- Lemma 7.5.14
   theorem is_equiv_trunc_functor_of_is_conn_fun [instance] {A B : Type} (n : ℕ₋₂) (f : A → B)
@@ -303,9 +387,13 @@ namespace is_conn
     { intro a, induction a with a, esimp, rewrite [center_eq (tr (fiber.mk a idp))]}
   end
 
-  theorem trunc_equiv_trunc_of_is_conn_fun {A B : Type} (n : ℕ₋₂) (f : A → B)
+  definition trunc_equiv_trunc_of_is_conn_fun {A B : Type} (n : ℕ₋₂) (f : A → B)
     [H : is_conn_fun n f] : trunc n A ≃ trunc n B :=
   equiv.mk (trunc_functor n f) (is_equiv_trunc_functor_of_is_conn_fun n f)
+
+  definition ptrunc_pequiv_ptrunc_of_is_conn_fun {A B : Type*} (n : ℕ₋₂) (f : A →* B)
+    [H : is_conn_fun n f] : ptrunc n A ≃* ptrunc n B :=
+  pequiv_of_pmap (ptrunc_functor n f) (is_equiv_trunc_functor_of_is_conn_fun n f)
 
   definition is_conn_fun_trunc_functor_of_le {n k : ℕ₋₂} {A B : Type} (f : A → B) (H : k ≤ n)
     [H2 : is_conn_fun k f] : is_conn_fun k (trunc_functor n f) :=
@@ -361,57 +449,6 @@ namespace is_conn
     cases n with n, { have -1 ≤ of_nat 0, from dec_star, apply is_conn_of_le A this},
     rewrite -of_nat_add_two, exact _
   end
-
-  definition is_conn_equiv_closed_rev (n : ℕ₋₂) {A B : Type} (f : A ≃ B) (H : is_conn n B) :
-    is_conn n A :=
-  is_conn_equiv_closed n f⁻¹ᵉ _
-
-  definition is_conn_succ_intro {n : ℕ₋₂} {A : Type} (a : trunc (n.+1) A)
-    (H2 : Π(a a' : A), is_conn n (a = a')) : is_conn (n.+1) A :=
-  begin
-    refine is_contr_of_inhabited_prop _ _,
-    { exact a },
-    { apply is_trunc_succ_intro,
-      refine trunc.rec _, intro a, refine trunc.rec _, intro a',
-      exact is_contr_equiv_closed !tr_eq_tr_equiv⁻¹ᵉ _ }
-  end
-
-  definition is_conn_pathover (n : ℕ₋₂) {A : Type} {B : A → Type} {a a' : A} (p : a = a') (b : B a)
-    (b' : B a') [is_conn (n.+1) (B a')] : is_conn n (b =[p] b') :=
-  is_conn_equiv_closed_rev n !pathover_equiv_tr_eq _
-
-  open sigma
-  lemma is_conn_sigma [instance] {A : Type} (B : A → Type) (n : ℕ₋₂)
-    [HA : is_conn n A] [HB : Πa, is_conn n (B a)] : is_conn n (Σa, B a) :=
-  begin
-    revert A B HA HB, induction n with n IH: intro A B HA HB,
-    { apply is_conn_minus_two },
-    apply is_conn_succ_intro,
-    { induction center (trunc (n.+1) A) with a, induction center (trunc (n.+1) (B a)) with b,
-      exact tr ⟨a, b⟩ },
-    intro a a', refine is_conn_equiv_closed_rev n !sigma_eq_equiv _,
-    apply IH, apply is_conn_eq, intro p, apply is_conn_pathover
-    /- an alternative proof of the successor case -/
-    -- induction center (trunc (n.+1) A) with a₀,
-    -- induction center (trunc (n.+1) (B a₀)) with b₀,
-    -- apply is_contr.mk (tr ⟨a₀, b₀⟩),
-    -- intro ab, induction ab with ab, induction ab with a b,
-    -- induction tr_eq_tr_equiv n a₀ a !is_prop.elim with p, induction p,
-    -- induction tr_eq_tr_equiv n b₀ b !is_prop.elim with q, induction q,
-    -- reflexivity
-  end
-
-  lemma is_conn_prod [instance] (A B : Type) (n : ℕ₋₂) [is_conn n A] [is_conn n B] :
-    is_conn n (A × B) :=
-  is_conn_equiv_closed n !sigma.equiv_prod _
-
-  lemma is_conn_fun_of_is_conn {A B : Type} (n : ℕ₋₂) (f : A → B)
-    [HA : is_conn n A] [HB : is_conn (n.+1) B] : is_conn_fun n f :=
-  λb, is_conn_equiv_closed_rev n !fiber.sigma_char _
-
-  lemma is_conn_pfiber {A B : Type*} (n : ℕ₋₂) (f : A →* B)
-    [HA : is_conn n A] [HB : is_conn (n.+1) B] : is_conn n (pfiber f) :=
-  is_conn_fun_of_is_conn n f pt
 
   definition is_conn_fun_trunc_elim_of_le {n k : ℕ₋₂} {A B : Type} [is_trunc n B] (f : A → B)
     (H : k ≤ n) [H2 : is_conn_fun k f] : is_conn_fun k (trunc.elim f : trunc n A → B) :=
@@ -545,12 +582,173 @@ section
   definition is_trunc_ptruncconntype [instance] {n k : ℕ₋₂} (X : n-Type*[k]) :
     is_trunc n (ptruncconntype._trans_of_to_pconntype X) :=
   trunctype.struct X
-
-  definition ptruncconntype_eq {n k : ℕ₋₂} {X Y : n-Type*[k]} (p : X ≃* Y) : X = Y :=
-  begin
-    induction X with X Xt Xp Xc, induction Y with Y Yt Yp Yc,
-    note q := pType_eq_elim (eq_of_pequiv p),
-    cases q with r s, esimp at *, induction r,
-    exact ap0111 (ptruncconntype.mk X) !is_prop.elim (eq_of_pathover_idp s) !is_prop.elim
-  end
 end
+
+namespace is_conn
+
+open sigma sigma.ops prod prod.ops
+
+definition pconntype.sigma_char [constructor] (k : ℕ₋₂) :
+  Type*[k] ≃ Σ(X : Type*), is_conn k X :=
+equiv.MK (λX, ⟨pconntype.to_pType X, _⟩)
+         (λX, pconntype.mk (carrier X.1) X.2 pt)
+         begin intro X, induction X with X HX, induction X, reflexivity end
+         begin intro X, induction X, reflexivity end
+
+definition is_embedding_pconntype_to_pType (k : ℕ₋₂) : is_embedding (@pconntype.to_pType k) :=
+begin
+  intro X Y, fapply is_equiv_of_equiv_of_homotopy,
+  { exact eq_equiv_fn_eq (pconntype.sigma_char k) _ _ ⬝e subtype_eq_equiv _ _ },
+  intro p, induction p, reflexivity
+end
+
+definition pconntype_eq_equiv {k : ℕ₋₂} (X Y : Type*[k]) : (X = Y) ≃ (X ≃* Y) :=
+equiv.mk _ (is_embedding_pconntype_to_pType k X Y) ⬝e pType_eq_equiv X Y
+
+definition pconntype_eq {k : ℕ₋₂} {X Y : Type*[k]} (e : X ≃* Y) : X = Y :=
+(pconntype_eq_equiv X Y)⁻¹ᵉ e
+
+definition ptruncconntype.sigma_char [constructor] (n k : ℕ₋₂) :
+  n-Type*[k] ≃ Σ(X : Type*), is_trunc n X × is_conn k X :=
+equiv.MK (λX, ⟨ptruncconntype._trans_of_to_pconntype_1 X, (_, _)⟩)
+         (λX, ptruncconntype.mk (carrier X.1) X.2.1 pt X.2.2)
+         begin intro X, induction X with X HX, induction HX, induction X, reflexivity end
+         begin intro X, induction X, reflexivity end
+
+definition ptruncconntype.sigma_char_pconntype [constructor] (n k : ℕ₋₂) :
+  n-Type*[k] ≃ Σ(X : Type*[k]), is_trunc n X :=
+equiv.MK (λX, ⟨ptruncconntype.to_pconntype X, _⟩)
+         (λX, ptruncconntype.mk (pconntype._trans_of_to_pType X.1) X.2 pt _)
+         begin intro X, induction X with X HX, induction HX, induction X, reflexivity end
+         begin intro X, induction X, reflexivity end
+
+definition is_embedding_ptruncconntype_to_pconntype (n k : ℕ₋₂) :
+  is_embedding (@ptruncconntype.to_pconntype n k) :=
+begin
+  intro X Y, fapply is_equiv_of_equiv_of_homotopy,
+  { exact eq_equiv_fn_eq (ptruncconntype.sigma_char_pconntype n k) _ _ ⬝e subtype_eq_equiv _ _ },
+  intro p, induction p, reflexivity
+end
+
+definition ptruncconntype_eq_equiv {n k : ℕ₋₂} (X Y : n-Type*[k]) : (X = Y) ≃ (X ≃* Y) :=
+equiv.mk _ (is_embedding_ptruncconntype_to_pconntype n k X Y) ⬝e pconntype_eq_equiv X Y
+
+definition ptruncconntype_eq {n k : ℕ₋₂} {X Y : n-Type*[k]} (e : X ≃* Y) : X = Y :=
+(ptruncconntype_eq_equiv X Y)⁻¹ᵉ e
+
+definition ptruncconntype_functor [constructor] {n n' k k' : ℕ₋₂} (p : n = n') (q : k = k')
+  (X : n-Type*[k]) : n'-Type*[k'] :=
+ptruncconntype.mk X (is_trunc_of_eq p _) pt (is_conn_of_eq q _)
+
+definition ptruncconntype_equiv [constructor] {n n' k k' : ℕ₋₂} (p : n = n') (q : k = k') :
+  n-Type*[k] ≃ n'-Type*[k'] :=
+equiv.MK (ptruncconntype_functor p q) (ptruncconntype_functor p⁻¹ q⁻¹)
+         (λX, ptruncconntype_eq pequiv.rfl) (λX, ptruncconntype_eq pequiv.rfl)
+
+
+/- the k-connected cover of X, the fiber of the map X → ∥X∥ₖ. -/
+open trunc_index
+
+definition connect (k : ℕ) (X : Type*) : Type* :=
+pfiber (ptr k X)
+
+definition is_conn_connect (k : ℕ) (X : Type*) : is_conn k (connect k X) :=
+is_conn_fun_tr k X (tr pt)
+
+definition connconnect [constructor] (k : ℕ) (X : Type*) : Type*[k]  :=
+pconntype.mk (connect k X) (is_conn_connect k X) pt
+
+definition connect_intro [constructor] {k : ℕ} {X : Type*} {Y : Type*} (H : is_conn k X)
+  (f : X →* Y) : X →* connect k Y :=
+pmap.mk (λx, fiber.mk (f x) (is_conn.elim (k.-1) _ (ap tr (respect_pt f)) x))
+  begin
+    fapply fiber_eq, exact respect_pt f, apply is_conn.elim_β
+  end
+
+definition ppoint_connect_intro [constructor] {k : ℕ} {X : Type*} {Y : Type*} (H : is_conn k X)
+  (f : X →* Y) : ppoint (ptr k Y) ∘* connect_intro H f ~* f :=
+begin
+  induction f with f f₀, induction Y with Y y₀, esimp at (f,f₀), induction f₀,
+  fapply phomotopy.mk,
+  { intro x, reflexivity },
+  { symmetry, esimp, apply point_fiber_eq }
+end
+
+definition connect_intro_ppoint [constructor] {k : ℕ} {X : Type*} {Y : Type*} (H : is_conn k X)
+  (f : X →* connect k Y) : connect_intro H (ppoint (ptr k Y) ∘* f) ~* f :=
+begin
+  cases f with f f₀,
+  fapply phomotopy.mk,
+  { intro x, fapply fiber_eq, reflexivity,
+    refine @is_conn.elim (k.-1) _ _ _ (λx', !is_trunc_eq) _ x,
+    refine !is_conn.elim_β ⬝ _,
+    refine _ ⬝ !idp_con⁻¹,
+    symmetry, refine _ ⬝ !con_idp, exact fiber_eq_pr2 f₀ },
+  { esimp, refine whisker_left _ !fiber_eq_eta ⬝ !fiber_eq_con ⬝ apd011 fiber_eq !idp_con _, esimp,
+    apply eq_pathover_constant_left,
+    refine whisker_right _ (whisker_right _ (whisker_right _ !is_conn.elim_β)) ⬝pv _,
+    esimp [connect], refine _ ⬝vp !con_idp,
+    apply move_bot_of_left, refine !idp_con ⬝ !con_idp⁻¹ ⬝ph _,
+    refine !con.assoc ⬝ !con.assoc ⬝pv _, apply whisker_tl,
+    note r := eq_bot_of_square (transpose (whisker_left_idp_square (fiber_eq_pr2 f₀))⁻¹ᵛ),
+    refine !con.assoc⁻¹ ⬝ whisker_right _ r⁻¹ ⬝pv _, clear r,
+    apply move_top_of_left,
+    refine whisker_right_idp (ap_con tr idp (ap point f₀))⁻¹ᵖ ⬝pv _,
+    exact (ap_con_idp_left tr (ap point f₀))⁻¹ʰ }
+end
+
+definition connect_intro_equiv [constructor] {k : ℕ} {X : Type*} (Y : Type*) (H : is_conn k X) :
+  (X →* connect k Y) ≃ (X →* Y) :=
+begin
+  fapply equiv.MK,
+  { intro f, exact ppoint (ptr k Y) ∘*  f },
+  { intro g, exact connect_intro H g },
+  { intro g, apply eq_of_phomotopy, exact ppoint_connect_intro H g },
+  { intro f, apply eq_of_phomotopy, exact connect_intro_ppoint H f }
+end
+
+definition connect_intro_pequiv [constructor] {k : ℕ} {X : Type*} (Y : Type*) (H : is_conn k X) :
+  ppmap X (connect k Y) ≃* ppmap X Y :=
+pequiv_of_equiv (connect_intro_equiv Y H) (eq_of_phomotopy !pcompose_pconst)
+
+definition connect_pequiv {k : ℕ} {X : Type*} (H : is_conn k X) : connect k X ≃* X :=
+@pfiber_pequiv_of_is_contr _ _ (ptr k X) H
+
+definition loop_connect (k : ℕ) (X : Type*) : Ω (connect (k+1) X) ≃* connect k (Ω X) :=
+loop_pfiber (ptr (k+1) X) ⬝e*
+pfiber_pequiv_of_square pequiv.rfl (loop_ptrunc_pequiv k X)
+  (phomotopy_of_phomotopy_pinv_left (ap1_ptr k X))
+
+definition loopn_connect (k : ℕ) (X : Type*) : Ω[k+1] (connect k X) ≃* Ω[k+1] X :=
+loopn_pfiber (k+1) (ptr k X) ⬝e*
+@pfiber_pequiv_of_is_contr _ _ _ (@is_contr_loop_of_is_trunc (k+1) _ !is_trunc_trunc)
+
+definition is_conn_of_is_conn_succ_nat (n : ℕ) (A : Type) [is_conn (n+1) A] : is_conn n A :=
+is_conn_of_is_conn_succ n A
+
+definition connect_functor (k : ℕ) {X Y : Type*} (f : X →* Y) : connect k X →* connect k Y :=
+pfiber_functor f (ptrunc_functor k f) (ptr_natural k f)⁻¹*
+
+definition connect_intro_pequiv_natural {k : ℕ} {X X' : Type*} {Y Y' : Type*} (f : X' →* X)
+  (g : Y →* Y') (H : is_conn k X) (H' : is_conn k X') :
+  psquare (connect_intro_pequiv Y H) (connect_intro_pequiv Y' H')
+          (ppcompose_left (connect_functor k g) ∘* ppcompose_right f)
+          (ppcompose_left g ∘* ppcompose_right f) :=
+begin
+  refine _ ⬝v* _, exact connect_intro_pequiv Y H',
+  { fapply phomotopy.mk,
+    { intro h, apply eq_of_phomotopy, apply passoc },
+    { xrewrite [▸*, pcompose_right_eq_of_phomotopy, pcompose_left_eq_of_phomotopy,
+        -+eq_of_phomotopy_trans],
+      apply ap eq_of_phomotopy, apply passoc_pconst_middle }},
+  { fapply phomotopy.mk,
+    { intro h, apply eq_of_phomotopy,
+      refine !passoc⁻¹* ⬝* pwhisker_right h (ppoint_natural _ _ _) ⬝* !passoc },
+    { xrewrite [▸*, +pcompose_left_eq_of_phomotopy, -+eq_of_phomotopy_trans],
+      apply ap eq_of_phomotopy,
+      refine !trans_assoc ⬝ idp ◾** !passoc_pconst_right ⬝ _,
+      refine !trans_assoc ⬝ idp ◾** !pcompose_pconst_phomotopy ⬝ _,
+      apply symm_trans_eq_of_eq_trans, symmetry, apply passoc_pconst_right }}
+end
+
+end is_conn

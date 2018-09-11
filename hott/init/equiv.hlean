@@ -407,6 +407,23 @@ namespace equiv
         ... = df x                                 : by rewrite (apdt df (left_inv f x))
   end
 
+  definition rec_eq_of_equiv {A : Type} {P : A → A → Type} (e : Πa a', a = a' ≃ P a a')
+    {a a' : A} (Q : P a a' → Type) (H : Π(q : a = a'), Q (e a a' q)) :
+    Π(p : P a a'), Q p :=
+  equiv_rect (e a a') Q H
+
+  definition rec_idp_of_equiv {A : Type} {P : A → A → Type} (e : Πa a', a = a' ≃ P a a') {a : A}
+    (r : P a a) (s : e a a idp = r) (Q : Πa', P a a' → Type) (H : Q a r) ⦃a' : A⦄ (p : P a a') :
+    Q a' p :=
+  rec_eq_of_equiv e _ begin intro q, induction q, induction s, exact H end p
+
+  definition rec_idp_of_equiv_idp {A : Type} {P : A → A → Type} (e : Πa a', a = a' ≃ P a a') {a : A}
+    (r : P a a) (s : e a a idp = r) (Q : Πa', P a a' → Type) (H : Q a r) :
+    rec_idp_of_equiv e r s Q H r = H :=
+  begin
+    induction s, refine !is_equiv_rect_comp ⬝ _, reflexivity
+  end
+
   section
 
   variables {A B : Type} (f : A ≃ B) {a : A} {b : B}

@@ -173,6 +173,8 @@ namespace prod
   definition prod_functor [unfold 7] (u : A × B) : A' × B' :=
   (f u.1, g u.2)
 
+  infix ` ×→ `:63 := prod_functor
+
   definition ap_prod_functor (p : u.1 = v.1) (q : u.2 = v.2)
     : ap (prod_functor f g) (prod_eq p q) = prod_eq (ap f p) (ap g q) :=
   by induction u; induction v; esimp at *; induction p; induction q; reflexivity
@@ -213,12 +215,12 @@ namespace prod
   definition prod_equiv_prod [constructor] (f : A ≃ A') (g : B ≃ B') : A × B ≃ A' × B' :=
   equiv.mk (prod_functor f g) _
 
-  -- rename
-  definition prod_equiv_prod_left [constructor] (g : B ≃ B') : A × B ≃ A × B' :=
+  infix ` ×≃ `:63 := prod_equiv_prod
+
+  definition prod_equiv_prod_right [constructor] (g : B ≃ B') : A × B ≃ A × B' :=
   prod_equiv_prod equiv.rfl g
 
-  -- rename
-  definition prod_equiv_prod_right [constructor] (f : A ≃ A') : A × B ≃ A' × B :=
+  definition prod_equiv_prod_left [constructor] (f : A ≃ A') : A × B ≃ A' × B :=
   prod_equiv_prod f equiv.rfl
 
   /- Symmetry -/
@@ -340,5 +342,7 @@ namespace prod
   definition pprod_functor [constructor] {A B C D : Type*} (f : A →* C) (g : B →* D) : A ×* B →* C ×* D :=
   pmap.mk (prod_functor f g) (prod_eq (respect_pt f) (respect_pt g))
 
+  definition pprod_incl1 [constructor] (X Y : Type*) : X →* X ×* Y := pmap.mk (λx, (x, pt)) idp
+  definition pprod_incl2 [constructor] (X Y : Type*) : Y →* X ×* Y := pmap.mk (λy, (pt, y)) idp
 
 end prod

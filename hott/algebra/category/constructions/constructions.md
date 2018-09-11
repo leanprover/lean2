@@ -14,6 +14,7 @@ Common categories and constructions on categories. The following files are in th
   Pushout of categories, pushout of groupoids.
 * [fundamental_groupoid](fundamental_groupoid.hlean) : The fundamental groupoid of a type
 * [rezk](rezk.hlean) : Rezk completion
+* [pullback](pullback.hlean) : Pulling back the structure of a precategory along a map between types. This is not about pullbacks in a 1-category.
 
 Discrete, indiscrete or finite categories:
 
