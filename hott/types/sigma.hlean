@@ -265,7 +265,7 @@ namespace sigma
 
   definition sigma_pathover_equiv_of_is_prop {A : Type} {B : A → Type} (C : Πa, B a → Type)
     {a a' : A} (p : a = a') (x : Σb, C a b) (x' : Σb', C a' b')
-    [Πa b, is_prop (C a b)] : x =[p] x' ≃ x.1 =[p] x'.1 :=
+    (H : Πa b, is_prop (C a b)) : x =[p] x' ≃ x.1 =[p] x'.1 :=
   begin
     fapply equiv.MK,
     { exact pathover_pr1 },
@@ -397,13 +397,13 @@ namespace sigma
              (λa, idp)
              (λu, sigma_eq idp (pathover_idp_of_eq !center_eq))
 
-  definition sigma_equiv_of_is_contr_right [constructor] [H : Π a, is_contr (B a)]
+  definition sigma_equiv_of_is_contr_right [constructor] (B : A → Type) (H : Π a, is_contr (B a))
     : (Σa, B a) ≃ A :=
   equiv.mk pr1 _
 
   /- definition 3.11.9(ii): Dually, summing up over a contractible type does nothing. -/
 
-  definition sigma_equiv_of_is_contr_left [constructor] (B : A → Type) [H : is_contr A]
+  definition sigma_equiv_of_is_contr_left [constructor] (B : A → Type) (H : is_contr A)
     : (Σa, B a) ≃ B (center A) :=
   equiv.MK
     (λu, (center_eq u.1)⁻¹ ▸ u.2)
@@ -484,10 +484,10 @@ namespace sigma
   end
 
   definition sigma_unit_left [constructor] (B : unit → Type) : (Σx, B x) ≃ B star :=
-  !sigma_equiv_of_is_contr_left
+  sigma_equiv_of_is_contr_left B _
 
   definition sigma_unit_right [constructor] (A : Type) : (Σ(a : A), unit) ≃ A :=
-  !sigma_equiv_of_is_contr_right
+  sigma_equiv_of_is_contr_right _ _
 
   definition sigma_sum_left [constructor] (B : A + A' → Type)
     : (Σp, B p) ≃ (Σa, B (inl a)) + (Σa, B (inr a)) :=
@@ -524,13 +524,17 @@ namespace sigma
     : (Σ(b : A) (p : a = b), P b p) ≃ P a idp :=
   calc
     (Σ(b : A) (p : a = b), P b p) ≃ (Σ(v : Σ(b : A), a = b), P v.1 v.2) : sigma_assoc_equiv
-      ... ≃ P a idp : !sigma_equiv_of_is_contr_left
+      ... ≃ P a idp : sigma_equiv_of_is_contr_left _ _
 
   definition sigma_sigma_eq_left {A : Type} (a : A) (P : Π(b : A), b = a → Type)
     : (Σ(b : A) (p : b = a), P b p) ≃ P a idp :=
   calc
     (Σ(b : A) (p : b = a), P b p) ≃ (Σ(v : Σ(b : A), b = a), P v.1 v.2) : sigma_assoc_equiv
-      ... ≃ P a idp : !sigma_equiv_of_is_contr_left
+      ... ≃ P a idp : sigma_equiv_of_is_contr_left _ _
+
+  definition sigma_assoc_equiv_of_is_contr_left [constructor] (C : (Σa, B a) → Type)
+    (H : is_contr (Σa, B a)) : (Σa b, C ⟨a, b⟩) ≃ C (@center _ H) :=
+  sigma_assoc_equiv C ⬝e !sigma_equiv_of_is_contr_left
 
   /- ** Universal mapping properties -/
   /- *** The positive universal property. -/
@@ -604,7 +608,7 @@ namespace sigma
   begin
   revert A B HA HB,
   induction n with n IH,
-  { intro A B HA HB, exact is_contr_equiv_closed_rev !sigma_equiv_of_is_contr_left _ },
+  { intro A B HA HB, exact is_contr_equiv_closed_rev (sigma_equiv_of_is_contr_left _ _) _ },
   { intro A B HA HB, apply is_trunc_succ_intro, intro u v,
     exact is_trunc_equiv_closed_rev n !sigma_eq_equiv (IH _ _ _ _) }
   end

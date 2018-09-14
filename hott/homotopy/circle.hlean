@@ -158,13 +158,25 @@ namespace circle
     (Ploop : Pbase ≃ Pbase) : Type :=
   circle.elim_type Pbase Ploop x
 
-  theorem elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
+  theorem elim_type_loop_fn (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
     transport (circle.elim_type Pbase Ploop) loop = Ploop :=
   by rewrite [tr_eq_cast_ap_fn,↑circle.elim_type,elim_loop];apply cast_ua_fn
 
-  theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
+  theorem elim_type_loop (Pbase : Type) (Ploop : Pbase ≃ Pbase) (x : Pbase) :
+    transport (circle.elim_type Pbase Ploop) loop x = Ploop x :=
+  apd10 (elim_type_loop_fn Pbase Ploop) x
+
+  definition elim_type_loop_pathover (Pbase : Type) (Ploop : Pbase ≃ Pbase) (x : Pbase) :
+    x =[loop; circle.elim_type Pbase Ploop] Ploop x :=
+  pathover_of_tr_eq (elim_type_loop Pbase Ploop x)
+
+  theorem elim_type_loop_inv_fn (Pbase : Type) (Ploop : Pbase ≃ Pbase) :
     transport (circle.elim_type Pbase Ploop) loop⁻¹ = to_inv Ploop :=
-  by rewrite [tr_inv_fn]; apply inv_eq_inv; apply elim_type_loop
+  by rewrite [tr_inv_fn]; apply inv_eq_inv; apply elim_type_loop_fn
+
+  theorem elim_type_loop_inv (Pbase : Type) (Ploop : Pbase ≃ Pbase) (x : Pbase) :
+    transport (circle.elim_type Pbase Ploop) loop⁻¹ x = to_inv Ploop x :=
+  apd10 (elim_type_loop_inv_fn Pbase Ploop) x
 end circle
 
 attribute circle.base1 circle.base2 circle.base [constructor]
@@ -244,10 +256,10 @@ namespace circle
   circle.elim_type_on x ℤ equiv_succ
 
   definition transport_code_loop (a : ℤ) : transport circle.code loop a = succ a :=
-  ap10 !elim_type_loop a
+  !elim_type_loop
 
   definition transport_code_loop_inv (a : ℤ) : transport circle.code loop⁻¹ a = pred a :=
-  ap10 !elim_type_loop_inv a
+  !elim_type_loop_inv
 
   protected definition encode [unfold 2] {x : S¹} (p : base = x) : circle.code x :=
   transport circle.code p (0 : ℤ)

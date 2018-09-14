@@ -168,13 +168,13 @@ namespace fiber
             ... ≃ Σa' (b : B a'), a' = a : sigma_assoc_equiv
             ... ≃ Σa' (p : a' = a), B a' : sigma_equiv_sigma_right (λa', !comm_equiv_nondep)
             ... ≃ Σu, B u.1              : sigma_assoc_equiv
-            ... ≃ B a                    : !sigma_equiv_of_is_contr_left
+            ... ≃ B a                    : sigma_equiv_of_is_contr_left _ _
 
   definition sigma_fiber_equiv (f : A → B) : (Σb, fiber f b) ≃ A :=
   calc
     (Σb, fiber f b) ≃ Σb a, f a = b : sigma_equiv_sigma_right (λb, !fiber.sigma_char)
                 ... ≃ Σa b, f a = b : sigma_comm_equiv
-                ... ≃ A             : sigma_equiv_of_is_contr_right
+                ... ≃ A             : sigma_equiv_of_is_contr_right _ _
 
   definition fiber_compose_equiv {A B C : Type} (g : B → C) (f : A → B) (c : C) :
     fiber (g ∘ f) c ≃ Σ(x : fiber g c), fiber f (point x) :=
@@ -281,9 +281,9 @@ namespace fiber
       ... ≃ fiber (f a) q
             : fiber.sigma_char
 
-  definition fiber_equiv_of_is_contr [constructor] {A B : Type} (f : A → B) (b : B) [is_contr B] :
-    fiber f b ≃ A :=
-  !fiber.sigma_char ⬝e !sigma_equiv_of_is_contr_right
+  definition fiber_equiv_of_is_contr [constructor] {A B : Type} (f : A → B) (b : B)
+    (H : is_contr B) : fiber f b ≃ A :=
+  !fiber.sigma_char ⬝e sigma_equiv_of_is_contr_right _ _
 
   /- the pointed fiber of a pointed map, which is the fiber over the basepoint -/
 
@@ -413,16 +413,16 @@ namespace fiber
     [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (pfiber f) :=
   is_trunc_fiber n f pt
 
-  definition pfiber_pequiv_of_is_contr [constructor] {A B : Type*} (f : A →* B) [is_contr B] :
+  definition pfiber_pequiv_of_is_contr [constructor] {A B : Type*} (f : A →* B) (H : is_contr B) :
     pfiber f ≃* A :=
-  pequiv_of_equiv (fiber_equiv_of_is_contr f pt) idp
+  pequiv_of_equiv (fiber_equiv_of_is_contr f pt H) idp
 
   definition pfiber_ppoint_equiv {A B : Type*} (f : A →* B) : pfiber (ppoint f) ≃ Ω B :=
   calc
     pfiber (ppoint f) ≃ Σ(x : pfiber f), ppoint f x = pt : fiber.sigma_char
       ... ≃ Σ(x : Σa, f a = pt), x.1 = pt : by exact sigma_equiv_sigma !fiber.sigma_char (λa, erfl)
       ... ≃ Σ(x : Σa, a = pt), f x.1 = pt : by exact !sigma_assoc_comm_equiv
-      ... ≃ f pt = pt : by exact !sigma_equiv_of_is_contr_left
+      ... ≃ f pt = pt : by exact sigma_equiv_of_is_contr_left _ _
       ... ≃ Ω B : by exact !equiv_eq_closed_left !respect_pt
 
   definition pfiber_ppoint_pequiv {A B : Type*} (f : A →* B) : pfiber (ppoint f) ≃* Ω B :=

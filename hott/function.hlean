@@ -347,7 +347,7 @@ namespace function
 
   definition is_embedding_pr1 [instance] [constructor] {A : Type} (B : A → Type) [H : Π a, is_prop (B a)]
       : is_embedding (@pr1 A B) :=
-  λv v', to_is_equiv (sigma_eq_equiv v v' ⬝e !sigma_equiv_of_is_contr_right)
+  λv v', to_is_equiv (sigma_eq_equiv v v' ⬝e sigma_equiv_of_is_contr_right _ _)
 
   variables {f f'}
   definition is_embedding_homotopy_closed (p : f ~ f') (H : is_embedding f) : is_embedding f' :=

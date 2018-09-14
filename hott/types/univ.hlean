@@ -110,7 +110,7 @@ namespace univ
       (calc
         A ≃ Σb, fiber f b                      : sigma_fiber_equiv
       ... ≃ Σb (v : ΣX, X = fiber f b), v.1    : sigma_equiv_sigma_right
-                                                   (λb, !sigma_equiv_of_is_contr_left)
+                                                   (λb, sigma_equiv_of_is_contr_left _ _)
       ... ≃ Σb X (p : X = fiber f b), X        : sigma_equiv_sigma_right
                                                    (λb, !sigma_assoc_equiv)
       ... ≃ Σb X (x : X), X = fiber f b        : sigma_equiv_sigma_right
