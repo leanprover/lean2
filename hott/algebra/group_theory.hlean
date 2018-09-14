@@ -433,7 +433,7 @@ namespace group
     by rewrite [↑group_equiv_mul, ↑group_equiv_one, ↑group_equiv_inv,
                 +left_inv f, mul.left_inv]
 
-    definition group_equiv_closed : group B :=
+    definition group_equiv_closed [constructor] : group B :=
     ⦃group,
       mul          := group_equiv_mul,
       mul_assoc    := group_equiv_mul_assoc,
@@ -451,7 +451,7 @@ namespace group
     definition group_equiv_mul_comm (b b' : B) : group_equiv_mul f b b' = group_equiv_mul f b' b :=
     by rewrite [↑group_equiv_mul, mul.comm]
 
-    definition ab_group_equiv_closed : ab_group B :=
+    definition ab_group_equiv_closed [constructor] : ab_group B :=
     ⦃ab_group, group_equiv_closed f,
       mul_comm := group_equiv_mul_comm f⦄
   end

@@ -171,7 +171,7 @@ namespace group
     by rewrite [↑inf_group_equiv_mul, ↑inf_group_equiv_one, ↑inf_group_equiv_inv,
                 +left_inv f, mul.left_inv]
 
-    definition inf_group_equiv_closed : inf_group B :=
+    definition inf_group_equiv_closed [constructor] : inf_group B :=
     ⦃inf_group,
       mul          := inf_group_equiv_mul,
       mul_assoc    := inf_group_equiv_mul_assoc,
@@ -182,6 +182,13 @@ namespace group
       mul_left_inv := inf_group_equiv_mul_left_inv⦄
 
   end
+
+  definition InfGroup_equiv_closed [constructor] (A : InfGroup) {B : Type} (f : A ≃ B) : InfGroup :=
+  InfGroup.mk B (inf_group_equiv_closed f _)
+
+  definition InfGroup_equiv_closed_isomorphism [constructor] (A : InfGroup) {B : Type} (f : A ≃ B) :
+    A ≃∞g InfGroup_equiv_closed A f :=
+  inf_isomorphism_of_equiv f (λa a', ap f (ap011 mul (to_left_inv f a) (to_left_inv f a'))⁻¹)
 
   section
     variables {A B : Type} (f : A ≃ B) (H : ab_inf_group A)
@@ -370,15 +377,15 @@ namespace group
   notation `Ωg→` := gap1
   notation `Ωg→[`:95 n:0 `]`:0 := gapn n
 
-  definition gloop_isomorphism {A B : Type*} (f : A ≃* B) : Ωg A ≃∞g Ωg B :=
+  definition gloop_isomorphism_gloop {A B : Type*} (f : A ≃* B) : Ωg A ≃∞g Ωg B :=
   inf_isomorphism.mk (Ωg→ f) (to_is_equiv (loop_pequiv_loop f))
 
-  definition gloopn_isomorphism (n : ℕ) [H : is_succ n] {A B : Type*} (f : A ≃* B) :
+  definition gloopn_isomorphism_gloopn (n : ℕ) [H : is_succ n] {A B : Type*} (f : A ≃* B) :
     Ωg[n] A ≃∞g Ωg[n] B :=
   inf_isomorphism.mk (Ωg→[n] f) (to_is_equiv (loopn_pequiv_loopn n f))
 
-  notation `Ωg≃` := gloop_isomorphism
-  notation `Ωg≃[`:95 n:0 `]`:0 := gloopn_isomorphism
+  notation `Ωg≃` := gloop_isomorphism_gloop
+  notation `Ωg≃[`:95 n:0 `]`:0 := gloopn_isomorphism_gloopn
 
   definition gloopn_succ_in (n : ℕ) [H : is_succ n] (A : Type*) : Ωg[succ n] A ≃∞g Ωg[n] (Ω A) :=
   inf_isomorphism_of_equiv (loopn_succ_in n A) (by induction H with n; exact loopn_succ_in_con)

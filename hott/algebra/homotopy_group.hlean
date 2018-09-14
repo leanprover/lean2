@@ -203,7 +203,7 @@ namespace eq
   /- todo: use is_succ -/
   definition homotopy_group_isomorphism_of_pequiv [constructor] (n : ℕ) {A B : Type*} (f : A ≃* B)
     : πg[n+1] A ≃g πg[n+1] B :=
-  gtrunc_isomorphism_gtrunc (gloopn_isomorphism (n+1) f)
+  gtrunc_isomorphism_gtrunc (gloopn_isomorphism_gloopn (n+1) f)
 
   definition homotopy_group_add (A : Type*) (n m : ℕ) :
     πg[n+m+1] A ≃g πg[n+1] (Ω[m] A) :=
