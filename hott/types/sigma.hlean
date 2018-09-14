@@ -415,12 +415,16 @@ namespace sigma
 
   --this proof is harder than in Coq because we don't have eta definitionally for sigma
   definition sigma_assoc_equiv [constructor] (C : (Σa, B a) → Type)
-    : (Σa b, C ⟨a, b⟩) ≃ (Σu, C u) :=
+    : (Σu, C u) ≃ (Σa b, C ⟨a, b⟩) :=
   equiv.mk _ (adjointify
+    (λuc, ⟨uc.1.1, uc.1.2, transport C (sigma.eta uc.1)⁻¹ uc.2⟩)
     (λav, ⟨⟨av.1, av.2.1⟩, av.2.2⟩)
-    (λuc, ⟨uc.1.1, uc.1.2, !sigma.eta⁻¹ ▸ uc.2⟩)
-    abstract begin intro uc, induction uc with u c, induction u, reflexivity end end
-    abstract begin intro av, induction av with a v, induction v, reflexivity end end)
+    abstract begin intro av, induction av with a v, induction v, reflexivity end end
+    abstract begin intro uc, induction uc with u c, induction u, reflexivity end end)
+
+  definition sigma_assoc_equiv' [constructor] (C : Πa, B a → Type)
+    : (Σa b, C a b) ≃ (Σu, C u.1 u.2) :=
+  !sigma_assoc_equiv⁻¹ᵉ
 
   open prod prod.ops
   definition assoc_equiv_prod [constructor] (C : (A × A') → Type) : (Σa a', C (a,a')) ≃ (Σu, C u) :=
@@ -429,6 +433,14 @@ namespace sigma
     (λuc, ⟨pr₁ (uc.1), pr₂ (uc.1), !prod.eta⁻¹ ▸ uc.2⟩)
     abstract proof (λuc, destruct uc (λu, prod.destruct u (λa b c, idp))) qed end
     abstract proof (λav, destruct av (λa v, destruct v (λb c, idp))) qed end)
+
+  definition sigma_assoc_equiv_left {A D : Type} {B : A → Type} {E : D → Type} (C : Πa, B a → Type)
+    (f : (Σd, E d) ≃ Σa, B a) : (Σa b, C a b) ≃ Σd e, C (f ⟨d, e⟩).1 (f ⟨d, e⟩).2 :=
+  begin
+    refine !sigma_assoc_equiv' ⬝e _,
+    refine sigma_equiv_sigma_left f⁻¹ᵉ ⬝e _,
+    exact !sigma_assoc_equiv,
+  end
 
   /- Symmetry -/
 
@@ -520,21 +532,31 @@ namespace sigma
     { intro v, induction v with a p, induction p: reflexivity},
   end
 
-  definition sigma_sigma_eq_right {A : Type} (a : A) (P : Π(b : A), a = b → Type)
+  definition sigma_sigma_eq_right (a : A) (P : Π(b : A), a = b → Type)
     : (Σ(b : A) (p : a = b), P b p) ≃ P a idp :=
   calc
     (Σ(b : A) (p : a = b), P b p) ≃ (Σ(v : Σ(b : A), a = b), P v.1 v.2) : sigma_assoc_equiv
       ... ≃ P a idp : sigma_equiv_of_is_contr_left _ _
 
-  definition sigma_sigma_eq_left {A : Type} (a : A) (P : Π(b : A), b = a → Type)
+  definition sigma_sigma_eq_left (a : A) (P : Π(b : A), b = a → Type)
     : (Σ(b : A) (p : b = a), P b p) ≃ P a idp :=
   calc
     (Σ(b : A) (p : b = a), P b p) ≃ (Σ(v : Σ(b : A), b = a), P v.1 v.2) : sigma_assoc_equiv
       ... ≃ P a idp : sigma_equiv_of_is_contr_left _ _
 
-  definition sigma_assoc_equiv_of_is_contr_left [constructor] (C : (Σa, B a) → Type)
+  definition sigma_assoc_equiv_of_is_contr_left (C : (Σa, B a) → Type)
     (H : is_contr (Σa, B a)) : (Σa b, C ⟨a, b⟩) ≃ C (@center _ H) :=
-  sigma_assoc_equiv C ⬝e !sigma_equiv_of_is_contr_left
+  (sigma_assoc_equiv C)⁻¹ᵉ ⬝e !sigma_equiv_of_is_contr_left
+
+  definition sigma_homotopy_constant_equiv {A B : Type} (a₀ : A) (f : A → B) :
+    (Σ(b : B), Πa, f a = b) ≃ Σ(h : Πa, f a = f a₀), h a₀ = idp :=
+  begin
+    transitivity Σ(b : B) (h : Πa, f a = b) (p : f a₀ = b), h a₀ = p,
+    { symmetry, apply sigma_equiv_sigma_right, intro b, apply sigma_equiv_of_is_contr_right,
+      intro h, apply is_trunc.is_contr_sigma_eq },
+    { refine sigma_equiv_sigma_right (λb, !sigma_comm_equiv) ⬝e _,
+      exact sigma_sigma_eq_right _ (λb p, Σ(h : Πa, f a = b), h a₀ = p) }
+  end
 
   /- ** Universal mapping properties -/
   /- *** The positive universal property. -/
