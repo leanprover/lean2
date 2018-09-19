@@ -12,7 +12,7 @@ a^n is used for the first, but users can locally redefine it to gpow when needed
 Note: power adopts the convention that 0^0=1.
 -/
 import types.nat.basic types.int.basic .homomorphism .group_theory
-open algebra
+open algebra eq
 
 namespace algebra
 variables {A B : Type}
@@ -172,7 +172,7 @@ theorem gpow_comm (a : A) (i j : ℤ) : gpow a i * gpow a j = gpow a j * gpow a 
 by rewrite [-*gpow_add, add.comm]
 
 lemma gpow_neg (a : A) : Π(n : ℤ), gpow a (-n) = (gpow a n)⁻¹
-| (of_nat n) := by cases n with n; rewrite [gpow_zero,one_inv]; reflexivity
+| (of_nat n) := begin cases n with n, exact !one_inv⁻¹, reflexivity end
 | -[1+n]     := by rewrite [↑gpow at {2}, inv_inv]
 
 lemma inv_gpow (a : A) : Π(n : ℤ), gpow a⁻¹ n = (gpow a n)⁻¹

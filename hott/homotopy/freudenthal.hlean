@@ -192,7 +192,7 @@ begin
   { exact equiv_of_pequiv (freudenthal_homotopy_group_pequiv H A)},
   { intro g h,
     refine _ ⬝ !homotopy_group_pequiv_loop_ptrunc_inv_con,
-    apply ap !homotopy_group_pequiv_loop_ptrunc⁻¹ᵉ*,
+    refine ap !homotopy_group_pequiv_loop_ptrunc⁻¹ᵉ* _,
     refine ap (loopn_pequiv_loopn _ _) _ ⬝ !loopn_pequiv_loopn_con,
     refine ap !homotopy_group_pequiv_loop_ptrunc _ ⬝ !homotopy_group_pequiv_loop_ptrunc_con,
     apply homotopy_group_succ_in_con}
