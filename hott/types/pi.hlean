@@ -274,7 +274,7 @@ namespace pi
 
   /- Truncatedness: any dependent product of n-types is an n-type -/
 
-  theorem is_trunc_pi (B : A → Type) (n : trunc_index)
+  theorem is_trunc_pi (B : A → Type) (n : ℕ₋₂)
       [H : ∀a, is_trunc n (B a)] : is_trunc n (Πa, B a) :=
   begin
     revert B H,
@@ -291,11 +291,11 @@ namespace pi
       is_trunc_eq n (f a) (g a) }
   end
   local attribute is_trunc_pi [instance]
-  theorem is_trunc_pi_eq (n : trunc_index) (f g : Πa, B a)
+  theorem is_trunc_pi_eq (n : ℕ₋₂) (f g : Πa, B a)
       [H : ∀a, is_trunc n (f a = g a)] : is_trunc n (f = g) :=
   is_trunc_equiv_closed_rev n !eq_equiv_homotopy _
 
-  theorem is_trunc_not [instance] (n : trunc_index) (A : Type) : is_trunc (n.+1) ¬A :=
+  theorem is_trunc_not [instance] (n : ℕ₋₂) (A : Type) : is_trunc (n.+1) ¬A :=
   by unfold not;exact _
 
   theorem is_prop_pi_eq [instance] [priority 490] (a : A) : is_prop (Π(a' : A), a = a') :=

@@ -130,7 +130,7 @@ namespace fiber
   end
 
   definition is_trunc_fiber (n : ℕ₋₂) {A B : Type} (f : A → B) (b : B)
-    [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (fiber f b) :=
+    (HA : is_trunc n A) (HB : is_trunc (n.+1) B) : is_trunc n (fiber f b) :=
   is_trunc_equiv_closed_rev n !fiber.sigma_char _
 
   definition is_contr_fiber_id (A : Type) (a : A) : is_contr (fiber (@id A) a) :=
@@ -404,8 +404,8 @@ namespace fiber
   end
 
   definition is_trunc_pfiber (n : ℕ₋₂) {A B : Type*} (f : A →* B)
-    [is_trunc n A] [is_trunc (n.+1) B] : is_trunc n (pfiber f) :=
-  is_trunc_fiber n f pt
+    (HA : is_trunc n A) (HB : is_trunc (n.+1) B) : is_trunc n (pfiber f) :=
+  is_trunc_fiber n f pt HA HB
 
   definition pfiber_pequiv_of_is_contr [constructor] {A B : Type*} (f : A →* B) (H : is_contr B) :
     pfiber f ≃* A :=
