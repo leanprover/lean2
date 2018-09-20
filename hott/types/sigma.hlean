@@ -218,13 +218,13 @@ namespace sigma
   by induction p; induction bc; reflexivity
 
   /- The special case when the second variable doesn't depend on the first is simpler. -/
-  definition sigma_transport_nondep {B : Type} {C : A → B → Type} (p : a = a')
+  definition sigma_transport_constant {B : Type} {C : A → B → Type} (p : a = a')
     (bc : Σ(b : B), C a b) : p ▸ bc = ⟨bc.1, p ▸ bc.2⟩ :=
   by induction p; induction bc; reflexivity
 
   /- Or if the second variable contains a first component that doesn't depend on the first. -/
 
-  definition sigma_transport2_nondep {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
+  definition sigma_transport2_constant {C : A → Type} {D : Π a:A, B a → C a → Type} (p : a = a')
       (bcd : Σ(b : B a) (c : C a), D a b c) : p ▸ bcd = ⟨p ▸ bcd.1, p ▸ bcd.2.1, p ▸D2 bcd.2.2⟩ :=
   begin
     induction p, induction bcd with b cd, induction cd, reflexivity
@@ -250,7 +250,7 @@ namespace sigma
     induction s using idp_rec_on, apply idpo
   end
 
-  definition sigma_pathover_nondep {B : Type} {C : A → B → Type} (p : a = a')
+  definition sigma_pathover_constant {B : Type} {C : A → B → Type} (p : a = a')
     (u : Σ(b : B), C a b) (v : Σ(b : B), C a' b)
     (r : u.1 = v.1) (s : pathover (λx, C (prod.pr1 x) (prod.pr2 x)) u.2 (prod.prod_eq p r) v.2) : u =[p] v :=
   begin
@@ -462,7 +462,7 @@ namespace sigma
     proof (λp, prod.destruct p (λa b, idp)) qed
     proof (λs, destruct s (λa b, idp)) qed)
 
-  definition comm_equiv_nondep (A B : Type) : (Σ(a : A), B) ≃ Σ(b : B), A :=
+  definition comm_equiv_constant (A B : Type) : (Σ(a : A), B) ≃ Σ(b : B), A :=
   calc
     (Σ(a : A), B) ≃ A × B       : equiv_prod
               ... ≃ B × A       : prod_comm_equiv
@@ -472,7 +472,7 @@ namespace sigma
     : (Σ(v : Σa, B a), C v.1) ≃ (Σ(u : Σa, C a), B u.1) :=
   calc    (Σ(v : Σa, B a), C v.1)
         ≃ (Σa (b : B a), C a)     : sigma_assoc_equiv
-    ... ≃ (Σa (c : C a), B a)     : sigma_equiv_sigma_right (λa, !comm_equiv_nondep)
+    ... ≃ (Σa (c : C a), B a)     : sigma_equiv_sigma_right (λa, !comm_equiv_constant)
     ... ≃ (Σ(u : Σa, C a), B u.1) : sigma_assoc_equiv
 
   /- Interaction with other type constructors -/

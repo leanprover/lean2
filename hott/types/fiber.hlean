@@ -165,9 +165,7 @@ namespace fiber
   definition fiber_pr1 (B : A → Type) (a : A) : fiber (pr1 : (Σa, B a) → A) a ≃ B a :=
   calc
     fiber pr1 a ≃ Σu, u.1 = a            : fiber.sigma_char
-            ... ≃ Σa' (b : B a'), a' = a : sigma_assoc_equiv
-            ... ≃ Σa' (p : a' = a), B a' : sigma_equiv_sigma_right (λa', !comm_equiv_nondep)
-            ... ≃ Σu, B u.1              : sigma_assoc_equiv
+            ... ≃ Σu, B u.1              : sigma_assoc_comm_equiv
             ... ≃ B a                    : sigma_equiv_of_is_contr_left _ _
 
   definition sigma_fiber_equiv (f : A → B) : (Σb, fiber f b) ≃ A :=
@@ -266,12 +264,8 @@ namespace fiber
               apply sigma_equiv_sigma_right, intro x,
               apply sigma_comm_equiv
             end
-      ... ≃ Σ(w : Σx, x = a), Σ(p : P w.1), f w.1 p =[w.2] q
-            : sigma_assoc_equiv
-      ... ≃ Σ(p : P (center (Σx, x=a)).1), f (center (Σx, x=a)).1 p =[(center (Σx, x=a)).2] q
-            : sigma_equiv_of_is_contr_left
       ... ≃ Σ(p : P a), f a p =[idpath a] q
-            : equiv_of_eq idp
+            : sigma_sigma_eq_left
       ... ≃ Σ(p : P a), f a p = q
             :
             begin

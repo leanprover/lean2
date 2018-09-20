@@ -115,7 +115,7 @@ namespace univ
                                                    (λb, !sigma_assoc_equiv)
       ... ≃ Σb X (x : X), X = fiber f b        : sigma_equiv_sigma_right
                                                    (λb, sigma_equiv_sigma_right
-                                                   (λX, !comm_equiv_nondep))
+                                                   (λX, !comm_equiv_constant))
       ... ≃ Σb (v : ΣX, X), v.1 = fiber f b    : sigma_equiv_sigma_right
                                                    (λb, !sigma_assoc_equiv⁻¹ᵉ)
       ... ≃ Σb (Y : Type*), Y = fiber f b      : sigma_equiv_sigma_right
