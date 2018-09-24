@@ -374,8 +374,13 @@ namespace group
   definition gapn (n : ℕ) [H : is_succ n] {A B : Type*} (f : A →* B) : Ωg[n] A →∞g Ωg[n] B :=
   inf_homomorphism.mk (Ω→[n] f) (by induction H with n; exact apn_con n f)
 
+  definition gapn' (n : ℕ) {A B : InfGroup} (f : A →∞g B) : Ωg'[n] A →∞g Ωg'[n] B :=
+  inf_homomorphism.mk (Ω→[n] (pmap_of_inf_homomorphism f))
+    (by cases n with n; exact inf_homomorphism.struct f; exact apn_con n (pmap_of_inf_homomorphism f))
+
   notation `Ωg→` := gap1
   notation `Ωg→[`:95 n:0 `]`:0 := gapn n
+  notation `Ωg'→[`:95 n:0 `]`:0 := gapn' n
 
   definition gloop_isomorphism_gloop {A B : Type*} (f : A ≃* B) : Ωg A ≃∞g Ωg B :=
   inf_isomorphism.mk (Ωg→ f) (to_is_equiv (loop_pequiv_loop f))
