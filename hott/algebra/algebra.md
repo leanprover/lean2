@@ -16,7 +16,7 @@ The following files are [ported](../port.md) from the standard library. If anyth
 * [ordered_field](ordered_field.hlean)
 * [bundled](bundled.hlean) : bundled versions of the algebraic structures
 * [homomorphism](homomorphism.hlean)
-* [group_power](group_power.lean) (depends on files in [nat](../types/nat/nat.md) and [int](../types/int/int.md))
+* [group_power](group_power.hlean) (depends on files in [nat](../types/nat/nat.md) and [int](../types/int/int.md))
 
 Files which are not ported from the standard library:
 
