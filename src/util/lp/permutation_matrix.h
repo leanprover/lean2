@@ -123,7 +123,7 @@ namespace lean {
 
         unsigned size() const { return static_cast<unsigned>(m_rev.size()); }
 
-        unsigned * values() const { return m_permutation; }
+        const unsigned * values() const { return &m_permutation[0]; }
     }; // end of the permutation class
 
 #ifdef LEAN_DEBUG
